@@ -1,3 +1,5 @@
+import { queryClient } from "./queryClient";
+
 interface User {
   id: number;
   name: string;
@@ -50,8 +52,27 @@ class AuthManager {
   }
 
   private clearStorage() {
+    // Clear all auth-related localStorage items
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    // Clear any other auth-related items that might exist
+    localStorage.removeItem('authState');
+    localStorage.removeItem('userSession');
+    
+    // Clear sessionStorage as well
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('authState');
+    sessionStorage.removeItem('userSession');
+    
+    // Clear any cached auth data
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (error) {
+      console.warn('Could not clear storage:', error);
+    }
   }
 
   private notify() {
@@ -83,12 +104,45 @@ class AuthManager {
   }
 
   logout() {
+    // Reset the authentication state
     this.state = {
       user: null,
       token: null,
       isAuthenticated: false,
     };
+    
+    // Clear all storage
     this.clearStorage();
+    
+    // Clear TanStack Query cache
+    queryClient.clear();
+    queryClient.invalidateQueries();
+    queryClient.removeQueries();
+    
+    // Clear any cached queries from TanStack Query
+    if (typeof window !== 'undefined') {
+      try {
+        // Clear browser cache for the current domain
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => {
+              caches.delete(name);
+            });
+          });
+        }
+        
+        // Force page reload after a brief delay to ensure clean state
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 100);
+      } catch (error) {
+        console.warn('Could not clear caches:', error);
+        // Fallback to simple redirect
+        window.location.href = '/';
+      }
+    }
+    
+    // Notify listeners
     this.notify();
   }
 

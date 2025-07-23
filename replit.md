@@ -29,6 +29,7 @@ The application implements a comprehensive authentication system with:
 - **Role-based Access Control**: Supports "user" and "admin" roles with different permissions
 - **Client-side Auth Management**: AuthManager class handles authentication state and persistence
 - **Protected Routes**: Route-level protection based on authentication status and user roles
+- **Secure Logout**: Complete session clearing including localStorage, sessionStorage, browser cache, and TanStack Query cache
 
 ### Database Schema
 

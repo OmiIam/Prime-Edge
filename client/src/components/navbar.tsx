@@ -23,7 +23,7 @@ export default function Navbar({ user }: NavbarProps) {
 
   const handleLogout = () => {
     authManager.logout();
-    setLocation("/");
+    // Note: authManager.logout() now handles the redirect automatically
   };
 
   return (
