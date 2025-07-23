@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 84%, 4.9%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 16%, 46.9%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 84%, 4.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222, 84%, 4.9%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222, 47%, 11%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222, 47%, 11%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(221, 83%, 53%);
+  --radius: 0.5rem;
+  
+  /* Prime Edge Banking Colors */
+  --prime-navy: hsl(222, 47%, 11%);
+  --prime-charcoal: hsl(215, 25%, 19%);
+  --prime-slate: hsl(215, 16%, 27%);
+  --prime-blue: hsl(215, 20%, 35%);
+  --prime-accent: hsl(221, 83%, 53%);
+  --prime-success: hsl(142, 76%, 36%);
+  --prime-warning: hsl(45, 93%, 47%);
+  --prime-error: hsl(0, 84%, 60%);
+}
+
+.dark {
+  --background: hsl(222, 47%, 11%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(215, 25%, 19%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(215, 25%, 19%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(215, 25%, 19%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(215, 16%, 27%);
+  --input: hsl(215, 16%, 27%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(215, 16%, 27%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(215, 16%, 27%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(215, 20%, 65%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-prime-navy {
+    background-color: var(--prime-navy);
+  }
+  
+  .bg-prime-charcoal {
+    background-color: var(--prime-charcoal);
+  }
+  
+  .bg-prime-slate {
+    background-color: var(--prime-slate);
+  }
+  
+  .bg-prime-accent {
+    background-color: var(--prime-accent);
+  }
+  
+  .text-prime-accent {
+    color: var(--prime-accent);
+  }
+  
+  .text-prime-success {
+    color: var(--prime-success);
+  }
+  
+  .text-prime-warning {
+    color: var(--prime-warning);
+  }
+  
+  .text-prime-error {
+    color: var(--prime-error);
+  }
+  
+  .border-prime-slate {
+    border-color: var(--prime-slate);
+  }
+  
+  .gradient-prime {
+    background: linear-gradient(135deg, var(--prime-navy) 0%, var(--prime-charcoal) 100%);
+  }
+  
+  .gradient-card {
+    background: linear-gradient(135deg, var(--prime-charcoal) 0%, var(--prime-slate) 100%);
+  }
+}
