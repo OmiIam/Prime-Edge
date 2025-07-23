@@ -9,7 +9,10 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   role: text("role").notNull().default("user"), // "user" or "admin"
   balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("0.00"),
+  accountNumber: text("account_number").notNull(),
+  accountType: text("account_type").notNull().default("checking"), // "checking", "savings", "business"
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastLogin: timestamp("last_login"),
 });
 
 export const transactions = pgTable("transactions", {
@@ -18,6 +21,8 @@ export const transactions = pgTable("transactions", {
   type: text("type").notNull(), // "credit" or "debit"
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
   description: text("description").notNull(),
+  reference: text("reference"), // Transaction reference number
+  status: text("status").notNull().default("completed"), // "pending", "completed", "failed"
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -52,9 +57,26 @@ export const fundManagementSchema = z.object({
   description: z.string().min(1),
 });
 
+export const editUserSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  role: z.enum(["user", "admin"]),
+  accountType: z.enum(["checking", "savings", "business"]),
+});
+
+export const manualTransactionSchema = z.object({
+  userId: z.number(),
+  type: z.enum(["credit", "debit"]),
+  amount: z.number().min(0.01),
+  description: z.string().min(1),
+  reference: z.string().optional(),
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type LoginUser = z.infer<typeof loginSchema>;
 export type FundManagement = z.infer<typeof fundManagementSchema>;
+export type EditUser = z.infer<typeof editUserSchema>;
+export type ManualTransaction = z.infer<typeof manualTransactionSchema>;
 export type User = typeof users.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type AdminLog = typeof adminLogs.$inferSelect;

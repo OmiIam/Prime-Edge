@@ -8,15 +8,22 @@ export interface IStorage {
   createUser(user: Omit<InsertUser, 'confirmPassword'>): Promise<User>;
   getAllUsers(): Promise<User[]>;
   updateUserBalance(userId: number, newBalance: string): Promise<void>;
+  updateUser(userId: number, updates: Partial<User>): Promise<void>;
+  updateLastLogin(userId: number): Promise<void>;
   deleteUser(userId: number): Promise<void>;
   
   // Transaction operations
   createTransaction(transaction: Omit<Transaction, 'id' | 'createdAt'>): Promise<Transaction>;
   getUserTransactions(userId: number): Promise<Transaction[]>;
+  getAllTransactions(): Promise<Transaction[]>;
   
   // Admin log operations
   createAdminLog(log: Omit<AdminLog, 'id' | 'createdAt'>): Promise<AdminLog>;
   getAdminLogs(): Promise<AdminLog[]>;
+  
+  // Statistics
+  getDailyTransactionCount(): Promise<number>;
+  getTotalAssets(): Promise<number>;
   
   // Authentication
   validatePassword(password: string, hashedPassword: string): Promise<boolean>;
@@ -42,6 +49,10 @@ export class MemStorage implements IStorage {
     this.initializeDefaultUsers();
   }
 
+  private generateAccountNumber(): string {
+    return Math.random().toString().substr(2, 12);
+  }
+
   private async initializeDefaultUsers() {
     const hashedPassword = await bcrypt.hash("admin123", 10);
     const adminUser: User = {
@@ -51,7 +62,10 @@ export class MemStorage implements IStorage {
       password: hashedPassword,
       role: "admin",
       balance: "0.00",
+      accountNumber: this.generateAccountNumber(),
+      accountType: "business",
       createdAt: new Date(),
+      lastLogin: null,
     };
     this.users.set(adminUser.id, adminUser);
 
@@ -64,7 +78,10 @@ export class MemStorage implements IStorage {
       password: userHashedPassword,
       role: "user",
       balance: "12847.92",
+      accountNumber: this.generateAccountNumber(),
+      accountType: "checking",
       createdAt: new Date(),
+      lastLogin: null,
     };
     this.users.set(demoUser.id, demoUser);
 
@@ -76,6 +93,8 @@ export class MemStorage implements IStorage {
         type: "debit",
         amount: "89.99",
         description: "Amazon Purchase",
+        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        status: "completed",
         createdAt: new Date(),
       },
       {
@@ -84,6 +103,8 @@ export class MemStorage implements IStorage {
         type: "credit",
         amount: "3500.00",
         description: "Salary Deposit",
+        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        status: "completed",
         createdAt: new Date(Date.now() - 86400000), // Yesterday
       },
       {
@@ -92,6 +113,8 @@ export class MemStorage implements IStorage {
         type: "debit",
         amount: "1200.00",
         description: "Rent Payment",
+        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        status: "completed",
         createdAt: new Date(Date.now() - 86400000 * 2), // 2 days ago
       },
     ];
@@ -113,11 +136,16 @@ export class MemStorage implements IStorage {
     const hashedPassword = await bcrypt.hash(insertUser.password, 10);
     const id = this.currentUserId++;
     const user: User = {
-      ...insertUser,
       id,
+      name: insertUser.name,
+      email: insertUser.email,
       password: hashedPassword,
+      role: insertUser.role || "user",
       balance: "0.00",
+      accountNumber: this.generateAccountNumber(),
+      accountType: "checking",
       createdAt: new Date(),
+      lastLogin: null,
     };
     this.users.set(id, user);
     return user;
@@ -131,6 +159,20 @@ export class MemStorage implements IStorage {
     const user = this.users.get(userId);
     if (user) {
       this.users.set(userId, { ...user, balance: newBalance });
+    }
+  }
+
+  async updateUser(userId: number, updates: Partial<User>): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      this.users.set(userId, { ...user, ...updates });
+    }
+  }
+
+  async updateLastLogin(userId: number): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      this.users.set(userId, { ...user, lastLogin: new Date() });
     }
   }
 
@@ -161,6 +203,11 @@ export class MemStorage implements IStorage {
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
+  async getAllTransactions(): Promise<Transaction[]> {
+    return Array.from(this.transactions.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
   async createAdminLog(log: Omit<AdminLog, 'id' | 'createdAt'>): Promise<AdminLog> {
     const id = this.currentAdminLogId++;
     const newLog: AdminLog = {
@@ -175,6 +222,20 @@ export class MemStorage implements IStorage {
   async getAdminLogs(): Promise<AdminLog[]> {
     return Array.from(this.adminLogs.values())
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getDailyTransactionCount(): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Array.from(this.transactions.values()).filter(
+      transaction => transaction.createdAt >= today
+    ).length;
+  }
+
+  async getTotalAssets(): Promise<number> {
+    return Array.from(this.users.values()).reduce(
+      (total, user) => total + parseFloat(user.balance), 0
+    );
   }
 
   async validatePassword(password: string, hashedPassword: string): Promise<boolean> {

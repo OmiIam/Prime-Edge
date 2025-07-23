@@ -21,6 +21,9 @@ interface DashboardData {
     email: string;
     role: string;
     balance: string;
+    accountNumber: string;
+    accountType: string;
+    lastLogin: string | null;
   };
   transactions: Transaction[];
 }
@@ -111,6 +114,33 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold mb-2">Welcome back, {data.user.name.split(' ')[0]}!</h1>
             <p className="text-gray-300">Here's your financial overview for today.</p>
           </div>
+
+          {/* Account Information */}
+          <Card className="gradient-card border-prime-slate/30 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-3 gap-6">
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">Account Holder</div>
+                  <div className="text-lg font-semibold text-white">{data.user.name}</div>
+                  <div className="text-sm text-gray-400">{data.user.email}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">Account Number</div>
+                  <div className="text-lg font-mono font-semibold text-white">{data.user.accountNumber}</div>
+                  <div className="text-sm text-gray-400 capitalize">{data.user.accountType} Account</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">Account Status</div>
+                  <div className="text-lg font-semibold text-prime-success">Active</div>
+                  {data.user.lastLogin && (
+                    <div className="text-sm text-gray-400">
+                      Last login: {format(new Date(data.user.lastLogin), 'MMM d, yyyy')}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Stats Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">

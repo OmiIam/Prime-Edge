@@ -10,6 +10,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
 import Navbar from "@/components/navbar";
 import FundModal from "@/components/fund-modal";
+import EditUserModal from "@/components/edit-user-modal";
+import TransactionModal from "@/components/transaction-modal";
 import {
   Users,
   DollarSign,
@@ -22,7 +24,11 @@ import {
   AlertCircle,
   Clock,
   Shield,
-  TrendingUp
+  TrendingUp,
+  Receipt,
+  Settings,
+  History,
+  CreditCard
 } from "lucide-react";
 import {
   AlertDialog,
@@ -43,7 +49,10 @@ interface User {
   email: string;
   role: string;
   balance: string;
+  accountNumber: string;
+  accountType: string;
   createdAt: string;
+  lastLogin: string | null;
 }
 
 interface AdminLog {
@@ -63,6 +72,8 @@ export default function Admin() {
   const authState = authManager.getState();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [fundModalOpen, setFundModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/admin/users'],
@@ -74,9 +85,14 @@ export default function Admin() {
     enabled: authState.isAuthenticated && authState.user?.role === 'admin',
   });
 
+  const { data: statistics, isLoading: statsLoading } = useQuery({
+    queryKey: ['/api/admin/statistics'],
+    enabled: authState.isAuthenticated && authState.user?.role === 'admin',
+  });
+
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: number) => {
-      const response = await apiRequest("DELETE", `/api/admin/users/${userId}`, undefined, authManager.getAuthHeader());
+      const response = await apiRequest("DELETE", `/api/admin/users/${userId}`);
       return response.json();
     },
     onSuccess: () => {
@@ -101,6 +117,16 @@ export default function Admin() {
     setFundModalOpen(true);
   };
 
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setEditModalOpen(true);
+  };
+
+  const handleCreateTransaction = (user: User) => {
+    setSelectedUser(user);
+    setTransactionModalOpen(true);
+  };
+
   const handleDeleteUser = (userId: number) => {
     deleteUserMutation.mutate(userId);
   };
@@ -113,6 +139,10 @@ export default function Admin() {
         return <Minus className="h-4 w-4 text-prime-error" />;
       case 'delete_user':
         return <Trash2 className="h-4 w-4 text-prime-error" />;
+      case 'edit_user':
+        return <Edit className="h-4 w-4 text-prime-accent" />;
+      case 'manual_transaction':
+        return <Receipt className="h-4 w-4 text-prime-accent" />;
       default:
         return <AlertCircle className="h-4 w-4 text-prime-warning" />;
     }
@@ -126,6 +156,10 @@ export default function Admin() {
         return 'Removed Funds';
       case 'delete_user':
         return 'Deleted User';
+      case 'edit_user':
+        return 'Edited User';
+      case 'manual_transaction':
+        return 'Manual Transaction';
       default:
         return action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
@@ -169,12 +203,14 @@ export default function Admin() {
     );
   }
 
-  const totalUsers = users.length;
-  const totalAssets = users.reduce((sum, user) => sum + parseFloat(user.balance), 0);
-  const activeSessions = users.filter(user => user.role === 'user').length; // Mock data
-  const todayLogs = logs.filter(log => 
-    new Date(log.createdAt).toDateString() === new Date().toDateString()
-  ).length;
+  const displayStats = statistics || {
+    totalUsers: users.length,
+    totalAssets: users.reduce((sum, user) => sum + parseFloat(user.balance), 0),
+    dailyTransactions: logs.filter(log => 
+      new Date(log.createdAt).toDateString() === new Date().toDateString()
+    ).length,
+    totalTransactions: logs.length,
+  };
 
   return (
     <div className="min-h-screen bg-prime-navy text-white">
@@ -196,7 +232,7 @@ export default function Admin() {
                   <span className="text-sm text-gray-400">Total Users</span>
                   <Users className="h-5 w-5 text-prime-accent" />
                 </div>
-                <div className="text-3xl font-bold text-white">{totalUsers.toLocaleString()}</div>
+                <div className="text-3xl font-bold text-white">{displayStats.totalUsers.toLocaleString()}</div>
                 <div className="text-sm text-prime-success mt-1">All accounts</div>
               </CardContent>
             </Card>
@@ -207,7 +243,7 @@ export default function Admin() {
                   <span className="text-sm text-gray-400">Total Assets</span>
                   <DollarSign className="h-5 w-5 text-prime-accent" />
                 </div>
-                <div className="text-3xl font-bold text-white">${totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                <div className="text-3xl font-bold text-white">${displayStats.totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
                 <div className="text-sm text-prime-success mt-1">Under management</div>
               </CardContent>
             </Card>
@@ -215,22 +251,22 @@ export default function Admin() {
             <Card className="gradient-card border-prime-slate/30 shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Active Users</span>
+                  <span className="text-sm text-gray-400">Daily Transactions</span>
                   <Activity className="h-5 w-5 text-prime-accent" />
                 </div>
-                <div className="text-3xl font-bold text-white">{activeSessions}</div>
-                <div className="text-sm text-gray-400 mt-1">Regular users</div>
+                <div className="text-3xl font-bold text-white">{displayStats.dailyTransactions}</div>
+                <div className="text-sm text-gray-400 mt-1">Today</div>
               </CardContent>
             </Card>
             
             <Card className="gradient-card border-prime-slate/30 shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Today's Actions</span>
+                  <span className="text-sm text-gray-400">Total Transactions</span>
                   <BarChart3 className="h-5 w-5 text-prime-accent" />
                 </div>
-                <div className="text-3xl font-bold text-white">{todayLogs}</div>
-                <div className="text-sm text-gray-400 mt-1">Admin actions</div>
+                <div className="text-3xl font-bold text-white">{displayStats.totalTransactions}</div>
+                <div className="text-sm text-gray-400 mt-1">All time</div>
               </CardContent>
             </Card>
           </div>
@@ -267,6 +303,7 @@ export default function Admin() {
                           <div>
                             <div className="font-medium text-white">{user.name}</div>
                             <div className="text-sm text-gray-400">{user.email}</div>
+                            <div className="text-xs text-gray-500 font-mono">Account: {user.accountNumber}</div>
                             <div className="flex items-center gap-2 mt-1">
                               <Badge 
                                 variant={user.role === 'admin' ? 'default' : 'secondary'}
@@ -277,9 +314,17 @@ export default function Admin() {
                               >
                                 {user.role}
                               </Badge>
-                              <span className="text-xs text-gray-500">
-                                Joined {format(new Date(user.createdAt), 'MMM d, yyyy')}
-                              </span>
+                              <Badge 
+                                variant="outline" 
+                                className="border-prime-blue text-gray-300 text-xs"
+                              >
+                                {user.accountType}
+                              </Badge>
+                              {user.lastLogin && (
+                                <span className="text-xs text-gray-500">
+                                  Last: {format(new Date(user.lastLogin), 'MMM d')}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -294,10 +339,29 @@ export default function Admin() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="border-prime-blue text-prime-blue hover:bg-prime-blue hover:text-white"
+                              onClick={() => handleEditUser(user)}
+                              title="Edit user profile"
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               className="border-prime-accent text-prime-accent hover:bg-prime-accent hover:text-white"
                               onClick={() => handleFundManagement(user)}
+                              title="Adjust account balance"
                             >
-                              <Edit className="h-4 w-4" />
+                              <DollarSign className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-prime-success text-prime-success hover:bg-prime-success hover:text-white"
+                              onClick={() => handleCreateTransaction(user)}
+                              title="Create manual transaction"
+                            >
+                              <CreditCard className="h-4 w-4" />
                             </Button>
                             {user.id !== authState.user?.id && (
                               <AlertDialog>
@@ -306,6 +370,7 @@ export default function Admin() {
                                     size="sm"
                                     variant="outline"
                                     className="border-prime-error text-prime-error hover:bg-prime-error hover:text-white"
+                                    title="Delete user account"
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -395,6 +460,24 @@ export default function Admin() {
         isOpen={fundModalOpen}
         onClose={() => {
           setFundModalOpen(false);
+          setSelectedUser(null);
+        }}
+        user={selectedUser}
+      />
+
+      <EditUserModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedUser(null);
+        }}
+        user={selectedUser}
+      />
+
+      <TransactionModal
+        isOpen={transactionModalOpen}
+        onClose={() => {
+          setTransactionModalOpen(false);
           setSelectedUser(null);
         }}
         user={selectedUser}

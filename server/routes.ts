@@ -1,13 +1,13 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, loginSchema, fundManagementSchema } from "@shared/schema";
+import { insertUserSchema, loginSchema, fundManagementSchema, editUserSchema, manualTransactionSchema } from "@shared/schema";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET || "prime-edge-banking-secret-key";
 
-interface AuthRequest extends Express.Request {
+interface AuthRequest extends Request {
   user?: {
     id: number;
     email: string;
@@ -16,7 +16,7 @@ interface AuthRequest extends Express.Request {
 }
 
 // Middleware to verify JWT token
-const authenticateToken = async (req: AuthRequest, res: Express.Response, next: Express.NextFunction) => {
+const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -34,7 +34,7 @@ const authenticateToken = async (req: AuthRequest, res: Express.Response, next: 
 };
 
 // Middleware to verify admin role
-const requireAdmin = (req: AuthRequest, res: Express.Response, next: Express.NextFunction) => {
+const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ message: "Admin access required" });
   }
@@ -92,6 +92,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
+
+      // Update last login time
+      await storage.updateLastLogin(user.id);
 
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
@@ -265,6 +268,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
 
       res.json(logsWithUserData);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Edit user profile
+  app.post("/api/admin/users/:id/edit", authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const userData = editUserSchema.parse(req.body);
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.updateUser(userId, userData);
+
+      // Log admin action
+      await storage.createAdminLog({
+        adminId: req.user!.id,
+        action: "edit_user",
+        targetUserId: userId,
+        amount: null,
+      });
+
+      res.json({ message: "User updated successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get user transactions (admin view)
+  app.get("/api/admin/users/:id/transactions", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const transactions = await storage.getUserTransactions(userId);
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create manual transaction
+  app.post("/api/admin/transactions", authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const transactionData = manualTransactionSchema.parse(req.body);
+
+      const user = await storage.getUser(transactionData.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const currentBalance = parseFloat(user.balance);
+      let newBalance: number;
+
+      if (transactionData.type === "credit") {
+        newBalance = currentBalance + transactionData.amount;
+      } else {
+        newBalance = currentBalance - transactionData.amount;
+        if (newBalance < 0) {
+          return res.status(400).json({ message: "Insufficient funds" });
+        }
+      }
+
+      // Create transaction
+      await storage.createTransaction({
+        userId: transactionData.userId,
+        type: transactionData.type,
+        amount: transactionData.amount.toFixed(2),
+        description: transactionData.description,
+        reference: transactionData.reference || `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        status: "completed",
+      });
+
+      // Update user balance
+      await storage.updateUserBalance(transactionData.userId, newBalance.toFixed(2));
+
+      // Log admin action
+      await storage.createAdminLog({
+        adminId: req.user!.id,
+        action: "manual_transaction",
+        targetUserId: transactionData.userId,
+        amount: transactionData.amount.toFixed(2),
+      });
+
+      res.json({ message: "Transaction created successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get admin statistics
+  app.get("/api/admin/statistics", authenticateToken, requireAdmin, async (req, res) => {
+    try {
+      const totalUsers = (await storage.getAllUsers()).length;
+      const totalAssets = await storage.getTotalAssets();
+      const dailyTransactions = await storage.getDailyTransactionCount();
+      const totalTransactions = (await storage.getAllTransactions()).length;
+
+      res.json({
+        totalUsers,
+        totalAssets,
+        dailyTransactions,
+        totalTransactions,
+      });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
     }

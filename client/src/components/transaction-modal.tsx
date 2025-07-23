@@ -16,73 +16,74 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { fundManagementSchema, type FundManagement } from "@shared/schema";
-import { authManager } from "@/lib/auth";
+import { manualTransactionSchema, type ManualTransaction } from "@shared/schema";
 
 interface User {
   id: number;
   name: string;
   email: string;
   balance: string;
+  accountNumber: string;
 }
 
-interface FundModalProps {
+interface TransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
 }
 
-export default function FundModal({ isOpen, onClose, user }: FundModalProps) {
+export default function TransactionModal({ isOpen, onClose, user }: TransactionModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [action, setAction] = useState<"add" | "subtract">("add");
+  const [transactionType, setTransactionType] = useState<"credit" | "debit">("credit");
 
-  const form = useForm<Omit<FundManagement, 'userId'> & { userId: string }>({
-    resolver: zodResolver(fundManagementSchema.omit({ userId: true }).extend({ userId: fundManagementSchema.shape.userId.transform(String) })),
+  const form = useForm<Omit<ManualTransaction, 'userId'> & { userId: string }>({
+    resolver: zodResolver(manualTransactionSchema.omit({ userId: true }).extend({ userId: manualTransactionSchema.shape.userId.transform(String) })),
     defaultValues: {
       userId: user?.id.toString() || "",
+      type: "credit",
       amount: 0,
-      action: "add",
       description: "",
+      reference: "",
     },
   });
 
-  const fundMutation = useMutation({
-    mutationFn: async (data: Omit<FundManagement, 'userId'> & { userId: string }) => {
-      const fundData = {
+  const transactionMutation = useMutation({
+    mutationFn: async (data: Omit<ManualTransaction, 'userId'> & { userId: string }) => {
+      const transactionData = {
         ...data,
         userId: parseInt(data.userId),
       };
-      const response = await apiRequest("POST", `/api/admin/users/${fundData.userId}/fund`, fundData);
+      const response = await apiRequest("POST", "/api/admin/transactions", transactionData);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/logs'] });
       toast({
-        title: "Fund operation completed",
-        description: `Successfully ${action === 'add' ? 'added funds to' : 'removed funds from'} ${user?.name}.`,
+        title: "Transaction completed",
+        description: `Successfully ${transactionType === 'credit' ? 'credited' : 'debited'} ${user?.name}'s account.`,
       });
       onClose();
       form.reset();
     },
     onError: (error: any) => {
       toast({
-        title: "Fund operation failed",
-        description: error.message || "Failed to update user funds. Please try again.",
+        title: "Transaction failed",
+        description: error.message || "Failed to process transaction. Please try again.",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: Omit<FundManagement, 'userId'> & { userId: string }) => {
-    fundMutation.mutate({ ...data, action });
+  const onSubmit = (data: Omit<ManualTransaction, 'userId'> & { userId: string }) => {
+    transactionMutation.mutate({ ...data, type: transactionType });
   };
 
   const handleClose = () => {
     onClose();
     form.reset();
-    setAction("add");
+    setTransactionType("credit");
   };
 
   if (!user) return null;
@@ -91,14 +92,18 @@ export default function FundModal({ isOpen, onClose, user }: FundModalProps) {
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-prime-charcoal border-prime-slate/30 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Manage User Funds</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Create Manual Transaction</DialogTitle>
           <DialogDescription className="text-gray-300">
-            Add or subtract funds from {user.name}'s account.
+            Add a manual transaction to {user.name}'s account.
           </DialogDescription>
         </DialogHeader>
 
         <div className="mb-4 p-4 bg-prime-navy/50 rounded-lg">
           <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">Account Number:</span>
+            <span className="font-mono text-white">{user.accountNumber}</span>
+          </div>
+          <div className="flex justify-between items-center mt-1">
             <span className="text-sm text-gray-400">Current Balance:</span>
             <span className="font-semibold text-white">
               ${parseFloat(user.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -114,17 +119,17 @@ export default function FundModal({ isOpen, onClose, user }: FundModalProps) {
           <input type="hidden" {...form.register("userId")} value={user.id.toString()} />
 
           <div>
-            <Label className="text-white">Action</Label>
-            <Select value={action} onValueChange={(value: "add" | "subtract") => {
-              setAction(value);
-              form.setValue("action", value);
+            <Label className="text-white">Transaction Type</Label>
+            <Select value={transactionType} onValueChange={(value: "credit" | "debit") => {
+              setTransactionType(value);
+              form.setValue("type", value);
             }}>
               <SelectTrigger className="bg-prime-navy border-prime-slate/30 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-prime-charcoal border-prime-slate/30">
-                <SelectItem value="add" className="text-white focus:bg-prime-slate/20">Add Funds</SelectItem>
-                <SelectItem value="subtract" className="text-white focus:bg-prime-slate/20">Subtract Funds</SelectItem>
+                <SelectItem value="credit" className="text-white focus:bg-prime-slate/20">Credit (Add Money)</SelectItem>
+                <SelectItem value="debit" className="text-white focus:bg-prime-slate/20">Debit (Remove Money)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -137,7 +142,7 @@ export default function FundModal({ isOpen, onClose, user }: FundModalProps) {
               step="0.01"
               min="0.01"
               className="bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent"
-              placeholder="Enter amount"
+              placeholder="Enter transaction amount"
               {...form.register("amount", { valueAsNumber: true })}
             />
             {form.formState.errors.amount && (
@@ -152,7 +157,7 @@ export default function FundModal({ isOpen, onClose, user }: FundModalProps) {
             <Textarea
               id="description"
               className="bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent resize-none"
-              placeholder="Enter description for this transaction"
+              placeholder="Enter transaction description"
               rows={3}
               {...form.register("description")}
             />
@@ -163,28 +168,38 @@ export default function FundModal({ isOpen, onClose, user }: FundModalProps) {
             )}
           </div>
 
+          <div>
+            <Label htmlFor="reference" className="text-white">Reference Number (Optional)</Label>
+            <Input
+              id="reference"
+              className="bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent"
+              placeholder="Auto-generated if left blank"
+              {...form.register("reference")}
+            />
+          </div>
+
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
               className="flex-1 border-prime-slate/30 text-gray-300 hover:bg-prime-slate/20 hover:text-white"
               onClick={handleClose}
-              disabled={fundMutation.isPending}
+              disabled={transactionMutation.isPending}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className={`flex-1 text-white font-semibold ${
-                action === 'add' 
+                transactionType === 'credit' 
                   ? 'bg-prime-success hover:bg-green-600' 
                   : 'bg-prime-error hover:bg-red-600'
               }`}
-              disabled={fundMutation.isPending}
+              disabled={transactionMutation.isPending}
             >
-              {fundMutation.isPending 
-                ? `${action === 'add' ? 'Adding' : 'Subtracting'}...` 
-                : `${action === 'add' ? 'Add' : 'Subtract'} Funds`
+              {transactionMutation.isPending 
+                ? `Processing...` 
+                : `${transactionType === 'credit' ? 'Credit' : 'Debit'} Account`
               }
             </Button>
           </div>
