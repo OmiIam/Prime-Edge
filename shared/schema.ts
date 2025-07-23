@@ -38,8 +38,13 @@ export const adminLogs = pgTable("admin_logs", {
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+  accountNumber: true,
+  lastLogin: true,
 }).extend({
   confirmPassword: z.string().min(6),
+  role: z.enum(["user", "admin"]).optional(),
+  balance: z.string().optional(),
+  accountType: z.enum(["checking", "savings", "business"]).optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],

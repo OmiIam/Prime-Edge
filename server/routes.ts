@@ -45,7 +45,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {
+      console.log("Registration request body:", req.body);
       const validatedData = insertUserSchema.parse(req.body);
+      console.log("Validated data:", validatedData);
       const { confirmPassword, ...userData } = validatedData;
       
       // Check if user already exists
@@ -203,6 +205,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: transactionType,
         amount: amount.toFixed(2),
         description: transactionDescription,
+        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        status: "completed",
       });
 
       // Log admin action
