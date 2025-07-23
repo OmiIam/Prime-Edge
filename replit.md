@@ -2,7 +2,7 @@
 
 ## Overview
 
-Prime Edge Banking is a modern, full-stack internet banking application built with a clean architecture inspired by corporate banking design. The application provides secure user authentication, account management, transaction tracking, and administrative controls for fund management.
+Prime Edge Banking is a modern, full-stack internet banking application built with a clean architecture inspired by corporate banking design. The application provides secure user authentication, account management, transaction tracking, and administrative controls for fund management. Features a sophisticated abstract logo design that complements the professional dark theme throughout the application.
 
 ## User Preferences
 

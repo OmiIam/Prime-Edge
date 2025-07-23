@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
 import { loginSchema, type LoginUser } from "@shared/schema";
+import Logo from "@/components/logo";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
@@ -66,6 +67,9 @@ export default function Login() {
 
         <Card className="gradient-card border-prime-slate/30 shadow-2xl">
           <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Logo size="lg" showText={false} />
+            </div>
             <CardTitle className="text-2xl font-bold text-white mb-2">
               Welcome Back
             </CardTitle>

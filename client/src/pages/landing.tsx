@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import Logo from "@/components/logo";
 import { Shield, Smartphone, TrendingUp, Clock, Zap, Gem, Check, Users, DollarSign, Activity, BarChart3 } from "lucide-react";
 
 export default function Landing() {
@@ -53,9 +54,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-white">
-                Prime Edge <span className="text-prime-accent">Banking</span>
-              </h1>
+              <Logo size="md" showText={true} className="cursor-pointer" />
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
@@ -303,9 +302,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
-              <h3 className="text-xl font-bold">
-                Prime Edge <span className="text-prime-accent">Banking</span>
-              </h3>
+              <Logo size="md" showText={true} />
               <p className="text-gray-300 text-sm">Your trusted partner for secure, innovative digital banking solutions.</p>
             </div>
             <div>
