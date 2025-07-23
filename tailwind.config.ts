@@ -51,6 +51,16 @@ export default {
           "4": "var(--chart-4)",
           "5": "var(--chart-5)",
         },
+        prime: {
+          navy: "var(--prime-navy)",
+          charcoal: "var(--prime-charcoal)",
+          slate: "var(--prime-slate)",
+          blue: "var(--prime-blue)",
+          accent: "var(--prime-accent)",
+          success: "var(--prime-success)",
+          warning: "var(--prime-warning)",
+          error: "var(--prime-error)",
+        },
         sidebar: {
           DEFAULT: "var(--sidebar-background)",
           foreground: "var(--sidebar-foreground)",

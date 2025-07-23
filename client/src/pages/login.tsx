@@ -145,6 +145,7 @@ export default function Login() {
                 <p className="mb-2">Demo Credentials:</p>
                 <p>Admin: admin@primeedge.bank / admin123</p>
                 <p>User: john.doe@email.com / user123</p>
+                <p>User: sarah.wilson@email.com / user123</p>
               </div>
             </div>
           </CardContent>

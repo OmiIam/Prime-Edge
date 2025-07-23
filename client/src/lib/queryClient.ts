@@ -2,7 +2,29 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
+    let text = res.statusText;
+    try {
+      const jsonData = await res.json();
+      text = jsonData.message || text;
+    } catch (parseError) {
+      // Fall back to text response if JSON parsing fails
+      try {
+        text = (await res.text()) || res.statusText;
+      } catch (textError) {
+        text = res.statusText;
+      }
+    }
+    
+    // Handle authentication errors
+    if (res.status === 401 || res.status === 403) {
+      // Clear auth data and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+    
     throw new Error(`${res.status}: ${text}`);
   }
 }

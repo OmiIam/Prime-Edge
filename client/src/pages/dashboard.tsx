@@ -52,9 +52,11 @@ const getTransactionColor = (type: string) => {
 export default function Dashboard() {
   const authState = authManager.getState();
 
-  const { data, isLoading } = useQuery<DashboardData>({
+  const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ['/api/dashboard'],
     enabled: authState.isAuthenticated,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   if (isLoading) {
@@ -79,6 +81,25 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-prime-navy text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Unable to load dashboard</h2>
+          <p className="text-gray-300 mb-4">
+            {error instanceof Error ? error.message : "An unexpected error occurred."}
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-prime-accent hover:bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Refresh Page
+          </button>
         </div>
       </div>
     );
