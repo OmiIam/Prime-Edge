@@ -1,0 +1,81 @@
+Here’s a purpose-built Replit prompt you can feed directly into Replit AI or use to auto-generate a full-stack internet banking web app, modeled after Chase Bank’s clean corporate design, with admin privileges for user control and fund management.
+
+⸻
+
+🧠 Replit AI Prompt: Full Internet Banking Website (Chase Style, Admin Fund Control)
+
+🚀 Project Goal: Build a production-grade internet banking website using Express.js, SQLite, and TailwindCSS — deployed and runnable on Replit.
+
+🎯 Functionality Requirements:
+	1.	User Authentication:
+
+	•	Register / Login using email + password
+	•	Passwords hashed using bcryptjs
+	•	JWT session-based auth
+	•	Role-based access (user, admin)
+
+	2.	User Dashboard:
+
+	•	Shows current balance
+	•	Recent transactions
+	•	Account information (name, email, account type)
+
+	3.	Admin Dashboard:
+
+	•	View all users
+	•	Add or subtract funds from any user account
+	•	Create/edit/delete users
+	•	Log all actions in an admin_logs table
+
+	4.	Design Style:
+
+	•	Mimic Chase Bank’s clean, corporate UI
+	•	Use TailwindCSS with a navy-blue primary palette, minimalist card-based layout
+	•	Professional fonts (e.g., Inter or IBM Plex Sans), light spacing, dark text, modern UI components
+
+	5.	Database (SQLite):
+
+	•	Tables:
+
+users(id, name, email, password, role, balance, created_at)
+transactions(id, user_id, type, amount, created_at)
+admin_logs(id, admin_id, action, target_user_id, amount, created_at)
+
+
+
+	6.	Routes:
+
+	•	POST /api/auth/register
+	•	POST /api/auth/login
+	•	GET /api/dashboard (user)
+	•	GET /api/admin/users
+	•	POST /api/admin/users/:id/fund
+	•	DELETE /api/admin/users/:id
+
+	7.	Frontend:
+
+	•	Use nextjs
+	•	Pages: Login, Register, User Dashboard, Admin Dashboard
+	•	Mobile-first responsive
+
+	8.	Security:
+
+	•	Middleware to verify JWT and user roles
+	•	Sanitize all input
+	•	Prevent overfunding or negative balances
+
+📦 Tech Stack:
+	•	Express.js
+	•	SQLite3
+	•	bcryptjs
+	•	jsonwebtoken
+	•	TailwindCSS
+	•	Replit deployment (via index.js or server.js)
+
+✅ Final Deliverables:
+	•	A fully functional Chase-style internet banking site
+	•	User + admin role control
+	•	All code runnable and editable directly on Replit
+	•	Minimal, readable, well-commented code structure
+
+⸻
