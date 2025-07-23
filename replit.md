@@ -32,11 +32,13 @@ The application implements a comprehensive authentication system with:
 
 ### Database Schema
 
-The database uses three main tables:
+The application now uses a PostgreSQL database with three main tables managed by Drizzle ORM:
 
-- **Users Table**: Stores user information, credentials, roles, and account balances
-- **Transactions Table**: Records all financial transactions with type, amount, and descriptions
-- **Admin Logs Table**: Tracks administrative actions for audit purposes
+- **Users Table**: Stores user information, credentials, roles, account balances, account numbers, and account types
+- **Transactions Table**: Records all financial transactions with type, amount, descriptions, and timestamps
+- **Admin Logs Table**: Tracks administrative actions for audit purposes with admin and target user references
+
+The database connection is configured through environment variables and uses the Neon serverless PostgreSQL adapter for optimal performance and scalability.
 
 ### Frontend Architecture
 
@@ -96,9 +98,11 @@ The application is configured for deployment on Replit with:
 - **Static Asset Serving**: Production server serves built frontend assets
 
 ### Database Management
-- **Schema Migrations**: Drizzle Kit handles database schema management
+- **PostgreSQL Integration**: Full PostgreSQL database with Drizzle ORM for type-safe operations
+- **Schema Migrations**: Drizzle Kit handles database schema management and migrations
 - **Environment Configuration**: DATABASE_URL environment variable for PostgreSQL connection
 - **Database Push**: `npm run db:push` applies schema changes to production database
+- **Database Seeding**: Initial data population with admin and demo user accounts
 
 ### Environment Requirements
 - **Node.js**: ES modules support with modern JavaScript features

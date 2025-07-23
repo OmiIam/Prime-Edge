@@ -1,4 +1,6 @@
 import { users, transactions, adminLogs, type User, type InsertUser, type Transaction, type AdminLog } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, gte, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export interface IStorage {
@@ -29,213 +31,132 @@ export interface IStorage {
   validatePassword(password: string, hashedPassword: string): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private transactions: Map<number, Transaction>;
-  private adminLogs: Map<number, AdminLog>;
-  private currentUserId: number;
-  private currentTransactionId: number;
-  private currentAdminLogId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.transactions = new Map();
-    this.adminLogs = new Map();
-    this.currentUserId = 1;
-    this.currentTransactionId = 1;
-    this.currentAdminLogId = 1;
-    
-    // Create default admin user
-    this.initializeDefaultUsers();
-  }
-
-  private generateAccountNumber(): string {
-    return Math.random().toString().substr(2, 12);
-  }
-
-  private async initializeDefaultUsers() {
-    const hashedPassword = await bcrypt.hash("admin123", 10);
-    const adminUser: User = {
-      id: this.currentUserId++,
-      name: "System Administrator",
-      email: "admin@primeedge.bank",
-      password: hashedPassword,
-      role: "admin",
-      balance: "0.00",
-      accountNumber: this.generateAccountNumber(),
-      accountType: "business",
-      createdAt: new Date(),
-      lastLogin: null,
-    };
-    this.users.set(adminUser.id, adminUser);
-
-    // Create a demo user
-    const userHashedPassword = await bcrypt.hash("user123", 10);
-    const demoUser: User = {
-      id: this.currentUserId++,
-      name: "John Doe",
-      email: "john.doe@email.com",
-      password: userHashedPassword,
-      role: "user",
-      balance: "12847.92",
-      accountNumber: this.generateAccountNumber(),
-      accountType: "checking",
-      createdAt: new Date(),
-      lastLogin: null,
-    };
-    this.users.set(demoUser.id, demoUser);
-
-    // Add some demo transactions for the user
-    const transactions = [
-      {
-        id: this.currentTransactionId++,
-        userId: demoUser.id,
-        type: "debit",
-        amount: "89.99",
-        description: "Amazon Purchase",
-        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        status: "completed",
-        createdAt: new Date(),
-      },
-      {
-        id: this.currentTransactionId++,
-        userId: demoUser.id,
-        type: "credit",
-        amount: "3500.00",
-        description: "Salary Deposit",
-        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        status: "completed",
-        createdAt: new Date(Date.now() - 86400000), // Yesterday
-      },
-      {
-        id: this.currentTransactionId++,
-        userId: demoUser.id,
-        type: "debit",
-        amount: "1200.00",
-        description: "Rent Payment",
-        reference: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        status: "completed",
-        createdAt: new Date(Date.now() - 86400000 * 2), // 2 days ago
-      },
-    ];
-
-    transactions.forEach(transaction => {
-      this.transactions.set(transaction.id, transaction);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.email === email);
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
   }
 
   async createUser(insertUser: Omit<InsertUser, 'confirmPassword'>): Promise<User> {
     const hashedPassword = await bcrypt.hash(insertUser.password, 10);
-    const id = this.currentUserId++;
-    const user: User = {
-      id,
-      name: insertUser.name,
-      email: insertUser.email,
-      password: hashedPassword,
-      role: insertUser.role || "user",
-      balance: "0.00",
-      accountNumber: this.generateAccountNumber(),
-      accountType: "checking",
-      createdAt: new Date(),
-      lastLogin: null,
-    };
-    this.users.set(id, user);
+    const accountNumber = Math.random().toString().substr(2, 12);
+    
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...insertUser,
+        password: hashedPassword,
+        role: insertUser.role || "user",
+        balance: "0.00",
+        accountNumber,
+        accountType: "checking",
+        lastLogin: null,
+      })
+      .returning();
     return user;
   }
 
   async getAllUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
+    return await db.select().from(users);
   }
 
   async updateUserBalance(userId: number, newBalance: string): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      this.users.set(userId, { ...user, balance: newBalance });
-    }
+    await db
+      .update(users)
+      .set({ balance: newBalance })
+      .where(eq(users.id, userId));
   }
 
   async updateUser(userId: number, updates: Partial<User>): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      this.users.set(userId, { ...user, ...updates });
-    }
+    await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId));
   }
 
   async updateLastLogin(userId: number): Promise<void> {
-    const user = this.users.get(userId);
-    if (user) {
-      this.users.set(userId, { ...user, lastLogin: new Date() });
-    }
+    await db
+      .update(users)
+      .set({ lastLogin: new Date() })
+      .where(eq(users.id, userId));
   }
 
   async deleteUser(userId: number): Promise<void> {
-    this.users.delete(userId);
-    // Also delete user's transactions
-    Array.from(this.transactions.entries()).forEach(([id, transaction]) => {
-      if (transaction.userId === userId) {
-        this.transactions.delete(id);
-      }
-    });
+    // Delete user's transactions first
+    await db.delete(transactions).where(eq(transactions.userId, userId));
+    // Delete admin logs related to this user
+    await db.delete(adminLogs).where(eq(adminLogs.targetUserId, userId));
+    // Delete the user
+    await db.delete(users).where(eq(users.id, userId));
   }
 
   async createTransaction(transaction: Omit<Transaction, 'id' | 'createdAt'>): Promise<Transaction> {
-    const id = this.currentTransactionId++;
-    const newTransaction: Transaction = {
-      ...transaction,
-      id,
-      createdAt: new Date(),
-    };
-    this.transactions.set(id, newTransaction);
+    const [newTransaction] = await db
+      .insert(transactions)
+      .values({
+        ...transaction,
+        createdAt: new Date(),
+      })
+      .returning();
     return newTransaction;
   }
 
   async getUserTransactions(userId: number): Promise<Transaction[]> {
-    return Array.from(this.transactions.values())
-      .filter(transaction => transaction.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.userId, userId))
+      .orderBy(sql`${transactions.createdAt} DESC`);
   }
 
   async getAllTransactions(): Promise<Transaction[]> {
-    return Array.from(this.transactions.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db
+      .select()
+      .from(transactions)
+      .orderBy(sql`${transactions.createdAt} DESC`);
   }
 
   async createAdminLog(log: Omit<AdminLog, 'id' | 'createdAt'>): Promise<AdminLog> {
-    const id = this.currentAdminLogId++;
-    const newLog: AdminLog = {
-      ...log,
-      id,
-      createdAt: new Date(),
-    };
-    this.adminLogs.set(id, newLog);
+    const [newLog] = await db
+      .insert(adminLogs)
+      .values({
+        ...log,
+        createdAt: new Date(),
+      })
+      .returning();
     return newLog;
   }
 
   async getAdminLogs(): Promise<AdminLog[]> {
-    return Array.from(this.adminLogs.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db
+      .select()
+      .from(adminLogs)
+      .orderBy(sql`${adminLogs.createdAt} DESC`);
   }
 
   async getDailyTransactionCount(): Promise<number> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return Array.from(this.transactions.values()).filter(
-      transaction => transaction.createdAt >= today
-    ).length;
+    
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(transactions)
+      .where(gte(transactions.createdAt, today));
+    
+    return result[0]?.count || 0;
   }
 
   async getTotalAssets(): Promise<number> {
-    return Array.from(this.users.values()).reduce(
-      (total, user) => total + parseFloat(user.balance), 0
-    );
+    const result = await db
+      .select({ total: sql<number>`sum(cast(${users.balance} as decimal))` })
+      .from(users);
+    
+    return result[0]?.total || 0;
   }
 
   async validatePassword(password: string, hashedPassword: string): Promise<boolean> {
@@ -243,4 +164,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
