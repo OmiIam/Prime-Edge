@@ -31,8 +31,18 @@ async function throwIfResNotOk(res: Response) {
 
 // Get the API base URL based on environment
 const getApiBaseUrl = () => {
-  // Always use Railway backend URL in production, local in development
-  return import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://primeedge-production.up.railway.app' : '');
+  // If VITE_API_URL is set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // In production (Vercel), always use Railway backend
+  if (import.meta.env.PROD) {
+    return 'https://primeedge-production.up.railway.app';
+  }
+  
+  // In development, use local backend (empty string for same-origin)
+  return '';
 };
 
 export async function apiRequest(
@@ -52,6 +62,11 @@ export async function apiRequest(
   // Construct full URL
   const baseUrl = getApiBaseUrl();
   const fullUrl = baseUrl + url;
+  
+  // Debug logging for development
+  if (import.meta.env.DEV) {
+    console.log('API Request:', { method, baseUrl, fullUrl });
+  }
   
   const res = await fetch(fullUrl, {
     method,
