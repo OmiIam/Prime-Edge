@@ -32,13 +32,22 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private checkDb() {
+    if (!db) {
+      throw new Error("Database not initialized. Please set DATABASE_URL environment variable.");
+    }
+    return db;
+  }
+
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const database = this.checkDb();
+    const [user] = await database.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const database = this.checkDb();
+    const [user] = await database.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
@@ -46,7 +55,8 @@ export class DatabaseStorage implements IStorage {
     const hashedPassword = await bcrypt.hash(insertUser.password, 10);
     const accountNumber = Math.random().toString().substr(2, 12);
     
-    const [user] = await db
+    const database = this.checkDb();
+    const [user] = await database
       .insert(users)
       .values({
         ...insertUser,
@@ -62,41 +72,47 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    const database = this.checkDb();
+    return await database.select().from(users);
   }
 
   async updateUserBalance(userId: number, newBalance: string): Promise<void> {
-    await db
+    const database = this.checkDb();
+    await database
       .update(users)
       .set({ balance: newBalance })
       .where(eq(users.id, userId));
   }
 
   async updateUser(userId: number, updates: Partial<User>): Promise<void> {
-    await db
+    const database = this.checkDb();
+    await database
       .update(users)
       .set(updates)
       .where(eq(users.id, userId));
   }
 
   async updateLastLogin(userId: number): Promise<void> {
-    await db
+    const database = this.checkDb();
+    await database
       .update(users)
       .set({ lastLogin: new Date() })
       .where(eq(users.id, userId));
   }
 
   async deleteUser(userId: number): Promise<void> {
+    const database = this.checkDb();
     // Delete user's transactions first
-    await db.delete(transactions).where(eq(transactions.userId, userId));
+    await database.delete(transactions).where(eq(transactions.userId, userId));
     // Delete admin logs related to this user
-    await db.delete(adminLogs).where(eq(adminLogs.targetUserId, userId));
+    await database.delete(adminLogs).where(eq(adminLogs.targetUserId, userId));
     // Delete the user
-    await db.delete(users).where(eq(users.id, userId));
+    await database.delete(users).where(eq(users.id, userId));
   }
 
   async createTransaction(transaction: Omit<Transaction, 'id' | 'createdAt'>): Promise<Transaction> {
-    const [newTransaction] = await db
+    const database = this.checkDb();
+    const [newTransaction] = await database
       .insert(transactions)
       .values({
         ...transaction,
@@ -107,7 +123,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserTransactions(userId: number): Promise<Transaction[]> {
-    return await db
+    const database = this.checkDb();
+    return await database
       .select()
       .from(transactions)
       .where(eq(transactions.userId, userId))
@@ -115,14 +132,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllTransactions(): Promise<Transaction[]> {
-    return await db
+    const database = this.checkDb();
+    return await database
       .select()
       .from(transactions)
       .orderBy(sql`${transactions.createdAt} DESC`);
   }
 
   async createAdminLog(log: Omit<AdminLog, 'id' | 'createdAt'>): Promise<AdminLog> {
-    const [newLog] = await db
+    const database = this.checkDb();
+    const [newLog] = await database
       .insert(adminLogs)
       .values({
         ...log,
@@ -133,7 +152,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAdminLogs(): Promise<AdminLog[]> {
-    return await db
+    const database = this.checkDb();
+    return await database
       .select()
       .from(adminLogs)
       .orderBy(sql`${adminLogs.createdAt} DESC`);
@@ -143,7 +163,8 @@ export class DatabaseStorage implements IStorage {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const result = await db
+    const database = this.checkDb();
+    const result = await database
       .select({ count: sql<number>`count(*)` })
       .from(transactions)
       .where(gte(transactions.createdAt, today));
@@ -152,7 +173,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTotalAssets(): Promise<number> {
-    const result = await db
+    const database = this.checkDb();
+    const result = await database
       .select({ total: sql<number>`sum(cast(${users.balance} as decimal))` })
       .from(users);
     

@@ -29,6 +29,12 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Get the API base URL based on environment
+const getApiBaseUrl = () => {
+  // Always use Railway backend URL in production, local in development
+  return import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://primeedge-production.up.railway.app' : '');
+};
+
 export async function apiRequest(
   method: string,
   url: string,
@@ -42,8 +48,12 @@ export async function apiRequest(
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
+
+  // Construct full URL
+  const baseUrl = getApiBaseUrl();
+  const fullUrl = baseUrl + url;
   
-  const res = await fetch(url, {
+  const res = await fetch(fullUrl, {
     method,
     headers: { ...headers, ...extraHeaders },
     body: data ? JSON.stringify(data) : undefined,
@@ -68,7 +78,11 @@ export const getQueryFn: <T>(options: {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const res = await fetch(queryKey.join("/") as string, {
+    // Construct full URL for query
+    const baseUrl = getApiBaseUrl();
+    const fullUrl = baseUrl + (queryKey.join("/") as string);
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
       headers,
     });
