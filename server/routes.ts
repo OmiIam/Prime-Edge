@@ -401,6 +401,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "healthy", timestamp: new Date().toISOString() });
   });
 
+  // Database seeding endpoint (for initial setup)
+  app.post("/api/seed", async (req, res) => {
+    try {
+      const database = storage as any;
+      if (!database.checkDb) {
+        return res.status(500).json({ message: "Database not available" });
+      }
+
+      // Check if users already exist
+      const existingUsers = await storage.getAllUsers();
+      if (existingUsers.length > 0) {
+        return res.json({ message: "Database already seeded", userCount: existingUsers.length });
+      }
+
+      // Create admin user
+      const adminUser = await storage.createUser({
+        email: "admin@primeedge.com",
+        password: "admin123",
+        firstName: "Admin",
+        lastName: "User",
+        role: "admin"
+      });
+
+      // Create demo users
+      const demoUser1 = await storage.createUser({
+        email: "john.doe@email.com",
+        password: "user123",
+        firstName: "John",
+        lastName: "Doe",
+        role: "user"
+      });
+
+      const demoUser2 = await storage.createUser({
+        email: "sarah.wilson@email.com",
+        password: "user123",
+        firstName: "Sarah",
+        lastName: "Wilson",
+        role: "user"
+      });
+
+      res.json({ 
+        message: "Database seeded successfully",
+        users: [
+          { email: adminUser.email, role: adminUser.role },
+          { email: demoUser1.email, role: demoUser1.role },
+          { email: demoUser2.email, role: demoUser2.role }
+        ]
+      });
+    } catch (error) {
+      console.error("Seeding error:", error);
+      res.status(500).json({ message: "Failed to seed database", error: (error as Error).message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
