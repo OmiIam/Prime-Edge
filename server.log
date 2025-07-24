@@ -1,0 +1,12 @@
+
+> ai-trading-platform@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.1.6
+   - Local:        http://localhost:3000
+   - Network:      http://172.20.10.9:3000
+   - Environments: .env.development.local, .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.4s
+[?25h
