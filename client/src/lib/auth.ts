@@ -1,11 +1,11 @@
 import { queryClient } from "./queryClient";
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  role: string;
-  balance: string;
+  role: 'USER' | 'ADMIN';
+  balance: number;
 }
 
 interface AuthState {

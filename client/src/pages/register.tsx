@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
-import { insertUserSchema, type InsertUser } from "@shared/schema";
+import { createUserSchema, type CreateUserInput } from "@shared/validation";
 import Logo from "@/components/logo";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
@@ -22,19 +22,19 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const form = useForm<InsertUser>({
-    resolver: zodResolver(insertUserSchema),
+  const form = useForm<CreateUserInput>({
+    resolver: zodResolver(createUserSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      role: "user",
+      role: "USER",
     },
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (data: InsertUser) => {
+    mutationFn: async (data: CreateUserInput) => {
       if (!agreedToTerms) {
         throw new Error("Please agree to the Terms of Service and Privacy Policy");
       }
@@ -58,7 +58,7 @@ export default function Register() {
     },
   });
 
-  const onSubmit = (data: InsertUser) => {
+  const onSubmit = (data: CreateUserInput) => {
     registerMutation.mutate(data);
   };
 

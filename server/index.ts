@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
+import { disconnectDatabase } from "./prisma";
 
 const app = express();
 
@@ -85,15 +86,34 @@ app.use((req, res, next) => {
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
+  // Other ports are firewalled. Default to 5173 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  const port = parseInt(process.env.PORT || '5173', 10);
+  const host = process.env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0';
+  
+  server.listen(port, host, () => {
+    log(`🚀 Server running at http://${host}:${port}`);
+    log(`📱 Frontend: http://${host}:${port}`);
+    log(`🔧 Admin: http://${host}:${port}/admin`);
+  });
+
+  // Graceful shutdown
+  process.on('SIGINT', async () => {
+    log('Shutting down gracefully...');
+    await disconnectDatabase();
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGTERM', async () => {
+    log('Shutting down gracefully...');
+    await disconnectDatabase();
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
   });
 })();

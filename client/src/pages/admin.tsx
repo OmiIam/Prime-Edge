@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
 import Navbar from "@/components/navbar";
-import FundModal from "@/components/fund-modal";
-import EditUserModal from "@/components/edit-user-modal";
-import TransactionModal from "@/components/transaction-modal";
 import {
   Users,
   DollarSign,
@@ -28,7 +27,9 @@ import {
   Receipt,
   Settings,
   History,
-  CreditCard
+  CreditCard,
+  UserCheck,
+  UserX
 } from "lucide-react";
 import {
   AlertDialog,
@@ -41,63 +42,186 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  role: string;
-  balance: string;
-  accountNumber: string;
-  accountType: string;
-  createdAt: string;
+  role: 'USER' | 'ADMIN';
+  balance: number;
+  accountType: 'CHECKING' | 'SAVINGS' | 'BUSINESS';
+  isActive: boolean;
   lastLogin: string | null;
+  createdAt: string;
 }
 
 interface AdminLog {
-  id: number;
-  adminId: number;
+  id: string;
   action: string;
-  targetUserId: number | null;
-  amount: string | null;
+  targetUserId: string | null;
+  amount: number | null;
+  description: string | null;
   createdAt: string;
-  adminName: string;
-  targetUserName: string | null;
+  admin: {
+    name: string;
+    email: string;
+  };
+  targetUser: {
+    name: string;
+    email: string;
+  } | null;
 }
 
-export default function Admin() {
+interface DashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  totalTransactions: number;
+  totalBalance: number;
+  recentTransactions: Array<{
+    id: string;
+    type: 'CREDIT' | 'DEBIT';
+    amount: number;
+    description: string;
+    createdAt: string;
+    user: {
+      name: string;
+      email: string;
+    };
+  }>;
+}
+
+export default function AdminNew() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const authState = authManager.getState();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [fundModalOpen, setFundModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
+  const [balanceAmount, setBalanceAmount] = useState('');
+  const [balanceAction, setBalanceAction] = useState<'ADD' | 'SUBTRACT'>('ADD');
+  const [balanceDescription, setBalanceDescription] = useState('');
 
-  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
+  // Queries
+  const { data: usersData, isLoading: usersLoading } = useQuery({
     queryKey: ['/api/admin/users'],
-    enabled: authState.isAuthenticated && authState.user?.role === 'admin',
+    enabled: authState.isAuthenticated && authState.user?.role === 'ADMIN',
   });
 
-  const { data: logs, isLoading: logsLoading } = useQuery<AdminLog[]>({
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery<DashboardStats>({
+    queryKey: ['/api/admin/dashboard'],
+    enabled: authState.isAuthenticated && authState.user?.role === 'ADMIN',
+  });
+
+  const { data: logsData, isLoading: logsLoading } = useQuery({
     queryKey: ['/api/admin/logs'],
-    enabled: authState.isAuthenticated && authState.user?.role === 'admin',
+    enabled: authState.isAuthenticated && authState.user?.role === 'ADMIN',
   });
 
-  const { data: statistics, isLoading: statsLoading } = useQuery({
-    queryKey: ['/api/admin/statistics'],
-    enabled: authState.isAuthenticated && authState.user?.role === 'admin',
+  // Mutations
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, updates }: { userId: string; updates: any }) => {
+      const response = await apiRequest("PATCH", `/api/admin/users/${userId}`, updates);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      setEditModalOpen(false);
+      toast({
+        title: "User updated",
+        description: "User details have been successfully updated.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update failed",
+        description: error.message || "Failed to update user. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateBalanceMutation = useMutation({
+    mutationFn: async ({ userId, amount, action, description }: {
+      userId: string;
+      amount: number;
+      action: 'ADD' | 'SUBTRACT';
+      description: string;
+    }) => {
+      const response = await apiRequest("POST", `/api/admin/users/${userId}/balance`, {
+        amount,
+        action,
+        description,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      setBalanceModalOpen(false);
+      setBalanceAmount('');
+      setBalanceDescription('');
+      toast({
+        title: "Balance updated",
+        description: "User balance has been successfully updated.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Balance update failed",
+        description: error.message || "Failed to update balance. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleUserStatusMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await apiRequest("POST", `/api/admin/users/${userId}/toggle-status`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      toast({
+        title: "User status updated",
+        description: "User status has been successfully changed.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Status update failed",
+        description: error.message || "Failed to update user status. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: async (userId: number) => {
+    mutationFn: async (userId: string) => {
       const response = await apiRequest("DELETE", `/api/admin/users/${userId}`);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/logs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
       toast({
         title: "User deleted",
         description: "User account has been successfully deleted.",
@@ -112,286 +236,372 @@ export default function Admin() {
     },
   });
 
-  const handleFundManagement = (user: User) => {
-    setSelectedUser(user);
-    setFundModalOpen(true);
-  };
-
+  // Event handlers
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setEditModalOpen(true);
   };
 
-  const handleCreateTransaction = (user: User) => {
+  const handleBalanceUpdate = (user: User) => {
     setSelectedUser(user);
-    setTransactionModalOpen(true);
+    setBalanceModalOpen(true);
   };
 
-  const handleDeleteUser = (userId: number) => {
-    deleteUserMutation.mutate(userId);
-  };
-
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case 'add_funds':
-        return <Plus className="h-4 w-4 text-prime-success" />;
-      case 'subtract_funds':
-        return <Minus className="h-4 w-4 text-prime-error" />;
-      case 'delete_user':
-        return <Trash2 className="h-4 w-4 text-prime-error" />;
-      case 'edit_user':
-        return <Edit className="h-4 w-4 text-prime-accent" />;
-      case 'manual_transaction':
-        return <Receipt className="h-4 w-4 text-prime-accent" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-prime-warning" />;
+  const handleSubmitBalanceUpdate = () => {
+    if (!selectedUser || !balanceAmount || !balanceDescription) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
     }
+
+    updateBalanceMutation.mutate({
+      userId: selectedUser.id,
+      amount: parseFloat(balanceAmount),
+      action: balanceAction,
+      description: balanceDescription,
+    });
   };
 
-  const getActionText = (action: string) => {
-    switch (action) {
-      case 'add_funds':
-        return 'Added Funds';
-      case 'subtract_funds':
-        return 'Removed Funds';
-      case 'delete_user':
-        return 'Deleted User';
-      case 'edit_user':
-        return 'Edited User';
-      case 'manual_transaction':
-        return 'Manual Transaction';
-      default:
-        return action.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-    }
-  };
+  const users = (usersData as any)?.users || [];
+  const logs = (logsData as any)?.logs || [];
+  const stats = dashboardStats || {};
 
-  if (usersLoading || logsLoading) {
+  if (!authState.isAuthenticated || authState.user?.role !== 'ADMIN') {
     return (
-      <div className="min-h-screen bg-prime-navy text-white">
-        <Navbar user={authState.user!} />
-        <div className="pt-16 p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-8">
-              <Skeleton className="h-8 w-64 mb-2 bg-prime-slate" />
-              <Skeleton className="h-4 w-96 bg-prime-slate" />
-            </div>
-            <div className="grid md:grid-cols-4 gap-6 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <Card key={i} className="gradient-card border-prime-slate/30">
-                  <CardContent className="p-6">
-                    <Skeleton className="h-4 w-24 mb-2 bg-prime-slate" />
-                    <Skeleton className="h-8 w-32 mb-1 bg-prime-slate" />
-                    <Skeleton className="h-3 w-20 bg-prime-slate" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar user={authState.user || { name: '', email: '', role: 'USER' }} />
+        <div className="container mx-auto px-6 py-8">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
+              <p className="text-gray-600">You need admin privileges to access this page.</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
   }
-
-  if (!users || !logs) {
-    return (
-      <div className="min-h-screen bg-prime-navy text-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Unable to load admin panel</h2>
-          <p className="text-gray-300">Please try refreshing the page.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const displayStats = statistics || {
-    totalUsers: users.length,
-    totalAssets: users.reduce((sum, user) => sum + parseFloat(user.balance), 0),
-    dailyTransactions: logs.filter(log => 
-      new Date(log.createdAt).toDateString() === new Date().toDateString()
-    ).length,
-    totalTransactions: logs.length,
-  };
 
   return (
-    <div className="min-h-screen bg-prime-navy text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Navbar user={authState.user!} />
-      
-      <div className="pt-16 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Administrative Control Panel</h1>
-            <p className="text-gray-300">Complete user and fund management capabilities.</p>
+      <div className="container mx-auto px-6 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600">Comprehensive banking administration portal</p>
+            </div>
           </div>
-
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
-            <Card className="gradient-card border-prime-slate/30 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Total Users</span>
-                  <Users className="h-5 w-5 text-prime-accent" />
-                </div>
-                <div className="text-3xl font-bold text-white">{displayStats.totalUsers.toLocaleString()}</div>
-                <div className="text-sm text-prime-success mt-1">All accounts</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="gradient-card border-prime-slate/30 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Total Assets</span>
-                  <DollarSign className="h-5 w-5 text-prime-accent" />
-                </div>
-                <div className="text-3xl font-bold text-white">${displayStats.totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-                <div className="text-sm text-prime-success mt-1">Under management</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="gradient-card border-prime-slate/30 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Daily Transactions</span>
-                  <Activity className="h-5 w-5 text-prime-accent" />
-                </div>
-                <div className="text-3xl font-bold text-white">{displayStats.dailyTransactions}</div>
-                <div className="text-sm text-gray-400 mt-1">Today</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="gradient-card border-prime-slate/30 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-400">Total Transactions</span>
-                  <BarChart3 className="h-5 w-5 text-prime-accent" />
-                </div>
-                <div className="text-3xl font-bold text-white">{displayStats.totalTransactions}</div>
-                <div className="text-sm text-gray-400 mt-1">All time</div>
-              </CardContent>
-            </Card>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <Clock className="h-4 w-4" />
+            <span>Last updated: {new Date().toLocaleString()}</span>
           </div>
+        </div>
 
-          {/* Main Content */}
-          <Tabs defaultValue="users" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 bg-prime-charcoal border border-prime-slate/30">
-              <TabsTrigger value="users" className="data-[state=active]:bg-prime-accent data-[state=active]:text-white">
-                User Management
-              </TabsTrigger>
-              <TabsTrigger value="logs" className="data-[state=active]:bg-prime-accent data-[state=active]:text-white">
-                Activity Logs
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 bg-white/70 backdrop-blur-sm border border-gray-200 shadow-sm">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
+              <Users className="h-4 w-4 mr-2" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
+              <Receipt className="h-4 w-4 mr-2" />
+              Transactions
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
+              <History className="h-4 w-4 mr-2" />
+              Activity Logs
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="users">
-              <Card className="gradient-card border-prime-slate/30 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-white flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    User Management
-                  </CardTitle>
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Users className="h-4 w-4 text-blue-600" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {users.map((user) => (
-                      <div key={user.id} className="flex items-center justify-between p-4 bg-prime-navy/30 rounded-lg border border-prime-slate/20">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-prime-accent to-blue-500 rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold">
-                              {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                            </span>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {statsLoading ? <Skeleton className="h-7 w-16" /> : dashboardStats?.totalUsers || 0}
+                  </div>
+                  <p className="text-xs text-green-600 mt-1">+2.5% from last month</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Active Users</CardTitle>
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <UserCheck className="h-4 w-4 text-green-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {statsLoading ? <Skeleton className="h-7 w-16" /> : dashboardStats?.activeUsers || 0}
+                  </div>
+                  <p className="text-xs text-green-600 mt-1">98.5% active rate</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Transactions</CardTitle>
+                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Activity className="h-4 w-4 text-purple-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {statsLoading ? <Skeleton className="h-7 w-16" /> : dashboardStats?.totalTransactions || 0}
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1">+15% this week</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Balance</CardTitle>
+                  <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-4 w-4 text-amber-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {statsLoading ? (
+                      <Skeleton className="h-7 w-20" />
+                    ) : (
+                      `$${(dashboardStats?.totalBalance || 0).toLocaleString()}`
+                    )}
+                  </div>
+                  <p className="text-xs text-green-600 mt-1">+8.2% growth</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Transactions */}
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 text-indigo-600" />
+                    </div>
+                    <CardTitle className="text-gray-900">Recent Transactions</CardTitle>
+                  </div>
+                  <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {statsLoading ? (
+                  <div className="p-6 space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-40" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                        <Skeleton className="h-6 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {dashboardStats?.recentTransactions?.map((transaction, index) => (
+                      <div key={transaction.id} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                              transaction.type === 'CREDIT' 
+                                ? 'bg-green-100 border-2 border-green-200' 
+                                : 'bg-red-100 border-2 border-red-200'
+                            }`}>
+                              {transaction.type === 'CREDIT' ? 
+                                <Plus className="h-5 w-5 text-green-600" /> : 
+                                <Minus className="h-5 w-5 text-red-600" />
+                              }
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">{transaction.description}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-sm text-gray-600">{transaction.user.name}</p>
+                                <span className="text-gray-300">•</span>
+                                <p className="text-sm text-gray-500">
+                                  {format(new Date(transaction.createdAt), 'MMM dd, HH:mm')}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-medium text-white">{user.name}</div>
-                            <div className="text-sm text-gray-400">{user.email}</div>
-                            <div className="text-xs text-gray-500 font-mono">Account: {user.accountNumber}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge 
-                                variant={user.role === 'admin' ? 'default' : 'secondary'}
-                                className={user.role === 'admin' 
-                                  ? 'bg-prime-accent text-white' 
-                                  : 'bg-prime-slate text-gray-200'
-                                }
-                              >
-                                {user.role}
-                              </Badge>
-                              <Badge 
-                                variant="outline" 
-                                className="border-prime-blue text-gray-300 text-xs"
-                              >
-                                {user.accountType}
-                              </Badge>
-                              {user.lastLogin && (
-                                <span className="text-xs text-gray-500">
-                                  Last: {format(new Date(user.lastLogin), 'MMM d')}
-                                </span>
-                              )}
+                          <div className="text-right">
+                            <p className={`text-lg font-bold ${
+                              transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {transaction.type === 'CREDIT' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                            </p>
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className={`w-2 h-2 rounded-full ${
+                                transaction.type === 'CREDIT' ? 'bg-green-500' : 'bg-red-500'
+                              }`}></div>
+                              <span className="text-xs text-gray-500 uppercase tracking-wide">
+                                {transaction.type}
+                              </span>
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <div className="font-semibold text-white">
-                              ${parseFloat(user.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </div>
+                    )) || (
+                      <div className="p-12 text-center">
+                        <Receipt className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500">No recent transactions</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users" className="space-y-6">
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Users className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-gray-900">User Management</CardTitle>
+                    </div>
+                    <p className="text-sm text-gray-600">Manage user accounts, balances, and permissions</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                      Export
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {usersLoading ? (
+                  <div className="p-6 space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-48" />
+                          <Skeleton className="h-3 w-32" />
+                        </div>
+                        <Skeleton className="h-8 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {users.map((user: User) => (
+                      <div key={user.id} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-lg">
+                                {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              </span>
                             </div>
-                            <div className="text-sm text-gray-400">Account Balance</div>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <h3 className="font-semibold text-gray-900">{user.name}</h3>
+                                <Badge 
+                                  variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
+                                  className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800 border-purple-200' : 'bg-gray-100 text-gray-700 border-gray-200'}
+                                >
+                                  {user.role}
+                                </Badge>
+                                <Badge 
+                                  variant={user.isActive ? 'default' : 'destructive'}
+                                  className={user.isActive ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}
+                                >
+                                  {user.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-gray-600 mb-1">{user.email}</p>
+                              <div className="flex items-center gap-4">
+                                <p className="text-sm font-medium text-gray-900">
+                                  Balance: <span className="text-green-600">${user.balance.toLocaleString()}</span>
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Account Type: {user.accountType}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex items-center space-x-2">
                             <Button
-                              size="sm"
                               variant="outline"
-                              className="border-prime-blue text-prime-blue hover:bg-prime-blue hover:text-white"
+                              size="sm"
+                              className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
                               onClick={() => handleEditUser(user)}
-                              title="Edit user profile"
                             >
-                              <Settings className="h-4 w-4" />
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
-                              size="sm"
                               variant="outline"
-                              className="border-prime-accent text-prime-accent hover:bg-prime-accent hover:text-white"
-                              onClick={() => handleFundManagement(user)}
-                              title="Adjust account balance"
+                              size="sm"
+                              className="hover:bg-green-50 hover:text-green-600 hover:border-green-300"
+                              onClick={() => handleBalanceUpdate(user)}
                             >
                               <DollarSign className="h-4 w-4" />
                             </Button>
                             <Button
-                              size="sm"
                               variant="outline"
-                              className="border-prime-success text-prime-success hover:bg-prime-success hover:text-white"
-                              onClick={() => handleCreateTransaction(user)}
-                              title="Create manual transaction"
+                              size="sm"
+                              className={user.isActive ? 'hover:bg-red-50 hover:text-red-600 hover:border-red-300' : 'hover:bg-green-50 hover:text-green-600 hover:border-green-300'}
+                              onClick={() => toggleUserStatusMutation.mutate(user.id)}
                             >
-                              <CreditCard className="h-4 w-4" />
+                              {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                             </Button>
-                            {user.id !== authState.user?.id && (
+                            {user.role !== 'ADMIN' && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-prime-error text-prime-error hover:bg-prime-error hover:text-white"
-                                    title="Delete user account"
-                                  >
+                                  <Button variant="outline" size="sm" className="hover:bg-red-50 hover:text-red-600 hover:border-red-300">
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-prime-charcoal border-prime-slate/30 text-white">
+                                <AlertDialogContent className="bg-white">
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete User Account</AlertDialogTitle>
-                                    <AlertDialogDescription className="text-gray-300">
-                                      Are you sure you want to delete {user.name}'s account? This action cannot be undone and will permanently remove all user data and transaction history.
+                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete {user.name}? This action cannot be undone and will permanently remove all user data.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel className="border-prime-slate/30 text-gray-300 hover:bg-prime-slate/20">
-                                      Cancel
-                                    </AlertDialogCancel>
+                                    <AlertDialogCancel className="hover:bg-gray-50">Cancel</AlertDialogCancel>
                                     <AlertDialogAction
-                                      className="bg-prime-error hover:bg-red-600 text-white"
-                                      onClick={() => handleDeleteUser(user.id)}
-                                      disabled={deleteUserMutation.isPending}
+                                      onClick={() => deleteUserMutation.mutate(user.id)}
+                                      className="bg-red-600 hover:bg-red-700 text-white"
                                     >
-                                      {deleteUserMutation.isPending ? "Deleting..." : "Delete User"}
+                                      Delete User
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -402,86 +612,167 @@ export default function Admin() {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            <TabsContent value="logs">
-              <Card className="gradient-card border-prime-slate/30 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-white flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Recent Admin Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {logs.length === 0 ? (
-                      <div className="text-center py-8">
-                        <p className="text-gray-400">No admin actions recorded yet.</p>
-                        <p className="text-sm text-gray-500 mt-1">Activity logs will appear here as actions are performed.</p>
+          {/* Activity Logs Tab */}
+          <TabsContent value="logs" className="space-y-6">
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <History className="h-4 w-4 text-indigo-600" />
                       </div>
-                    ) : (
-                      logs.map((log) => (
-                        <div key={log.id} className="flex items-start gap-3 p-3 bg-prime-navy/30 rounded-lg">
-                          <div className="flex-shrink-0 mt-1">
-                            {getActionIcon(log.action)}
+                      <CardTitle className="text-gray-900">Activity Logs</CardTitle>
+                    </div>
+                    <p className="text-sm text-gray-600">Track all administrative actions and system activities</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                      Filter
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                      Export Logs
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {logsLoading ? (
+                  <div className="p-6 space-y-4">
+                    {[...Array(8)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-10 w-10 rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-64" />
+                          <Skeleton className="h-3 w-48" />
+                        </div>
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {logs.map((log: AdminLog) => (
+                      <div key={log.id} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                              <History className="h-5 w-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-semibold text-gray-900">
+                                  {log.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </p>
+                                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                  {log.action.split('_')[0]}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <span>by</span>
+                                <span className="font-medium text-gray-900">{log.admin.name}</span>
+                                {log.targetUser && (
+                                  <>
+                                    <span className="text-gray-400">→</span>
+                                    <span className="font-medium text-gray-900">{log.targetUser.name}</span>
+                                  </>
+                                )}
+                              </div>
+                              {log.description && (
+                                <p className="text-sm text-gray-600 mt-1 italic">{log.description}</p>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm text-white">
-                              <span className="font-medium">{getActionText(log.action)}:</span>
-                              {log.amount && (
-                                <span className="ml-1">
-                                  ${parseFloat(log.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </span>
-                              )}
-                              {log.targetUserName && (
-                                <span className="ml-1">
-                                  {log.action === 'delete_user' ? 'deleted' : 'for'} {log.targetUserName}
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-xs text-gray-400 mt-1">
-                              By {log.adminName} • {format(new Date(log.createdAt), 'MMM d, yyyy • h:mm a')}
-                            </div>
+                          <div className="text-right">
+                            {log.amount && (
+                              <p className="font-bold text-lg text-green-600 mb-1">
+                                ${Number(log.amount).toLocaleString()}
+                              </p>
+                            )}
+                            <p className="text-sm text-gray-500">
+                              {format(new Date(log.createdAt), 'MMM dd, yyyy')}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {format(new Date(log.createdAt), 'HH:mm:ss')}
+                            </p>
                           </div>
                         </div>
-                      ))
+                      </div>
+                    )) || (
+                      <div className="p-12 text-center">
+                        <History className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500">No activity logs available</p>
+                      </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <FundModal
-        isOpen={fundModalOpen}
-        onClose={() => {
-          setFundModalOpen(false);
-          setSelectedUser(null);
-        }}
-        user={selectedUser}
-      />
-
-      <EditUserModal
-        isOpen={editModalOpen}
-        onClose={() => {
-          setEditModalOpen(false);
-          setSelectedUser(null);
-        }}
-        user={selectedUser}
-      />
-
-      <TransactionModal
-        isOpen={transactionModalOpen}
-        onClose={() => {
-          setTransactionModalOpen(false);
-          setSelectedUser(null);
-        }}
-        user={selectedUser}
-      />
+      {/* Balance Update Modal */}
+      <Dialog open={balanceModalOpen} onOpenChange={setBalanceModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update User Balance</DialogTitle>
+            <DialogDescription>
+              Update the balance for {selectedUser?.name}. Current balance: ${selectedUser?.balance.toLocaleString()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="action">Action</Label>
+              <Select value={balanceAction} onValueChange={(value: 'ADD' | 'SUBTRACT') => setBalanceAction(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ADD">Add Funds</SelectItem>
+                  <SelectItem value="SUBTRACT">Subtract Funds</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="amount">Amount</Label>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                value={balanceAmount}
+                onChange={(e) => setBalanceAmount(e.target.value)}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={balanceDescription}
+                onChange={(e) => setBalanceDescription(e.target.value)}
+                placeholder="Reason for balance update"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBalanceModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitBalanceUpdate}
+              disabled={updateBalanceMutation.isPending}
+            >
+              {updateBalanceMutation.isPending ? 'Updating...' : 'Update Balance'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

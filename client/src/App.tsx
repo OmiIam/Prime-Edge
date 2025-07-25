@@ -31,7 +31,7 @@ function Router() {
     );
   }
 
-  if (authState.user?.role === 'admin') {
+  if (authState.user?.role === 'ADMIN') {
     return (
       <Switch>
         <Route path="/" component={Dashboard} />

@@ -15,7 +15,7 @@ interface NavbarProps {
   user: {
     name: string;
     email: string;
-    role: string;
+    role: 'USER' | 'ADMIN';
   };
 }
 
@@ -38,7 +38,7 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
           
           <div className="flex items-center space-x-4">
-            {user.role === 'admin' && (
+            {user.role === 'ADMIN' && (
               <Button
                 variant={location === '/admin' ? 'default' : 'ghost'}
                 className={location === '/admin' 

@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  password      String
+  role          Role          @default(USER)
+  balance       Float         @default(0)
+  accountNumber String        @unique @default(uuid())
+  accountType   AccountType   @default(CHECKING)
+  isActive      Boolean       @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relations
+  transactions  Transaction[]
+  adminLogs     AdminLog[]    @relation("AdminLogs")
+  targetLogs    AdminLog[]    @relation("TargetUserLogs")
+
+  @@map("users")
+}
+
+model Transaction {
+  id          String            @id @default(uuid())
+  userId      String
+  type        TransactionType
+  amount      Float
+  description String
+  reference   String?
+  status      TransactionStatus @default(COMPLETED)
+  createdAt   DateTime          @default(now())
+  
+  // Relations
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model AdminLog {
+  id           String    @id @default(uuid())
+  adminId      String
+  action       String
+  targetUserId String?
+  amount       Float?
+  description  String?
+  createdAt    DateTime  @default(now())
+  
+  // Relations
+  admin        User      @relation("AdminLogs", fields: [adminId], references: [id], onDelete: Cascade)
+  targetUser   User?     @relation("TargetUserLogs", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  @@map("admin_logs")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  BUSINESS
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
