@@ -117,6 +117,13 @@ export default function AdminNew() {
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceAction, setBalanceAction] = useState<'ADD' | 'SUBTRACT'>('ADD');
   const [balanceDescription, setBalanceDescription] = useState('');
+  const [editFormData, setEditFormData] = useState({ 
+    name: '', 
+    email: '', 
+    role: 'USER' as 'USER' | 'ADMIN', 
+    accountType: 'CHECKING' as 'CHECKING' | 'SAVINGS' | 'BUSINESS', 
+    isActive: true 
+  });
 
   // Queries
   const { data: usersData, isLoading: usersLoading } = useQuery({
@@ -239,7 +246,23 @@ export default function AdminNew() {
   // Event handlers
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
+    setEditFormData({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      accountType: user.accountType,
+      isActive: user.isActive
+    });
     setEditModalOpen(true);
+  };
+
+  const handleSubmitEditUser = () => {
+    if (!selectedUser) return;
+    
+    updateUserMutation.mutate({
+      userId: selectedUser.id,
+      updates: editFormData
+    });
   };
 
   const handleBalanceUpdate = (user: User) => {
@@ -273,7 +296,7 @@ export default function AdminNew() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar user={authState.user || { name: '', email: '', role: 'USER' }} />
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
           <Card>
             <CardContent className="p-8 text-center">
               <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -289,7 +312,7 @@ export default function AdminNew() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Navbar user={authState.user!} />
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -307,29 +330,32 @@ export default function AdminNew() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white/70 backdrop-blur-sm border border-gray-200 shadow-sm">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Overview
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/90 backdrop-blur-sm border border-gray-300 shadow-lg rounded-lg p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+              <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Overview</span>
+              <span className="sm:hidden">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-              <Users className="h-4 w-4 mr-2" />
+            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+              <Users className="h-4 w-4 mr-1 sm:mr-2" />
               Users
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-              <Receipt className="h-4 w-4 mr-2" />
-              Transactions
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+              <Receipt className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Transactions</span>
+              <span className="sm:hidden">Trans</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">
-              <History className="h-4 w-4 mr-2" />
-              Activity Logs
+            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+              <History className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Activity Logs</span>
+              <span className="sm:hidden">Logs</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -344,7 +370,7 @@ export default function AdminNew() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">Active Users</CardTitle>
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
@@ -359,7 +385,7 @@ export default function AdminNew() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">Total Transactions</CardTitle>
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -374,7 +400,7 @@ export default function AdminNew() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">Total Balance</CardTitle>
                   <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
@@ -395,7 +421,7 @@ export default function AdminNew() {
             </div>
 
             {/* Recent Transactions */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
               <CardHeader className="border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -481,7 +507,7 @@ export default function AdminNew() {
 
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
               <CardHeader className="border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
@@ -521,85 +547,98 @@ export default function AdminNew() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {users.map((user: User) => (
-                      <div key={user.id} className="p-6 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-lg">
+                      <div key={user.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-semibold text-sm sm:text-lg">
                                 {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                               </span>
                             </div>
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h3 className="font-semibold text-gray-900">{user.name}</h3>
-                                <Badge 
-                                  variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
-                                  className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800 border-purple-200' : 'bg-gray-100 text-gray-700 border-gray-200'}
-                                >
-                                  {user.role}
-                                </Badge>
-                                <Badge 
-                                  variant={user.isActive ? 'default' : 'destructive'}
-                                  className={user.isActive ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}
-                                >
-                                  {user.isActive ? 'Active' : 'Inactive'}
-                                </Badge>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                                <h3 className="font-semibold text-gray-900 truncate">{user.name}</h3>
+                                <div className="flex gap-1 flex-wrap">
+                                  <Badge 
+                                    variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
+                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800 border-purple-300 text-xs' : 'bg-gray-100 text-gray-700 border-gray-300 text-xs'}
+                                  >
+                                    {user.role}
+                                  </Badge>
+                                  <Badge 
+                                    variant={user.isActive ? 'default' : 'destructive'}
+                                    className={user.isActive ? 'bg-green-100 text-green-800 border-green-300 text-xs' : 'bg-red-100 text-red-800 border-red-300 text-xs'}
+                                  >
+                                    {user.isActive ? 'Active' : 'Inactive'}
+                                  </Badge>
+                                </div>
                               </div>
-                              <p className="text-sm text-gray-600 mb-1">{user.email}</p>
-                              <div className="flex items-center gap-4">
+                              <p className="text-sm text-gray-600 mb-1 truncate">{user.email}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                                 <p className="text-sm font-medium text-gray-900">
-                                  Balance: <span className="text-green-600">${user.balance.toLocaleString()}</span>
+                                  Balance: <span className="text-green-600 font-bold">${user.balance.toLocaleString()}</span>
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  Account Type: {user.accountType}
+                                  Account: {user.accountType}
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center justify-end gap-1 sm:gap-2 flex-shrink-0">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                              className="bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-400 transition-colors p-2"
                               onClick={() => handleEditUser(user)}
+                              title="Edit User"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="hover:bg-green-50 hover:text-green-600 hover:border-green-300"
+                              className="bg-white border-gray-300 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-400 transition-colors p-2"
                               onClick={() => handleBalanceUpdate(user)}
+                              title="Update Balance"
                             >
                               <DollarSign className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className={user.isActive ? 'hover:bg-red-50 hover:text-red-600 hover:border-red-300' : 'hover:bg-green-50 hover:text-green-600 hover:border-green-300'}
+                              className={user.isActive 
+                                ? 'bg-white border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-400 transition-colors p-2' 
+                                : 'bg-white border-gray-300 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-400 transition-colors p-2'
+                              }
                               onClick={() => toggleUserStatusMutation.mutate(user.id)}
+                              title={user.isActive ? 'Deactivate User' : 'Activate User'}
                             >
                               {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                             </Button>
                             {user.role !== 'ADMIN' && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button variant="outline" size="sm" className="hover:bg-red-50 hover:text-red-600 hover:border-red-300">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="bg-white border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-400 transition-colors p-2"
+                                    title="Delete User"
+                                  >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-white">
+                                <AlertDialogContent className="bg-white mx-4 max-w-md">
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                    <AlertDialogDescription>
+                                    <AlertDialogTitle className="text-gray-900">Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription className="text-gray-600">
                                       Are you sure you want to delete {user.name}? This action cannot be undone and will permanently remove all user data.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="hover:bg-gray-50">Cancel</AlertDialogCancel>
+                                  <AlertDialogFooter className="flex gap-2">
+                                    <AlertDialogCancel className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300">Cancel</AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() => deleteUserMutation.mutate(user.id)}
-                                      className="bg-red-600 hover:bg-red-700 text-white"
+                                      className="bg-red-600 hover:bg-red-700 text-white border-red-600"
                                     >
                                       Delete User
                                     </AlertDialogAction>
@@ -617,9 +656,103 @@ export default function AdminNew() {
             </Card>
           </TabsContent>
 
+          {/* Transactions Tab */}
+          <TabsContent value="transactions" className="space-y-6">
+            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
+              <CardHeader className="border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Receipt className="h-4 w-4 text-green-600" />
+                      </div>
+                      <CardTitle className="text-gray-900">Transaction Management</CardTitle>
+                    </div>
+                    <p className="text-sm text-gray-600">View and manage all system transactions</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                      Filter
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                      Export
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {statsLoading ? (
+                  <div className="p-6 space-y-4">
+                    {[...Array(8)].map((_, i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-64" />
+                          <Skeleton className="h-3 w-48" />
+                        </div>
+                        <Skeleton className="h-6 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                    {dashboardStats?.recentTransactions?.map((transaction, index) => (
+                      <div key={transaction.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              transaction.type === 'CREDIT' 
+                                ? 'bg-green-100 border-2 border-green-200' 
+                                : 'bg-red-100 border-2 border-red-200'
+                            }`}>
+                              {transaction.type === 'CREDIT' ? 
+                                <Plus className="h-5 w-5 text-green-600" /> : 
+                                <Minus className="h-5 w-5 text-red-600" />
+                              }
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-gray-900 truncate">{transaction.description}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                                <p className="text-sm text-gray-600 truncate">{transaction.user.name}</p>
+                                <span className="text-gray-300 hidden sm:inline">•</span>
+                                <p className="text-sm text-gray-500">
+                                  {format(new Date(transaction.createdAt), 'MMM dd, HH:mm')}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className={`text-lg font-bold ${
+                              transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {transaction.type === 'CREDIT' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                            </p>
+                            <div className="flex items-center justify-end gap-1 mt-1">
+                              <div className={`w-2 h-2 rounded-full ${
+                                transaction.type === 'CREDIT' ? 'bg-green-500' : 'bg-red-500'
+                              }`}></div>
+                              <span className="text-xs text-gray-500 uppercase tracking-wide">
+                                {transaction.type}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )) || (
+                      <div className="p-12 text-center">
+                        <Receipt className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500">No transactions available</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Activity Logs Tab */}
           <TabsContent value="logs" className="space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
               <CardHeader className="border-b border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
@@ -719,18 +852,18 @@ export default function AdminNew() {
 
       {/* Balance Update Modal */}
       <Dialog open={balanceModalOpen} onOpenChange={setBalanceModalOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white mx-4 max-w-md">
           <DialogHeader>
-            <DialogTitle>Update User Balance</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900">Update User Balance</DialogTitle>
+            <DialogDescription className="text-gray-600">
               Update the balance for {selectedUser?.name}. Current balance: ${selectedUser?.balance.toLocaleString()}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="action">Action</Label>
+              <Label htmlFor="action" className="text-gray-700">Action</Label>
               <Select value={balanceAction} onValueChange={(value: 'ADD' | 'SUBTRACT') => setBalanceAction(value)}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -740,7 +873,7 @@ export default function AdminNew() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="amount">Amount</Label>
+              <Label htmlFor="amount" className="text-gray-700">Amount</Label>
               <Input
                 id="amount"
                 type="number"
@@ -748,27 +881,110 @@ export default function AdminNew() {
                 value={balanceAmount}
                 onChange={(e) => setBalanceAmount(e.target.value)}
                 placeholder="0.00"
+                className="border-gray-300 focus:border-blue-500"
               />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-gray-700">Description</Label>
               <Input
                 id="description"
                 value={balanceDescription}
                 onChange={(e) => setBalanceDescription(e.target.value)}
                 placeholder="Reason for balance update"
+                className="border-gray-300 focus:border-blue-500"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBalanceModalOpen(false)}>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={() => setBalanceModalOpen(false)} className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300">
               Cancel
             </Button>
             <Button 
               onClick={handleSubmitBalanceUpdate}
               disabled={updateBalanceMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {updateBalanceMutation.isPending ? 'Updating...' : 'Update Balance'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="bg-white mx-4 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900">Edit User</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Update user information for {selectedUser?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name" className="text-gray-700">Name</Label>
+              <Input
+                id="edit-name"
+                value={editFormData.name}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="border-gray-300 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-email" className="text-gray-700">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editFormData.email}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="border-gray-300 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-role" className="text-gray-700">Role</Label>
+              <Select value={editFormData.role} onValueChange={(value: 'USER' | 'ADMIN') => setEditFormData(prev => ({ ...prev, role: value }))}>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USER">User</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-account-type" className="text-gray-700">Account Type</Label>
+              <Select value={editFormData.accountType} onValueChange={(value: 'CHECKING' | 'SAVINGS' | 'BUSINESS') => setEditFormData(prev => ({ ...prev, accountType: value }))}>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CHECKING">Checking</SelectItem>
+                  <SelectItem value="SAVINGS">Savings</SelectItem>
+                  <SelectItem value="BUSINESS">Business</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="edit-active"
+                checked={editFormData.isActive}
+                onChange={(e) => setEditFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                className="border-gray-300 focus:ring-blue-500"
+              />
+              <Label htmlFor="edit-active" className="text-gray-700">Active Account</Label>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitEditUser}
+              disabled={updateUserMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {updateUserMutation.isPending ? 'Updating...' : 'Update User'}
             </Button>
           </DialogFooter>
         </DialogContent>
