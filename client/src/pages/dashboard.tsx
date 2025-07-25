@@ -7,25 +7,30 @@ import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditC
 import { format } from "date-fns";
 
 interface Transaction {
-  id: number;
+  id: string;
   type: string;
-  amount: string;
+  amount: number;
   description: string;
   createdAt: string;
 }
 
 interface DashboardData {
   user: {
-    id: number;
+    id: string;
     name: string;
     email: string;
     role: string;
-    balance: string;
+    balance: number;
     accountNumber: string;
     accountType: string;
     lastLogin: string | null;
   };
-  transactions: Transaction[];
+  recentTransactions: Transaction[];
+  monthlyStats: {
+    spent: number;
+    received: number;
+    transactionCount: number;
+  };
 }
 
 const getTransactionIcon = (description: string) => {
@@ -46,14 +51,14 @@ const getTransactionIcon = (description: string) => {
 };
 
 const getTransactionColor = (type: string) => {
-  return type === 'credit' ? 'text-prime-success' : 'text-prime-error';
+  return type === 'CREDIT' ? 'text-prime-success' : 'text-prime-error';
 };
 
 export default function Dashboard() {
   const authState = authManager.getState();
 
   const { data, isLoading, error } = useQuery<DashboardData>({
-    queryKey: ['/api/dashboard'],
+    queryKey: ['/api/user/dashboard'],
     enabled: authState.isAuthenticated,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -116,13 +121,8 @@ export default function Dashboard() {
     );
   }
 
-  const monthlySpending = data.transactions
-    .filter(t => t.type === 'debit' && new Date(t.createdAt).getMonth() === new Date().getMonth())
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-  const monthlyTransactions = data.transactions
-    .filter(t => new Date(t.createdAt).getMonth() === new Date().getMonth())
-    .length;
+  const monthlySpending = data.monthlyStats.spent;
+  const monthlyTransactions = data.monthlyStats.transactionCount;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
@@ -200,7 +200,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="text-3xl font-bold text-white mb-2">
-                  ${parseFloat(data.user.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  ${data.user.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -259,12 +259,12 @@ export default function Dashboard() {
                   <CardTitle className="text-xl font-bold text-white">Recent Transactions</CardTitle>
                 </div>
                 <div className="text-sm text-blue-300">
-                  {data.transactions.length} total
+                  {data.recentTransactions.length} recent
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {data.transactions.length === 0 ? (
+              {data.recentTransactions.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-gray-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Wallet className="h-8 w-8 text-gray-400" />
@@ -274,19 +274,19 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="divide-y divide-white/10">
-                  {data.transactions.map((transaction, index) => {
+                  {data.recentTransactions.map((transaction, index) => {
                     const IconComponent = getTransactionIcon(transaction.description);
                     return (
                       <div key={transaction.id} className="p-6 hover:bg-white/5 transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${
-                              transaction.type === 'credit' 
+                              transaction.type === 'CREDIT' 
                                 ? 'bg-green-500/20 border-green-400/30' 
                                 : 'bg-red-500/20 border-red-400/30'
                             }`}>
                               <IconComponent className={`h-6 w-6 ${
-                                transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'
+                                transaction.type === 'CREDIT' ? 'text-green-400' : 'text-red-400'
                               }`} />
                             </div>
                             <div>
@@ -300,12 +300,12 @@ export default function Dashboard() {
                           </div>
                           <div className="text-right">
                             <div className={`text-xl font-bold ${
-                              transaction.type === 'credit' ? 'text-green-400' : 'text-red-400'
+                              transaction.type === 'CREDIT' ? 'text-green-400' : 'text-red-400'
                             }`}>
-                              {transaction.type === 'credit' ? '+' : '-'}${parseFloat(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              {transaction.type === 'CREDIT' ? '+' : '-'}${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </div>
                             <div className={`text-xs font-medium px-2 py-1 rounded-full ${
-                              transaction.type === 'credit' 
+                              transaction.type === 'CREDIT' 
                                 ? 'bg-green-500/20 text-green-300' 
                                 : 'bg-red-500/20 text-red-300'
                             }`}>

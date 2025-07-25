@@ -76,10 +76,14 @@ userRouter.get('/dashboard', async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
       select: {
+        id: true,
         name: true,
+        email: true,
+        role: true,
         balance: true,
         accountNumber: true,
         accountType: true,
+        lastLogin: true,
       },
     })
 
