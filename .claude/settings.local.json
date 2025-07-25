@@ -3,7 +3,8 @@
     "allow": [
       "Bash(railway variables:*)",
       "Bash(npm run build:*)",
-      "Bash(railway up:*)"
+      "Bash(railway up:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

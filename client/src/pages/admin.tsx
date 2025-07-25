@@ -1011,6 +1011,7 @@ export default function AdminNew() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }
