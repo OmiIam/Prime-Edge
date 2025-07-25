@@ -3,6 +3,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { LoadingProvider } from "@/contexts/LoadingContext";
+import { RouteLoader } from "@/components/RouteLoader";
 import { useEffect, useState } from "react";
 import { authManager } from "./lib/auth";
 import NotFound from "@/pages/not-found";
@@ -54,12 +56,15 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="dark">
-          <Toaster />
-          <Router />
-        </div>
-      </TooltipProvider>
+      <LoadingProvider>
+        <TooltipProvider>
+          <div className="dark">
+            <Toaster />
+            <RouteLoader />
+            <Router />
+          </div>
+        </TooltipProvider>
+      </LoadingProvider>
     </QueryClientProvider>
   );
 }
