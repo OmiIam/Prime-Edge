@@ -310,127 +310,145 @@ export default function AdminNew() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Navbar user={authState.user!} />
-      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Shield className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+        <Navbar user={authState.user!} />
+      </div>
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <div className="mb-10">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Shield className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Comprehensive banking administration portal</p>
+              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">Admin Dashboard</h1>
+              <p className="text-gray-500 text-lg mt-1">Comprehensive banking administration portal</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-400">
             <Clock className="h-4 w-4" />
             <span>Last updated: {new Date().toLocaleString()}</span>
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/90 backdrop-blur-sm border border-gray-300 shadow-lg rounded-lg p-1">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white rounded-full border border-gray-200 shadow-md p-1.5 backdrop-blur-sm">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Overview</span>
-              <span className="sm:hidden">Stats</span>
+              <span className="hidden sm:inline">📊 Stats</span>
+              <span className="sm:hidden">📊</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+            <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <Users className="h-4 w-4 mr-1 sm:mr-2" />
-              Users
+              <span className="hidden sm:inline">👥 Users</span>
+              <span className="sm:hidden">👥</span>
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <Receipt className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Transactions</span>
-              <span className="sm:hidden">Trans</span>
+              <span className="hidden sm:inline">💳 Trans</span>
+              <span className="sm:hidden">💳</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 hover:bg-gray-100 transition-all text-sm sm:text-base">
+            <TabsTrigger value="logs" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <History className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Activity Logs</span>
-              <span className="sm:hidden">Logs</span>
+              <span className="hidden sm:inline">📋 Logs</span>
+              <span className="sm:hidden">📋</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Users className="h-4 w-4 text-blue-600" />
+          <TabsContent value="overview" className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Users</CardTitle>
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                    <Users className="h-5 w-5 text-blue-600" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {statsLoading ? <Skeleton className="h-7 w-16" /> : dashboardStats?.totalUsers || 0}
+                <CardContent className="pt-0">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">
+                    {statsLoading ? <Skeleton className="h-9 w-20" /> : dashboardStats?.totalUsers || 0}
                   </div>
-                  <p className="text-xs text-green-600 mt-1">+2.5% from last month</p>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-green-600 font-medium">+2.5% from last month</p>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Active Users</CardTitle>
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <UserCheck className="h-4 w-4 text-green-600" />
+              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Active Users</CardTitle>
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
+                    <UserCheck className="h-5 w-5 text-green-600" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {statsLoading ? <Skeleton className="h-7 w-16" /> : dashboardStats?.activeUsers || 0}
+                <CardContent className="pt-0">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">
+                    {statsLoading ? <Skeleton className="h-9 w-20" /> : dashboardStats?.activeUsers || 0}
                   </div>
-                  <p className="text-xs text-green-600 mt-1">98.5% active rate</p>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-green-600 font-medium">98.5% active rate</p>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Transactions</CardTitle>
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Activity className="h-4 w-4 text-purple-600" />
+              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Transactions</CardTitle>
+                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+                    <Activity className="h-5 w-5 text-purple-600" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {statsLoading ? <Skeleton className="h-7 w-16" /> : dashboardStats?.totalTransactions || 0}
+                <CardContent className="pt-0">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">
+                    {statsLoading ? <Skeleton className="h-9 w-20" /> : dashboardStats?.totalTransactions || 0}
                   </div>
-                  <p className="text-xs text-blue-600 mt-1">+15% this week</p>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                    <p className="text-sm text-blue-600 font-medium">+15% this week</p>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Balance</CardTitle>
-                  <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <DollarSign className="h-4 w-4 text-amber-600" />
+              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Balance</CardTitle>
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                    <DollarSign className="h-5 w-5 text-amber-600" />
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">
+                <CardContent className="pt-0">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">
                     {statsLoading ? (
-                      <Skeleton className="h-7 w-20" />
+                      <Skeleton className="h-9 w-24" />
                     ) : (
                       `$${(dashboardStats?.totalBalance || 0).toLocaleString()}`
                     )}
                   </div>
-                  <p className="text-xs text-green-600 mt-1">+8.2% growth</p>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-green-600 font-medium">+8.2% growth</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Recent Transactions */}
-            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
-              <CardHeader className="border-b border-gray-100">
+            <Card className="bg-white border border-gray-200 shadow-md">
+              <CardHeader className="border-b border-gray-100 pb-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-indigo-600" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 text-indigo-600" />
                     </div>
-                    <CardTitle className="text-gray-900">Recent Transactions</CardTitle>
+                    <div>
+                      <CardTitle className="text-xl font-bold text-gray-800">Recent Transactions</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">Latest financial activity</p>
+                    </div>
                   </div>
-                  <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                  <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors font-medium">
                     View All
                   </Button>
                 </div>
@@ -506,25 +524,25 @@ export default function AdminNew() {
           </TabsContent>
 
           {/* Users Tab */}
-          <TabsContent value="users" className="space-y-6">
-            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
-              <CardHeader className="border-b border-gray-100">
+          <TabsContent value="users" className="space-y-8">
+            <Card className="bg-white border border-gray-200 shadow-md">
+              <CardHeader className="border-b border-gray-100 pb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Users className="h-4 w-4 text-blue-600" />
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                        <Users className="h-5 w-5 text-blue-600" />
                       </div>
-                      <CardTitle className="text-gray-900">User Management</CardTitle>
+                      <CardTitle className="text-xl font-bold text-gray-800">User Management</CardTitle>
                     </div>
-                    <p className="text-sm text-gray-600">Manage user accounts, balances, and permissions</p>
+                    <p className="text-sm text-gray-500">Manage user accounts, balances, and permissions</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                  <div className="flex gap-3">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors font-medium">
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </Button>
-                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors font-medium">
                       Export
                     </Button>
                   </div>
@@ -547,48 +565,51 @@ export default function AdminNew() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {users.map((user: User) => (
-                      <div key={user.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-white font-semibold text-sm sm:text-lg">
+                      <div key={user.id} className="p-6 hover:bg-gray-50/80 transition-all duration-200 border-l-4 border-l-transparent hover:border-l-blue-500">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                          <div className="flex items-center space-x-4 flex-1 min-w-0">
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                              <span className="text-white font-bold text-lg">
                                 {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                               </span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                                <h3 className="font-semibold text-gray-900 truncate">{user.name}</h3>
-                                <div className="flex gap-1 flex-wrap">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                <h3 className="font-bold text-gray-800 text-lg truncate">{user.name}</h3>
+                                <div className="flex gap-2 flex-wrap">
                                   <Badge 
                                     variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
-                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800 border-purple-300 text-xs' : 'bg-gray-100 text-gray-700 border-gray-300 text-xs'}
+                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border-purple-200 text-xs font-semibold px-2.5 py-1' : 'bg-gray-100 text-gray-600 border-gray-200 text-xs font-semibold px-2.5 py-1'}
                                   >
                                     {user.role}
                                   </Badge>
                                   <Badge 
                                     variant={user.isActive ? 'default' : 'destructive'}
-                                    className={user.isActive ? 'bg-green-100 text-green-800 border-green-300 text-xs' : 'bg-red-100 text-red-800 border-red-300 text-xs'}
+                                    className={user.isActive ? 'bg-green-100 text-green-700 border-green-200 text-xs font-semibold px-2.5 py-1' : 'bg-red-100 text-red-700 border-red-200 text-xs font-semibold px-2.5 py-1'}
                                   >
                                     {user.isActive ? 'Active' : 'Inactive'}
                                   </Badge>
                                 </div>
                               </div>
-                              <p className="text-sm text-gray-600 mb-1 truncate">{user.email}</p>
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                                <p className="text-sm font-medium text-gray-900">
-                                  Balance: <span className="text-green-600 font-bold">${user.balance.toLocaleString()}</span>
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  Account: {user.accountType}
+                              <p className="text-sm text-gray-600 mb-3 truncate">{user.email}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  <p className="text-sm font-semibold text-gray-700">
+                                    Balance: <span className="text-green-600 font-bold text-base">${user.balance.toLocaleString()}</span>
+                                  </p>
+                                </div>
+                                <p className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full font-medium">
+                                  {user.accountType} Account
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-end gap-1 sm:gap-2 flex-shrink-0">
+                          <div className="flex items-center justify-end gap-2 flex-shrink-0">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-400 transition-colors p-2"
+                              className="bg-white border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-all duration-200 p-2.5 rounded-lg shadow-sm hover:shadow-md"
                               onClick={() => handleEditUser(user)}
                               title="Edit User"
                             >
@@ -597,7 +618,7 @@ export default function AdminNew() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="bg-white border-gray-300 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-400 transition-colors p-2"
+                              className="bg-white border-gray-200 text-gray-600 hover:bg-green-50 hover:text-green-700 hover:border-green-300 transition-all duration-200 p-2.5 rounded-lg shadow-sm hover:shadow-md"
                               onClick={() => handleBalanceUpdate(user)}
                               title="Update Balance"
                             >
@@ -607,8 +628,8 @@ export default function AdminNew() {
                               variant="outline"
                               size="sm"
                               className={user.isActive 
-                                ? 'bg-white border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-400 transition-colors p-2' 
-                                : 'bg-white border-gray-300 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-400 transition-colors p-2'
+                                ? 'bg-white border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all duration-200 p-2.5 rounded-lg shadow-sm hover:shadow-md' 
+                                : 'bg-white border-gray-200 text-gray-600 hover:bg-green-50 hover:text-green-700 hover:border-green-300 transition-all duration-200 p-2.5 rounded-lg shadow-sm hover:shadow-md'
                               }
                               onClick={() => toggleUserStatusMutation.mutate(user.id)}
                               title={user.isActive ? 'Deactivate User' : 'Activate User'}
@@ -621,7 +642,7 @@ export default function AdminNew() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="bg-white border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-400 transition-colors p-2"
+                                    className="bg-white border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all duration-200 p-2.5 rounded-lg shadow-sm hover:shadow-md"
                                     title="Delete User"
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -657,24 +678,24 @@ export default function AdminNew() {
           </TabsContent>
 
           {/* Transactions Tab */}
-          <TabsContent value="transactions" className="space-y-6">
-            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
-              <CardHeader className="border-b border-gray-100">
+          <TabsContent value="transactions" className="space-y-8">
+            <Card className="bg-white border border-gray-200 shadow-md">
+              <CardHeader className="border-b border-gray-100 pb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Receipt className="h-4 w-4 text-green-600" />
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                        <Receipt className="h-5 w-5 text-green-600" />
                       </div>
-                      <CardTitle className="text-gray-900">Transaction Management</CardTitle>
+                      <CardTitle className="text-xl font-bold text-gray-800">Transaction Management</CardTitle>
                     </div>
-                    <p className="text-sm text-gray-600">View and manage all system transactions</p>
+                    <p className="text-sm text-gray-500">View and manage all system transactions</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors font-medium">
                       Filter
                     </Button>
-                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors font-medium">
                       Export
                     </Button>
                   </div>
@@ -751,24 +772,24 @@ export default function AdminNew() {
           </TabsContent>
 
           {/* Activity Logs Tab */}
-          <TabsContent value="logs" className="space-y-6">
-            <Card className="bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg">
-              <CardHeader className="border-b border-gray-100">
+          <TabsContent value="logs" className="space-y-8">
+            <Card className="bg-white border border-gray-200 shadow-md">
+              <CardHeader className="border-b border-gray-100 pb-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <History className="h-4 w-4 text-indigo-600" />
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                        <History className="h-5 w-5 text-indigo-600" />
                       </div>
-                      <CardTitle className="text-gray-900">Activity Logs</CardTitle>
+                      <CardTitle className="text-xl font-bold text-gray-800">Activity Logs</CardTitle>
                     </div>
-                    <p className="text-sm text-gray-600">Track all administrative actions and system activities</p>
+                    <p className="text-sm text-gray-500">Track all administrative actions and system activities</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors font-medium">
                       Filter
                     </Button>
-                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors font-medium">
                       Export Logs
                     </Button>
                   </div>
