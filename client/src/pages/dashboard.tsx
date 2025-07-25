@@ -165,43 +165,43 @@ export default function Dashboard() {
               
               <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-prime-accent hover:bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-sm sm:text-base">
-                    <Send className="h-4 w-4 mr-1 sm:mr-2" />
+                  <Button className="bg-prime-accent hover:bg-blue-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-sm sm:text-base min-h-[48px] font-semibold">
+                    <Send className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Transfer Money</span>
                     <span className="sm:hidden">Transfer</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-slate-800 border-slate-700 text-white">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Send Money</DialogTitle>
+                <DialogContent className="bg-slate-800 border-slate-700 text-white mx-4 max-w-md rounded-2xl shadow-2xl">
+                  <DialogHeader className="pb-4">
+                    <DialogTitle className="text-xl font-bold text-white">Send Money</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4 mt-4">
-                    <div>
-                      <Label htmlFor="recipient" className="text-sm font-medium text-gray-300">Recipient Email</Label>
+                  <div className="space-y-5 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="recipient" className="text-base font-semibold text-gray-300">Recipient Email</Label>
                       <Input
                         id="recipient"
                         type="email"
                         placeholder="recipient@example.com"
                         value={recipientEmail}
                         onChange={(e) => setRecipientEmail(e.target.value)}
-                        className="bg-slate-700 border-slate-600 text-white mt-1"
+                        className="bg-slate-700 border-2 border-slate-600 text-white min-h-[48px] rounded-xl text-base px-4 focus:border-blue-500"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="amount" className="text-sm font-medium text-gray-300">Amount ($)</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="amount" className="text-base font-semibold text-gray-300">Amount ($)</Label>
                       <Input
                         id="amount"
                         type="number"
                         placeholder="0.00"
                         value={transferAmount}
                         onChange={(e) => setTransferAmount(e.target.value)}
-                        className="bg-slate-700 border-slate-600 text-white mt-1"
+                        className="bg-slate-700 border-2 border-slate-600 text-white min-h-[48px] rounded-xl text-base px-4 focus:border-blue-500"
                       />
                     </div>
                     <Button 
                       onClick={handleTransfer}
                       disabled={!transferAmount || !recipientEmail}
-                      className="w-full bg-prime-accent hover:bg-blue-600 text-white py-3 rounded-xl font-semibold"
+                      className="w-full bg-prime-accent hover:bg-blue-600 text-white min-h-[52px] rounded-xl font-bold text-base shadow-xl hover:shadow-2xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Send ${transferAmount || '0.00'}
                     </Button>
@@ -257,55 +257,55 @@ export default function Dashboard() {
           </Card>
 
           {/* Stats Cards */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 backdrop-blur-sm border border-green-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <CardContent className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            <Card className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 backdrop-blur-sm border border-green-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                    <Wallet className="h-6 w-6 text-green-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-xl flex items-center justify-center shadow-sm">
+                    <Wallet className="h-5 w-5 sm:h-6 sm:w-6 text-green-400" />
                   </div>
-                  <div className="text-xs text-green-300 font-medium uppercase tracking-wide">BALANCE</div>
+                  <div className="text-xs sm:text-xs text-green-300 font-semibold uppercase tracking-wide">BALANCE</div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">
                   ${data.user.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <div className="text-sm text-green-300">Available Now</div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="text-sm text-green-300 font-medium">Available Now</div>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-600/10 backdrop-blur-sm border border-blue-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-600/10 backdrop-blur-sm border border-blue-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-blue-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-xl flex items-center justify-center shadow-sm">
+                    <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />
                   </div>
-                  <div className="text-xs text-blue-300 font-medium uppercase tracking-wide">SPENDING</div>
+                  <div className="text-xs sm:text-xs text-blue-300 font-semibold uppercase tracking-wide">SPENDING</div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">
                   ${monthlySpending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <div className="text-sm text-blue-300">This Month</div>
+                  <div className="text-sm text-blue-300 font-medium">This Month</div>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-600/10 backdrop-blur-sm border border-purple-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 sm:col-span-2 lg:col-span-1">
-              <CardContent className="p-6">
+            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-600/10 backdrop-blur-sm border border-purple-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] sm:col-span-2 lg:col-span-1">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                    <ArrowUpRight className="h-6 w-6 text-purple-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-xl flex items-center justify-center shadow-sm">
+                    <ArrowUpRight className="h-5 w-5 sm:h-6 sm:w-6 text-purple-400" />
                   </div>
-                  <div className="text-xs text-purple-300 font-medium uppercase tracking-wide">ACTIVITY</div>
+                  <div className="text-xs sm:text-xs text-purple-300 font-semibold uppercase tracking-wide">ACTIVITY</div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">{monthlyTransactions}</div>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">{monthlyTransactions}</div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <div className="text-sm text-purple-300">Transactions</div>
+                  <div className="text-sm text-purple-300 font-medium">Transactions</div>
                 </div>
               </CardContent>
             </Card>

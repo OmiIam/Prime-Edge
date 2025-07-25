@@ -332,123 +332,123 @@ export default function AdminNew() {
           </div>
 
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm overflow-hidden">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
+              <BarChart3 className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Overview</span>
-              <span className="sm:hidden">Stats</span>
+              <span className="sm:hidden text-xs font-medium">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
-              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>Users</span>
+            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
+              <Users className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
-              <Receipt className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
+              <Receipt className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Transactions</span>
-              <span className="sm:hidden">Trans</span>
+              <span className="sm:hidden text-xs font-medium">Trans</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
-              <History className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span>Logs</span>
+            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
+              <History className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium">Logs</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Users</CardTitle>
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                    <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4">
+              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Users</CardTitle>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-xl flex items-center justify-center shadow-sm">
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
-                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
-                    {statsLoading ? <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 bg-gray-200" /> : dashboardStats?.totalUsers || 0}
+                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                    {statsLoading ? <Skeleton className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 rounded" /> : dashboardStats?.totalUsers || 0}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                    <p className="text-xs text-green-600 font-medium">+2.5% from last month</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <p className="text-xs sm:text-sm text-green-600 font-medium">+2.5% from last month</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Active Users</CardTitle>
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                    <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Active Users</CardTitle>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-xl flex items-center justify-center shadow-sm">
+                    <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
-                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
-                    {statsLoading ? <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 bg-gray-200" /> : dashboardStats?.activeUsers || 0}
+                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                    {statsLoading ? <Skeleton className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 rounded" /> : dashboardStats?.activeUsers || 0}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                    <p className="text-xs text-green-600 font-medium">98.5% active rate</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <p className="text-xs sm:text-sm text-green-600 font-medium">98.5% active rate</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Transactions</CardTitle>
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                    <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
+              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Transactions</CardTitle>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-50 rounded-xl flex items-center justify-center shadow-sm">
+                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
-                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
-                    {statsLoading ? <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 bg-gray-200" /> : dashboardStats?.totalTransactions || 0}
+                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                    {statsLoading ? <Skeleton className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 rounded" /> : dashboardStats?.totalTransactions || 0}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                    <p className="text-xs text-blue-600 font-medium">+15% this week</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                    <p className="text-xs sm:text-sm text-blue-600 font-medium">+15% this week</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Balance</CardTitle>
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-yellow-50 rounded-lg flex items-center justify-center">
-                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
+              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Balance</CardTitle>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-50 rounded-xl flex items-center justify-center shadow-sm">
+                    <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
-                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
+                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                     {statsLoading ? (
-                      <Skeleton className="h-6 w-16 sm:h-8 sm:w-20 bg-gray-200" />
+                      <Skeleton className="h-7 w-20 sm:h-8 sm:w-24 bg-gray-200 rounded" />
                     ) : (
                       `$${(dashboardStats?.totalBalance || 0).toLocaleString()}`
                     )}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                    <p className="text-xs text-green-600 font-medium">+8.2% growth</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <p className="text-xs sm:text-sm text-green-600 font-medium">+8.2% growth</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Recent Transactions */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader className="border-b border-gray-100 pb-3 sm:pb-4 px-3 sm:px-6 pt-3 sm:pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+            <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+              <CardHeader className="border-b border-gray-100 pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center shadow-sm">
+                      <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm sm:text-lg font-semibold text-gray-900">Recent Transactions</CardTitle>
-                      <p className="text-xs sm:text-sm text-gray-500 mt-0.5 hidden sm:block">Latest financial activity</p>
+                      <CardTitle className="text-base sm:text-xl font-bold text-gray-900">Recent Transactions</CardTitle>
+                      <p className="text-sm sm:text-base text-gray-500 mt-1">Latest financial activity</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium text-xs sm:text-sm px-2 sm:px-3">
+                  <Button variant="outline" size="sm" className="self-start sm:self-auto text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium text-sm px-4 py-2 min-h-[40px] rounded-lg shadow-sm">
                     <span className="hidden sm:inline">View All</span>
-                    <span className="sm:hidden">All</span>
+                    <span className="sm:hidden">View All</span>
                   </Button>
                 </div>
               </CardHeader>
@@ -469,41 +469,45 @@ export default function AdminNew() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {dashboardStats?.recentTransactions?.map((transaction, index) => (
-                      <div key={transaction.id} className="p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      <div key={transaction.id} className="p-4 sm:p-5 hover:bg-gray-50 transition-all duration-200 hover:shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                          <div className="flex items-start space-x-4 flex-1 min-w-0">
+                            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0 ${
                               transaction.type === 'CREDIT' 
-                                ? 'bg-green-50 border border-green-200' 
-                                : 'bg-red-50 border border-red-200'
+                                ? 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200' 
+                                : 'bg-gradient-to-br from-red-50 to-red-100 border border-red-200'
                             }`}>
                               {transaction.type === 'CREDIT' ? 
-                                <Plus className="h-4 w-4 text-green-600" /> : 
-                                <Minus className="h-4 w-4 text-red-600" />
+                                <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" /> : 
+                                <Minus className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
                               }
                             </div>
-                            <div>
-                              <p className="font-medium text-gray-900">{transaction.description}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <p className="text-sm text-gray-600">{transaction.user.name}</p>
-                                <span className="text-gray-300">•</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-gray-900 text-base sm:text-lg mb-2 truncate">{transaction.description}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                                <p className="text-sm sm:text-base text-gray-600 font-medium truncate">{transaction.user.name}</p>
+                                <span className="text-gray-300 hidden sm:inline">•</span>
                                 <p className="text-sm text-gray-500">
-                                  {format(new Date(transaction.createdAt), 'MMM dd, HH:mm')}
+                                  {format(new Date(transaction.createdAt), 'MMM dd, yyyy HH:mm')}
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className={`text-base font-semibold ${
+                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-1 flex-shrink-0">
+                            <p className={`text-lg sm:text-xl font-bold ${
                               transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
                             }`}>
                               {transaction.type === 'CREDIT' ? '+' : '-'}${transaction.amount.toLocaleString()}
                             </p>
-                            <div className="flex items-center justify-end gap-1 mt-0.5">
-                              <div className={`w-1.5 h-1.5 rounded-full ${
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
                                 transaction.type === 'CREDIT' ? 'bg-green-500' : 'bg-red-500'
                               }`}></div>
-                              <span className="text-xs text-gray-500 uppercase tracking-wide">
+                              <span className={`text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wide ${
+                                transaction.type === 'CREDIT' 
+                                  ? 'bg-green-100 text-green-700' 
+                                  : 'bg-red-100 text-red-700'
+                              }`}>
                                 {transaction.type}
                               </span>
                             </div>
@@ -511,9 +515,12 @@ export default function AdminNew() {
                         </div>
                       </div>
                     )) || (
-                      <div className="p-12 text-center">
-                        <Receipt className="h-8 w-8 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">No recent transactions</p>
+                      <div className="p-12 sm:p-16 text-center">
+                        <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                          <Receipt className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">No Recent Transactions</h3>
+                        <p className="text-gray-500 text-sm">Transaction activity will appear here once available</p>
                       </div>
                     )}
                   </div>
@@ -565,77 +572,92 @@ export default function AdminNew() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {users.map((user: User) => (
-                      <div key={user.id} className="p-3 sm:p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <span className="text-blue-700 font-semibold text-xs sm:text-sm">
+                      <div key={user.id} className="p-4 sm:p-5 hover:bg-gray-50 transition-all duration-200 hover:shadow-sm border-b border-gray-100 last:border-b-0">
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-start space-x-4 flex-1 min-w-0">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                              <span className="text-blue-700 font-bold text-sm sm:text-base">
                                 {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                               </span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                                <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{user.name}</h3>
-                                <div className="flex gap-1 sm:gap-1.5 flex-wrap">
+                              <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-2">
+                                <h3 className="font-semibold text-gray-900 truncate text-base sm:text-lg">{user.name}</h3>
+                                <div className="flex gap-2 flex-wrap">
                                   <Badge 
                                     variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
-                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border-purple-200 text-xs px-1.5 py-0.5' : 'bg-gray-100 text-gray-600 border-gray-200 text-xs px-1.5 py-0.5'}
+                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border-purple-200 text-xs px-2 py-1 font-medium' : 'bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-1 font-medium'}
                                   >
                                     {user.role}
                                   </Badge>
                                   <Badge 
                                     variant={user.isActive ? 'default' : 'destructive'}
-                                    className={user.isActive ? 'bg-green-100 text-green-700 border-green-200 text-xs px-1.5 py-0.5' : 'bg-red-100 text-red-700 border-red-200 text-xs px-1.5 py-0.5'}
+                                    className={user.isActive ? 'bg-green-100 text-green-700 border-green-200 text-xs px-2 py-1 font-medium' : 'bg-red-100 text-red-700 border-red-200 text-xs px-2 py-1 font-medium'}
                                   >
                                     {user.isActive ? 'Active' : 'Inactive'}
                                   </Badge>
                                 </div>
                               </div>
-                              <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 truncate">{user.email}</p>
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                                <div className="flex items-center gap-1.5">
-                                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                                  <p className="text-xs sm:text-sm text-gray-700">
-                                    Balance: <span className="text-green-600 font-semibold">${user.balance.toLocaleString()}</span>
+                              <p className="text-sm sm:text-base text-gray-600 mb-3 truncate">{user.email}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  <p className="text-sm sm:text-base text-gray-700">
+                                    Balance: <span className="text-green-600 font-bold">${user.balance.toLocaleString()}</span>
                                   </p>
                                 </div>
-                                <p className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                <div className="inline-flex items-center px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full border">
                                   {user.accountType}
-                                </p>
+                                </div>
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-end gap-1 sm:gap-1.5 flex-shrink-0">
+                          
+                          {/* Mobile-Optimized Action Buttons */}
+                          <div className="flex flex-wrap gap-2 sm:gap-3 pt-2 border-t border-gray-100">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md"
                               onClick={() => handleEditUser(user)}
-                              title="Edit User"
                             >
-                              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <Edit className="h-4 w-4 mr-2" />
+                              <span className="hidden sm:inline">Edit User</span>
+                              <span className="sm:hidden">Edit</span>
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors"
+                              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-gray-200 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md"
                               onClick={() => handleBalanceUpdate(user)}
-                              title="Update Balance"
                             >
-                              <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <DollarSign className="h-4 w-4 mr-2" />
+                              <span className="hidden sm:inline">Balance</span>
+                              <span className="sm:hidden">$</span>
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 transition-colors ${
+                              className={`flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-gray-200 text-gray-600 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md ${
                                 user.isActive 
-                                  ? 'hover:bg-red-50 hover:text-red-600 hover:border-red-200' 
-                                  : 'hover:bg-green-50 hover:text-green-600 hover:border-green-200'
+                                  ? 'hover:bg-red-50 hover:text-red-600 hover:border-red-300' 
+                                  : 'hover:bg-green-50 hover:text-green-600 hover:border-green-300'
                               }`}
                               onClick={() => toggleUserStatusMutation.mutate(user.id)}
-                              title={user.isActive ? 'Deactivate User' : 'Activate User'}
                             >
-                              {user.isActive ? <UserX className="h-3 w-3 sm:h-4 sm:w-4" /> : <UserCheck className="h-3 w-3 sm:h-4 sm:w-4" />}
+                              {user.isActive ? (
+                                <>
+                                  <UserX className="h-4 w-4 mr-2" />
+                                  <span className="hidden sm:inline">Deactivate</span>
+                                  <span className="sm:hidden">Disable</span>
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="h-4 w-4 mr-2" />
+                                  <span className="hidden sm:inline">Activate</span>
+                                  <span className="sm:hidden">Enable</span>
+                                </>
+                              )}
                             </Button>
                             {user.role !== 'ADMIN' && (
                               <AlertDialog>
@@ -643,24 +665,25 @@ export default function AdminNew() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
-                                    title="Delete User"
+                                    className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md"
                                   >
-                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    <span className="hidden sm:inline">Delete</span>
+                                    <span className="sm:hidden">Del</span>
                                   </Button>
                                 </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-white mx-4 max-w-md">
+                                <AlertDialogContent className="bg-white mx-4 max-w-md rounded-xl shadow-2xl">
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-gray-900">Delete User</AlertDialogTitle>
-                                    <AlertDialogDescription className="text-gray-600">
-                                      Are you sure you want to delete {user.name}? This action cannot be undone and will permanently remove all user data.
+                                    <AlertDialogTitle className="text-gray-900 text-lg font-semibold">Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription className="text-gray-600 text-base leading-relaxed">
+                                      Are you sure you want to delete <span className="font-semibold text-gray-900">{user.name}</span>? This action cannot be undone and will permanently remove all user data.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
-                                  <AlertDialogFooter className="flex gap-2">
-                                    <AlertDialogCancel className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300">Cancel</AlertDialogCancel>
+                                  <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
+                                    <AlertDialogCancel className="w-full sm:w-auto bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300 min-h-[44px] rounded-lg font-medium">Cancel</AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() => deleteUserMutation.mutate(user.id)}
-                                      className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+                                      className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white border-red-600 min-h-[44px] rounded-lg font-medium shadow-lg hover:shadow-xl"
                                     >
                                       Delete User
                                     </AlertDialogAction>
@@ -874,28 +897,29 @@ export default function AdminNew() {
 
       {/* Balance Update Modal */}
       <Dialog open={balanceModalOpen} onOpenChange={setBalanceModalOpen}>
-        <DialogContent className="bg-white mx-4 max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900">Update User Balance</DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Update the balance for {selectedUser?.name}. Current balance: ${selectedUser?.balance.toLocaleString()}
+        <DialogContent className="bg-white mx-4 max-w-md rounded-2xl shadow-2xl border-0">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-gray-900 text-xl font-bold">Update User Balance</DialogTitle>
+            <DialogDescription className="text-gray-600 text-base leading-relaxed">
+              Update the balance for <span className="font-semibold text-gray-900">{selectedUser?.name}</span>. 
+              <br />Current balance: <span className="font-bold text-green-600">${selectedUser?.balance.toLocaleString()}</span>
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="action" className="text-gray-700">Action</Label>
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="action" className="text-gray-700 font-semibold text-base">Action</Label>
               <Select value={balanceAction} onValueChange={(value: 'ADD' | 'SUBTRACT') => setBalanceAction(value)}>
-                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                <SelectTrigger className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ADD">Add Funds</SelectItem>
-                  <SelectItem value="SUBTRACT">Subtract Funds</SelectItem>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="ADD" className="text-base py-3">Add Funds</SelectItem>
+                  <SelectItem value="SUBTRACT" className="text-base py-3">Subtract Funds</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="amount" className="text-gray-700">Amount</Label>
+            <div className="space-y-2">
+              <Label htmlFor="amount" className="text-gray-700 font-semibold text-base">Amount</Label>
               <Input
                 id="amount"
                 type="number"
@@ -903,28 +927,32 @@ export default function AdminNew() {
                 value={balanceAmount}
                 onChange={(e) => setBalanceAmount(e.target.value)}
                 placeholder="0.00"
-                className="border-gray-300 focus:border-blue-500"
+                className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base px-4"
               />
             </div>
-            <div>
-              <Label htmlFor="description" className="text-gray-700">Description</Label>
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-gray-700 font-semibold text-base">Description</Label>
               <Input
                 id="description"
                 value={balanceDescription}
                 onChange={(e) => setBalanceDescription(e.target.value)}
                 placeholder="Reason for balance update"
-                className="border-gray-300 focus:border-blue-500"
+                className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base px-4"
               />
             </div>
           </div>
-          <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={() => setBalanceModalOpen(false)} className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300">
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setBalanceModalOpen(false)} 
+              className="w-full sm:w-auto bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300 min-h-[48px] rounded-xl font-semibold text-base"
+            >
               Cancel
             </Button>
             <Button 
               onClick={handleSubmitBalanceUpdate}
               disabled={updateBalanceMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white min-h-[48px] rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {updateBalanceMutation.isPending ? 'Updating...' : 'Update Balance'}
             </Button>
@@ -934,77 +962,81 @@ export default function AdminNew() {
 
       {/* Edit User Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="bg-white mx-4 max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900">Edit User</DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Update user information for {selectedUser?.name}
+        <DialogContent className="bg-white mx-4 max-w-md rounded-2xl shadow-2xl border-0 max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-gray-900 text-xl font-bold">Edit User</DialogTitle>
+            <DialogDescription className="text-gray-600 text-base leading-relaxed">
+              Update user information for <span className="font-semibold text-gray-900">{selectedUser?.name}</span>
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name" className="text-gray-700">Name</Label>
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name" className="text-gray-700 font-semibold text-base">Name</Label>
               <Input
                 id="edit-name"
                 value={editFormData.name}
                 onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="border-gray-300 focus:border-blue-500"
+                className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base px-4"
               />
             </div>
-            <div>
-              <Label htmlFor="edit-email" className="text-gray-700">Email</Label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email" className="text-gray-700 font-semibold text-base">Email</Label>
               <Input
                 id="edit-email"
                 type="email"
                 value={editFormData.email}
                 onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="border-gray-300 focus:border-blue-500"
+                className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base px-4"
               />
             </div>
-            <div>
-              <Label htmlFor="edit-role" className="text-gray-700">Role</Label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-role" className="text-gray-700 font-semibold text-base">Role</Label>
               <Select value={editFormData.role} onValueChange={(value: 'USER' | 'ADMIN') => setEditFormData(prev => ({ ...prev, role: value }))}>
-                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                <SelectTrigger className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USER">User</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="USER" className="text-base py-3">User</SelectItem>
+                  <SelectItem value="ADMIN" className="text-base py-3">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="edit-account-type" className="text-gray-700">Account Type</Label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-account-type" className="text-gray-700 font-semibold text-base">Account Type</Label>
               <Select value={editFormData.accountType} onValueChange={(value: 'CHECKING' | 'SAVINGS' | 'BUSINESS') => setEditFormData(prev => ({ ...prev, accountType: value }))}>
-                <SelectTrigger className="border-gray-300 focus:border-blue-500">
+                <SelectTrigger className="min-h-[48px] border-2 border-gray-200 focus:border-blue-500 rounded-xl text-base">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="CHECKING">Checking</SelectItem>
-                  <SelectItem value="SAVINGS">Savings</SelectItem>
-                  <SelectItem value="BUSINESS">Business</SelectItem>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="CHECKING" className="text-base py-3">Checking</SelectItem>
+                  <SelectItem value="SAVINGS" className="text-base py-3">Savings</SelectItem>
+                  <SelectItem value="BUSINESS" className="text-base py-3">Business</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
               <input
                 type="checkbox"
                 id="edit-active"
                 checked={editFormData.isActive}
                 onChange={(e) => setEditFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                className="border-gray-300 focus:ring-blue-500"
+                className="w-5 h-5 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
               />
-              <Label htmlFor="edit-active" className="text-gray-700">Active Account</Label>
+              <Label htmlFor="edit-active" className="text-gray-700 font-semibold text-base cursor-pointer">Active Account</Label>
             </div>
           </div>
-          <DialogFooter className="flex gap-2">
-            <Button variant="outline" onClick={() => setEditModalOpen(false)} className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300">
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setEditModalOpen(false)} 
+              className="w-full sm:w-auto bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300 min-h-[48px] rounded-xl font-semibold text-base"
+            >
               Cancel
             </Button>
             <Button 
               onClick={handleSubmitEditUser}
               disabled={updateUserMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white min-h-[48px] rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {updateUserMutation.isPending ? 'Updating...' : 'Update User'}
             </Button>

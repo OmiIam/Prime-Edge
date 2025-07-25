@@ -97,8 +97,9 @@ export default function Navbar({ user }: NavbarProps) {
           <div className="md:hidden">
             <Button
               variant="ghost"
-              className="text-gray-300 hover:text-white p-2"
+              className="text-gray-300 hover:text-white hover:bg-prime-slate/20 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -111,68 +112,72 @@ export default function Navbar({ user }: NavbarProps) {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-prime-slate/20 bg-prime-navy/95 backdrop-blur-sm">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+          <div className="md:hidden border-t border-prime-slate/20 bg-prime-navy/98 backdrop-blur-md shadow-xl">
+            <div className="px-4 pt-4 pb-6 space-y-2">
               {/* User Info */}
-              <div className="px-3 py-3 border-b border-prime-slate/20 mb-2">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">
+              <div className="px-4 py-4 border-b border-prime-slate/20 mb-4 bg-prime-charcoal/30 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-base">
                       {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                     </span>
                   </div>
-                  <div>
-                    <div className="text-white font-medium">{user.name}</div>
-                    <div className="text-sm text-gray-400">{user.email}</div>
-                    <div className="text-xs text-prime-accent capitalize">{user.role}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white font-semibold text-base truncate">{user.name}</div>
+                    <div className="text-sm text-gray-300 truncate">{user.email}</div>
+                    <div className="inline-flex items-center px-2 py-1 mt-1 text-xs font-medium text-prime-accent bg-prime-accent/10 rounded-full border border-prime-accent/20">
+                      {user.role}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Navigation Links */}
-              <Button
-                variant="ghost"
-                className={`w-full justify-start ${location === '/dashboard' 
-                  ? 'bg-prime-accent text-white' 
-                  : 'text-gray-300 hover:text-white hover:bg-prime-slate/20'
-                }`}
-                onClick={() => {
-                  setLocation("/dashboard");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <User className="h-4 w-4 mr-3" />
-                Dashboard
-              </Button>
-
-              {user.role === 'ADMIN' && (
+              <div className="space-y-2">
                 <Button
                   variant="ghost"
-                  className={`w-full justify-start ${location === '/admin' 
-                    ? 'bg-prime-accent text-white' 
-                    : 'text-gray-300 hover:text-white hover:bg-prime-slate/20'
+                  className={`w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 ${location === '/dashboard' 
+                    ? 'bg-prime-accent text-white shadow-lg scale-[1.02]' 
+                    : 'text-gray-300 hover:text-white hover:bg-prime-slate/30 hover:scale-[1.01]'
                   }`}
                   onClick={() => {
-                    setLocation("/admin");
+                    setLocation("/dashboard");
                     setMobileMenuOpen(false);
                   }}
                 >
-                  <Shield className="h-4 w-4 mr-3" />
-                  Admin Panel
+                  <User className="h-5 w-5 mr-4" />
+                  Dashboard
                 </Button>
-              )}
+
+                {user.role === 'ADMIN' && (
+                  <Button
+                    variant="ghost"
+                    className={`w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 ${location === '/admin' 
+                      ? 'bg-prime-accent text-white shadow-lg scale-[1.02]' 
+                      : 'text-gray-300 hover:text-white hover:bg-prime-slate/30 hover:scale-[1.01]'
+                    }`}
+                    onClick={() => {
+                      setLocation("/admin");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Shield className="h-5 w-5 mr-4" />
+                    Admin Panel
+                  </Button>
+                )}
+              </div>
 
               {/* Sign Out Button */}
-              <div className="pt-2 border-t border-prime-slate/20 mt-2">
+              <div className="pt-4 border-t border-prime-slate/20 mt-4">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  className="w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base text-red-400 hover:text-red-300 hover:bg-red-500/15 transition-all duration-200 hover:scale-[1.01]"
                   onClick={() => {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
                 >
-                  <LogOut className="h-4 w-4 mr-3" />
+                  <LogOut className="h-5 w-5 mr-4" />
                   Sign Out
                 </Button>
               </div>
