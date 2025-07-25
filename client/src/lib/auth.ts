@@ -133,12 +133,12 @@ class AuthManager {
         
         // Force page reload after a brief delay to ensure clean state
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.replace('/');
         }, 100);
       } catch (error) {
         console.warn('Could not clear caches:', error);
         // Fallback to simple redirect
-        window.location.href = '/';
+        window.location.replace('/');
       }
     }
     

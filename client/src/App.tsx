@@ -28,6 +28,8 @@ function Router() {
         <Route path="/" component={Landing} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
+        <Route path="/admin" component={Landing} />
+        <Route path="/dashboard" component={Landing} />
         <Route component={NotFound} />
       </Switch>
     );

@@ -310,47 +310,47 @@ export default function AdminNew() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        <Navbar user={authState.user!} />
-      </div>
-      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
-        <div className="mb-10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Shield className="h-7 w-7 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+      <Navbar user={authState.user!} />
+      
+      <div className="pt-20 px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-10">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Shield className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-white tracking-tight">Admin Dashboard</h1>
+                <p className="text-blue-200 text-lg mt-1">Comprehensive banking administration portal</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 tracking-tight">Admin Dashboard</h1>
-              <p className="text-gray-500 text-lg mt-1">Comprehensive banking administration portal</p>
+            <div className="flex items-center gap-2 text-sm text-blue-300">
+              <Clock className="h-4 w-4" />
+              <span>Last updated: {new Date().toLocaleString()}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Clock className="h-4 w-4" />
-            <span>Last updated: {new Date().toLocaleString()}</span>
-          </div>
-        </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white rounded-full border border-gray-200 shadow-md p-1.5 backdrop-blur-sm">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 shadow-xl p-1.5">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-blue-200 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">📊 Stats</span>
+              <span className="hidden sm:inline">Stats</span>
               <span className="sm:hidden">📊</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
+            <TabsTrigger value="users" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-blue-200 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <Users className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">👥 Users</span>
+              <span className="hidden sm:inline">Users</span>
               <span className="sm:hidden">👥</span>
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-blue-200 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <Receipt className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">💳 Trans</span>
+              <span className="hidden sm:inline">Transactions</span>
               <span className="sm:hidden">💳</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
+            <TabsTrigger value="logs" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg text-blue-200 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-full font-medium text-sm sm:text-base py-2.5">
               <History className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">📋 Logs</span>
+              <span className="hidden sm:inline">Logs</span>
               <span className="sm:hidden">📋</span>
             </TabsTrigger>
           </TabsList>
@@ -358,97 +358,97 @@ export default function AdminNew() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Users</CardTitle>
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                    <Users className="h-5 w-5 text-blue-600" />
+                  <CardTitle className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Total Users</CardTitle>
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                    <Users className="h-5 w-5 text-blue-400" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="text-3xl font-bold text-gray-800 mb-2">
-                    {statsLoading ? <Skeleton className="h-9 w-20" /> : dashboardStats?.totalUsers || 0}
+                  <div className="text-3xl font-bold text-white mb-2">
+                    {statsLoading ? <Skeleton className="h-9 w-20 bg-white/20" /> : dashboardStats?.totalUsers || 0}
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-sm text-green-600 font-medium">+2.5% from last month</p>
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                    <p className="text-sm text-green-400 font-medium">+2.5% from last month</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Active Users</CardTitle>
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
-                    <UserCheck className="h-5 w-5 text-green-600" />
+                  <CardTitle className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Active Users</CardTitle>
+                  <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+                    <UserCheck className="h-5 w-5 text-green-400" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="text-3xl font-bold text-gray-800 mb-2">
-                    {statsLoading ? <Skeleton className="h-9 w-20" /> : dashboardStats?.activeUsers || 0}
+                  <div className="text-3xl font-bold text-white mb-2">
+                    {statsLoading ? <Skeleton className="h-9 w-20 bg-white/20" /> : dashboardStats?.activeUsers || 0}
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-sm text-green-600 font-medium">98.5% active rate</p>
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                    <p className="text-sm text-green-400 font-medium">98.5% active rate</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Transactions</CardTitle>
-                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                    <Activity className="h-5 w-5 text-purple-600" />
+                  <CardTitle className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Total Transactions</CardTitle>
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                    <Activity className="h-5 w-5 text-purple-400" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="text-3xl font-bold text-gray-800 mb-2">
-                    {statsLoading ? <Skeleton className="h-9 w-20" /> : dashboardStats?.totalTransactions || 0}
+                  <div className="text-3xl font-bold text-white mb-2">
+                    {statsLoading ? <Skeleton className="h-9 w-20 bg-white/20" /> : dashboardStats?.totalTransactions || 0}
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                    <p className="text-sm text-blue-600 font-medium">+15% this week</p>
+                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                    <p className="text-sm text-blue-400 font-medium">+15% this week</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white border border-gray-200 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                  <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Total Balance</CardTitle>
-                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
-                    <DollarSign className="h-5 w-5 text-amber-600" />
+                  <CardTitle className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Total Balance</CardTitle>
+                  <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+                    <DollarSign className="h-5 w-5 text-amber-400" />
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="text-3xl font-bold text-gray-800 mb-2">
+                  <div className="text-3xl font-bold text-white mb-2">
                     {statsLoading ? (
-                      <Skeleton className="h-9 w-24" />
+                      <Skeleton className="h-9 w-24 bg-white/20" />
                     ) : (
                       `$${(dashboardStats?.totalBalance || 0).toLocaleString()}`
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-sm text-green-600 font-medium">+8.2% growth</p>
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                    <p className="text-sm text-green-400 font-medium">+8.2% growth</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Recent Transactions */}
-            <Card className="bg-white border border-gray-200 shadow-md">
-              <CardHeader className="border-b border-gray-100 pb-6">
+            <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+              <CardHeader className="border-b border-white/10 pb-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-indigo-600" />
+                    <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 text-indigo-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-xl font-bold text-gray-800">Recent Transactions</CardTitle>
-                      <p className="text-sm text-gray-500 mt-1">Latest financial activity</p>
+                      <CardTitle className="text-xl font-bold text-white">Recent Transactions</CardTitle>
+                      <p className="text-sm text-blue-200 mt-1">Latest financial activity</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors font-medium">
+                  <Button variant="outline" size="sm" className="text-blue-300 border-blue-400/30 bg-white/5 hover:bg-white/10 hover:border-blue-300 transition-colors font-medium backdrop-blur-sm">
                     View All
                   </Button>
                 </div>
@@ -458,37 +458,37 @@ export default function AdminNew() {
                   <div className="p-6 space-y-4">
                     {[...Array(5)].map((_, i) => (
                       <div key={i} className="flex items-center space-x-4">
-                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <Skeleton className="h-12 w-12 rounded-full bg-white/20" />
                         <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-40" />
-                          <Skeleton className="h-3 w-24" />
+                          <Skeleton className="h-4 w-40 bg-white/20" />
+                          <Skeleton className="h-3 w-24 bg-white/20" />
                         </div>
-                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-20 bg-white/20" />
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-white/5">
                     {dashboardStats?.recentTransactions?.map((transaction, index) => (
-                      <div key={transaction.id} className="p-6 hover:bg-gray-50 transition-colors">
+                      <div key={transaction.id} className="p-6 hover:bg-white/5 transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                               transaction.type === 'CREDIT' 
-                                ? 'bg-green-100 border-2 border-green-200' 
-                                : 'bg-red-100 border-2 border-red-200'
+                                ? 'bg-green-500/20 border-2 border-green-400/30' 
+                                : 'bg-red-500/20 border-2 border-red-400/30'
                             }`}>
                               {transaction.type === 'CREDIT' ? 
-                                <Plus className="h-5 w-5 text-green-600" /> : 
-                                <Minus className="h-5 w-5 text-red-600" />
+                                <Plus className="h-5 w-5 text-green-400" /> : 
+                                <Minus className="h-5 w-5 text-red-400" />
                               }
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-900">{transaction.description}</p>
+                              <p className="font-semibold text-white">{transaction.description}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <p className="text-sm text-gray-600">{transaction.user.name}</p>
-                                <span className="text-gray-300">•</span>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-blue-200">{transaction.user.name}</p>
+                                <span className="text-blue-300">•</span>
+                                <p className="text-sm text-blue-300">
                                   {format(new Date(transaction.createdAt), 'MMM dd, HH:mm')}
                                 </p>
                               </div>
@@ -496,15 +496,15 @@ export default function AdminNew() {
                           </div>
                           <div className="text-right">
                             <p className={`text-lg font-bold ${
-                              transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
+                              transaction.type === 'CREDIT' ? 'text-green-400' : 'text-red-400'
                             }`}>
                               {transaction.type === 'CREDIT' ? '+' : '-'}${transaction.amount.toLocaleString()}
                             </p>
                             <div className="flex items-center gap-1 mt-1">
                               <div className={`w-2 h-2 rounded-full ${
-                                transaction.type === 'CREDIT' ? 'bg-green-500' : 'bg-red-500'
+                                transaction.type === 'CREDIT' ? 'bg-green-400' : 'bg-red-400'
                               }`}></div>
-                              <span className="text-xs text-gray-500 uppercase tracking-wide">
+                              <span className="text-xs text-blue-300 uppercase tracking-wide">
                                 {transaction.type}
                               </span>
                             </div>
@@ -513,8 +513,8 @@ export default function AdminNew() {
                       </div>
                     )) || (
                       <div className="p-12 text-center">
-                        <Receipt className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">No recent transactions</p>
+                        <Receipt className="h-12 w-12 text-blue-300 mx-auto mb-4" />
+                        <p className="text-blue-200">No recent transactions</p>
                       </div>
                     )}
                   </div>
@@ -525,24 +525,24 @@ export default function AdminNew() {
 
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-8">
-            <Card className="bg-white border border-gray-200 shadow-md">
-              <CardHeader className="border-b border-gray-100 pb-6">
+            <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+              <CardHeader className="border-b border-white/10 pb-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                        <Users className="h-5 w-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                        <Users className="h-5 w-5 text-blue-400" />
                       </div>
-                      <CardTitle className="text-xl font-bold text-gray-800">User Management</CardTitle>
+                      <CardTitle className="text-xl font-bold text-white">User Management</CardTitle>
                     </div>
-                    <p className="text-sm text-gray-500">Manage user accounts, balances, and permissions</p>
+                    <p className="text-sm text-blue-200">Manage user accounts, balances, and permissions</p>
                   </div>
                   <div className="flex gap-3">
-                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors font-medium">
+                    <Button variant="outline" size="sm" className="text-blue-200 border-blue-400/30 bg-white/5 hover:bg-white/10 hover:border-blue-300 transition-colors font-medium backdrop-blur-sm">
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </Button>
-                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors font-medium">
+                    <Button variant="outline" size="sm" className="text-blue-300 border-blue-400/30 bg-white/5 hover:bg-white/10 hover:border-blue-300 transition-colors font-medium backdrop-blur-sm">
                       Export
                     </Button>
                   </div>
