@@ -139,15 +139,6 @@ export default function Login() {
                 Sign up
               </Button>
             </div>
-
-            <div className="mt-6 pt-6 border-t border-prime-slate/30">
-              <div className="text-center text-sm text-gray-400">
-                <p className="mb-2">Demo Credentials:</p>
-                <p>Admin: admin@primeedge.bank / admin123</p>
-                <p>User: john.doe@email.com / user123</p>
-                <p>User: sarah.wilson@email.com / user123</p>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

@@ -144,30 +144,31 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       <Navbar user={authState.user!} />
       
-      <div className="pt-20 px-4 sm:px-6 lg:px-8 pb-8">
+      <div className="pt-20 px-3 sm:px-6 lg:px-8 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm sm:text-lg">
                     {data.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">
                     Welcome back, {data.user.name.split(' ')[0]}! 👋
                   </h1>
-                  <p className="text-blue-200 text-sm sm:text-base">Here's your financial overview for today.</p>
+                  <p className="text-blue-200 text-xs sm:text-sm lg:text-base">Here's your financial overview for today.</p>
                 </div>
               </div>
               
               <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-prime-accent hover:bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                    <Send className="h-4 w-4 mr-2" />
-                    Transfer Money
+                  <Button className="bg-prime-accent hover:bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-sm sm:text-base">
+                    <Send className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Transfer Money</span>
+                    <span className="sm:hidden">Transfer</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-slate-800 border-slate-700 text-white">
@@ -209,45 +210,45 @@ export default function Dashboard() {
               </Dialog>
             </div>
             
-            <div className="flex items-center gap-2 text-sm text-blue-300">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-blue-300">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               <span>Last updated: {new Date().toLocaleString()}</span>
             </div>
           </div>
 
           {/* Account Information */}
-          <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl mb-8 hover:bg-white/10 transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl mb-6 sm:mb-8 hover:bg-white/10 transition-all duration-300">
+            <CardContent className="p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="text-center sm:text-left">
                   <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide">Account Holder</div>
-                  <div className="text-lg font-bold text-white mb-1">{data.user.name}</div>
-                  <div className="text-sm text-blue-200">{data.user.email}</div>
+                  <div className="text-base sm:text-lg font-bold text-white mb-1 truncate">{data.user.name}</div>
+                  <div className="text-xs sm:text-sm text-blue-200 truncate">{data.user.email}</div>
                 </div>
                 <div className="text-center sm:text-left">
                   <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide">Account Details</div>
-                  <div className="text-lg font-mono font-bold text-white mb-1">
-                    ••••••{data.user.accountNumber?.slice(-4) || '71f7'}
+                  <div className="text-base sm:text-lg font-mono font-bold text-white mb-1">
+                    ••••••{data.user.accountNumber?.slice(-4) || '6915'}
                   </div>
                   <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <div className="text-sm text-blue-200 uppercase">{data.user.accountType || 'SAVINGS'}</div>
+                    <div className="text-xs sm:text-sm text-blue-200 uppercase">{data.user.accountType || 'BUSINESS'}</div>
                     <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
-                    <div className="text-sm text-blue-200">Account</div>
+                    <div className="text-xs sm:text-sm text-blue-200">Account</div>
                   </div>
                 </div>
                 <div className="text-center sm:text-left">
                   <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide">Status</div>
                   <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
                     <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                    <div className="text-lg font-bold text-green-400">Active</div>
+                    <div className="text-base sm:text-lg font-bold text-green-400">Active</div>
                   </div>
                 </div>
                 <div className="text-center sm:text-left">
                   <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide">Last Updated</div>
-                  <div className="text-sm text-blue-200">
+                  <div className="text-xs sm:text-sm text-blue-200">
                     {format(new Date(), 'MMM d, yyyy')}
                   </div>
-                  <div className="text-sm text-blue-200">
+                  <div className="text-xs sm:text-sm text-blue-200">
                     {format(new Date(), 'h:mm a')}
                   </div>
                 </div>

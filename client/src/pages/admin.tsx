@@ -313,61 +313,59 @@ export default function AdminNew() {
     <div className="min-h-screen bg-gray-50">
       <Navbar user={authState.user!} />
       
-      <div className="pt-20 px-4 sm:px-6 lg:px-8 pb-8">
+      <div className="pt-20 px-3 sm:px-6 lg:px-8 pb-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                <Shield className="h-6 w-6 text-white" />
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-gray-600 text-base mt-1">Comprehensive banking administration portal</p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p className="text-gray-600 text-xs sm:text-sm lg:text-base mt-1">Comprehensive banking administration portal</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Clock className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+              <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Last updated: {format(new Date(), 'MMM dd, yyyy HH:mm')}</span>
             </div>
           </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-sm sm:text-base py-2">
-              <BarChart3 className="h-4 w-4 mr-1 sm:mr-2" />
+            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Overview</span>
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-sm sm:text-base py-2">
-              <Users className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Users</span>
-              <span className="sm:hidden">Users</span>
+            <TabsTrigger value="users" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span>Users</span>
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-sm sm:text-base py-2">
-              <Receipt className="h-4 w-4 mr-1 sm:mr-2" />
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
+              <Receipt className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Transactions</span>
               <span className="sm:hidden">Trans</span>
             </TabsTrigger>
-            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-sm sm:text-base py-2">
-              <History className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Logs</span>
-              <span className="sm:hidden">Logs</span>
+            <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-600 hover:text-gray-900 transition-all duration-200 rounded-md font-medium text-xs sm:text-sm lg:text-base py-2 px-1 sm:px-2">
+              <History className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span>Logs</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Users</CardTitle>
-                  <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                    <Users className="h-4 w-4 text-blue-600" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Users</CardTitle>
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {statsLoading ? <Skeleton className="h-8 w-16 bg-gray-200" /> : dashboardStats?.totalUsers || 0}
+                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
+                    {statsLoading ? <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 bg-gray-200" /> : dashboardStats?.totalUsers || 0}
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="w-1 h-1 bg-green-500 rounded-full"></div>
@@ -377,15 +375,15 @@ export default function AdminNew() {
               </Card>
 
               <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 uppercase tracking-wide">Active Users</CardTitle>
-                  <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                    <UserCheck className="h-4 w-4 text-green-600" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Active Users</CardTitle>
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                    <UserCheck className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {statsLoading ? <Skeleton className="h-8 w-16 bg-gray-200" /> : dashboardStats?.activeUsers || 0}
+                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
+                    {statsLoading ? <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 bg-gray-200" /> : dashboardStats?.activeUsers || 0}
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="w-1 h-1 bg-green-500 rounded-full"></div>
@@ -395,15 +393,15 @@ export default function AdminNew() {
               </Card>
 
               <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Transactions</CardTitle>
-                  <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                    <Activity className="h-4 w-4 text-purple-600" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Transactions</CardTitle>
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                    <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {statsLoading ? <Skeleton className="h-8 w-16 bg-gray-200" /> : dashboardStats?.totalTransactions || 0}
+                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
+                    {statsLoading ? <Skeleton className="h-6 w-12 sm:h-8 sm:w-16 bg-gray-200" /> : dashboardStats?.totalTransactions || 0}
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
@@ -413,16 +411,16 @@ export default function AdminNew() {
               </Card>
 
               <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Balance</CardTitle>
-                  <div className="w-8 h-8 bg-yellow-50 rounded-lg flex items-center justify-center">
-                    <DollarSign className="h-4 w-4 text-yellow-600" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Balance</CardTitle>
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-yellow-50 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                <CardContent className="pt-0 px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">
                     {statsLoading ? (
-                      <Skeleton className="h-8 w-20 bg-gray-200" />
+                      <Skeleton className="h-6 w-16 sm:h-8 sm:w-20 bg-gray-200" />
                     ) : (
                       `$${(dashboardStats?.totalBalance || 0).toLocaleString()}`
                     )}
@@ -437,19 +435,20 @@ export default function AdminNew() {
 
             {/* Recent Transactions */}
             <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader className="border-b border-gray-100 pb-4">
+              <CardHeader className="border-b border-gray-100 pb-3 sm:pb-4 px-3 sm:px-6 pt-3 sm:pt-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-blue-600" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-gray-900">Recent Transactions</CardTitle>
-                      <p className="text-sm text-gray-500 mt-0.5">Latest financial activity</p>
+                      <CardTitle className="text-sm sm:text-lg font-semibold text-gray-900">Recent Transactions</CardTitle>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-0.5 hidden sm:block">Latest financial activity</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium">
-                    View All
+                  <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium text-xs sm:text-sm px-2 sm:px-3">
+                    <span className="hidden sm:inline">View All</span>
+                    <span className="sm:hidden">All</span>
                   </Button>
                 </div>
               </CardHeader>
@@ -524,26 +523,27 @@ export default function AdminNew() {
           </TabsContent>
 
           {/* Users Tab */}
-          <TabsContent value="users" className="space-y-6">
+          <TabsContent value="users" className="space-y-4 sm:space-y-6">
             <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader className="border-b border-gray-100 pb-4">
+              <CardHeader className="border-b border-gray-100 pb-3 sm:pb-4 px-3 sm:px-6 pt-3 sm:pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                        <Users className="h-4 w-4 text-blue-600" />
+                    <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <Users className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                       </div>
-                      <CardTitle className="text-lg font-semibold text-gray-900">User Management</CardTitle>
+                      <CardTitle className="text-sm sm:text-lg font-semibold text-gray-900">User Management</CardTitle>
                     </div>
-                    <p className="text-sm text-gray-500">Manage user accounts, balances, and permissions</p>
+                    <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Manage user accounts, balances, and permissions</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium">
-                      <Settings className="h-4 w-4 mr-2" />
+                  <div className="flex gap-1 sm:gap-2">
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium text-xs sm:text-sm px-2 sm:px-3 hidden sm:inline-flex">
+                      <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       Settings
                     </Button>
-                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium">
-                      Export
+                    <Button variant="outline" size="sm" className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium text-xs sm:text-sm px-2 sm:px-3">
+                      <span className="hidden sm:inline">Export</span>
+                      <span className="sm:hidden">Export</span>
                     </Button>
                   </div>
                 </div>
@@ -565,37 +565,37 @@ export default function AdminNew() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {users.map((user: User) => (
-                      <div key={user.id} className="p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                          <div className="flex items-center space-x-3 flex-1 min-w-0">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <span className="text-blue-700 font-semibold text-sm">
+                      <div key={user.id} className="p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <span className="text-blue-700 font-semibold text-xs sm:text-sm">
                                 {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                               </span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                                <h3 className="font-semibold text-gray-900 truncate">{user.name}</h3>
-                                <div className="flex gap-1.5 flex-wrap">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                                <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{user.name}</h3>
+                                <div className="flex gap-1 sm:gap-1.5 flex-wrap">
                                   <Badge 
                                     variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
-                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border-purple-200 text-xs px-2 py-0.5' : 'bg-gray-100 text-gray-600 border-gray-200 text-xs px-2 py-0.5'}
+                                    className={user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 border-purple-200 text-xs px-1.5 py-0.5' : 'bg-gray-100 text-gray-600 border-gray-200 text-xs px-1.5 py-0.5'}
                                   >
                                     {user.role}
                                   </Badge>
                                   <Badge 
                                     variant={user.isActive ? 'default' : 'destructive'}
-                                    className={user.isActive ? 'bg-green-100 text-green-700 border-green-200 text-xs px-2 py-0.5' : 'bg-red-100 text-red-700 border-red-200 text-xs px-2 py-0.5'}
+                                    className={user.isActive ? 'bg-green-100 text-green-700 border-green-200 text-xs px-1.5 py-0.5' : 'bg-red-100 text-red-700 border-red-200 text-xs px-1.5 py-0.5'}
                                   >
                                     {user.isActive ? 'Active' : 'Inactive'}
                                   </Badge>
                                 </div>
                               </div>
-                              <p className="text-sm text-gray-600 mb-2 truncate">{user.email}</p>
+                              <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 truncate">{user.email}</p>
                               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                                 <div className="flex items-center gap-1.5">
                                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                                  <p className="text-sm text-gray-700">
+                                  <p className="text-xs sm:text-sm text-gray-700">
                                     Balance: <span className="text-green-600 font-semibold">${user.balance.toLocaleString()}</span>
                                   </p>
                                 </div>
@@ -605,29 +605,29 @@ export default function AdminNew() {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-end gap-1.5 flex-shrink-0">
+                          <div className="flex items-center justify-end gap-1 sm:gap-1.5 flex-shrink-0">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 w-8 p-0 border-gray-200 text-gray-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
                               onClick={() => handleEditUser(user)}
                               title="Edit User"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 w-8 p-0 border-gray-200 text-gray-500 hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors"
+                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors"
                               onClick={() => handleBalanceUpdate(user)}
                               title="Update Balance"
                             >
-                              <DollarSign className="h-4 w-4" />
+                              <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className={`h-8 w-8 p-0 border-gray-200 text-gray-500 transition-colors ${
+                              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 transition-colors ${
                                 user.isActive 
                                   ? 'hover:bg-red-50 hover:text-red-600 hover:border-red-200' 
                                   : 'hover:bg-green-50 hover:text-green-600 hover:border-green-200'
@@ -635,7 +635,7 @@ export default function AdminNew() {
                               onClick={() => toggleUserStatusMutation.mutate(user.id)}
                               title={user.isActive ? 'Deactivate User' : 'Activate User'}
                             >
-                              {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                              {user.isActive ? <UserX className="h-3 w-3 sm:h-4 sm:w-4" /> : <UserCheck className="h-3 w-3 sm:h-4 sm:w-4" />}
                             </Button>
                             {user.role !== 'ADMIN' && (
                               <AlertDialog>
@@ -643,10 +643,10 @@ export default function AdminNew() {
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="h-8 w-8 p-0 border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                                    className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
                                     title="Delete User"
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                   </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent className="bg-white mx-4 max-w-md">

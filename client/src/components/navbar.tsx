@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { authManager } from "@/lib/auth";
 import { useLocation } from "wouter";
 import Logo from "@/components/logo";
-import { LogOut, User, Settings, Shield } from "lucide-react";
+import { LogOut, User, Settings, Shield, Menu, X } from "lucide-react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,7 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const [location, setLocation] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     authManager.logout();
@@ -37,7 +39,8 @@ export default function Navbar({ user }: NavbarProps) {
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
             {user.role === 'ADMIN' && (
               <Button
                 variant={location === '/admin' ? 'default' : 'ghost'}
@@ -89,7 +92,93 @@ export default function Navbar({ user }: NavbarProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              className="text-gray-300 hover:text-white p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-prime-slate/20 bg-prime-navy/95 backdrop-blur-sm">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {/* User Info */}
+              <div className="px-3 py-3 border-b border-prime-slate/20 mb-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">
+                      {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">{user.name}</div>
+                    <div className="text-sm text-gray-400">{user.email}</div>
+                    <div className="text-xs text-prime-accent capitalize">{user.role}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <Button
+                variant="ghost"
+                className={`w-full justify-start ${location === '/dashboard' 
+                  ? 'bg-prime-accent text-white' 
+                  : 'text-gray-300 hover:text-white hover:bg-prime-slate/20'
+                }`}
+                onClick={() => {
+                  setLocation("/dashboard");
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <User className="h-4 w-4 mr-3" />
+                Dashboard
+              </Button>
+
+              {user.role === 'ADMIN' && (
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start ${location === '/admin' 
+                    ? 'bg-prime-accent text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-prime-slate/20'
+                  }`}
+                  onClick={() => {
+                    setLocation("/admin");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Shield className="h-4 w-4 mr-3" />
+                  Admin Panel
+                </Button>
+              )}
+
+              {/* Sign Out Button */}
+              <div className="pt-2 border-t border-prime-slate/20 mt-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-3" />
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
