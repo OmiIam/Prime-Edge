@@ -73,129 +73,294 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section 
-        className="relative pt-16 min-h-screen flex items-center justify-center"
+        className="relative pt-16 min-h-screen flex items-center justify-center overflow-hidden"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1497493292307-31c376b6e479?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2048&q=80')`,
+          backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 50%, rgba(51, 65, 85, 0.75) 100%), url('https://images.unsplash.com/photo-1497493292307-31c376b6e479?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2048&q=80')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
+          backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-transparent"></div>
-        
-        {/* Glassmorphism Panel */}
-        <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-          <div className="backdrop-blur-md bg-white/10 rounded-3xl border border-white/20 p-12 sm:p-16 shadow-2xl">
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-white">
-                  Banking That <span className="text-prime-accent">Moves With You</span>
-                </h1>
-                <p className="text-2xl sm:text-3xl text-white/90 font-light leading-relaxed max-w-2xl mx-auto">
-                  No branches. No queues. Just freedom.
-                </p>
+        {/* Content Container */}
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="space-y-12">
+            {/* Main Heading */}
+            <div className="space-y-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] text-white tracking-tight">
+                Banking That <span className="text-prime-accent bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Moves With You</span>
+              </h1>
+              <div className="w-16 h-1 bg-gradient-to-r from-prime-accent to-blue-600 mx-auto rounded-full"></div>
+              <p className="text-xl sm:text-2xl text-white/80 font-light leading-relaxed max-w-2xl mx-auto">
+                No branches. No queues. Just freedom.
+              </p>
+            </div>
+            
+            {/* Call to Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+              <Button 
+                size="lg" 
+                className="bg-prime-accent hover:bg-blue-600 text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto border-0"
+                onClick={() => setLocation("/register")}
+              >
+                Start Banking Today
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+                onClick={() => setLocation("/login")}
+              >
+                Sign In
+              </Button>
+            </div>
+            
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-3 text-white/70 hover:text-white/90 transition-colors">
+                <div className="w-10 h-10 bg-prime-accent/20 rounded-full flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-prime-accent" />
+                </div>
+                <span className="text-sm font-medium">FDIC Insured</span>
               </div>
-              
-              <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
-                <Button 
-                  size="lg" 
-                  className="bg-prime-accent hover:bg-blue-600 text-white px-12 py-6 text-xl font-semibold rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                  onClick={() => setLocation("/register")}
-                >
-                  Start Banking Today
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-2 border-white/50 text-white hover:bg-white/20 backdrop-blur-sm px-12 py-6 text-xl font-semibold rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                  onClick={() => setLocation("/login")}
-                >
-                  Sign In
-                </Button>
+              <div className="flex items-center justify-center gap-3 text-white/70 hover:text-white/90 transition-colors">
+                <div className="w-10 h-10 bg-prime-accent/20 rounded-full flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-prime-accent" />
+                </div>
+                <span className="text-sm font-medium">Instant Transfers</span>
               </div>
-              
-              {/* Trust Indicators */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-12 text-white/80">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-6 w-6 text-prime-accent" />
-                  <span className="text-lg font-medium">FDIC Insured</span>
+              <div className="flex items-center justify-center gap-3 text-white/70 hover:text-white/90 transition-colors">
+                <div className="w-10 h-10 bg-prime-accent/20 rounded-full flex items-center justify-center">
+                  <Smartphone className="h-5 w-5 text-prime-accent" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="h-6 w-6 text-prime-accent" />
-                  <span className="text-lg font-medium">Instant Transfers</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Smartphone className="h-6 w-6 text-prime-accent" />
-                  <span className="text-lg font-medium">Mobile First</span>
-                </div>
+                <span className="text-sm font-medium">Mobile First</span>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/50 rounded-full mt-2"></div>
-          </div>
-        </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-prime-charcoal">
+      <section id="features" className="py-16 sm:py-24 bg-prime-charcoal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why Choose Prime Edge Banking?</h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Experience banking that adapts to your lifestyle with cutting-edge technology and unparalleled security.
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+              Banking Made <span className="text-prime-accent">Simple</span>
+            </h2>
+            <div className="w-12 h-1 bg-prime-accent mx-auto rounded-full mb-6"></div>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              Four core features that make Prime Edge the smartest choice for your financial future.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="gradient-card p-8 border-none shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-                <div className="w-16 h-16 bg-prime-accent/20 rounded-lg flex items-center justify-center mb-6">
-                  <feature.icon className="h-8 w-8 text-prime-accent" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-white">{feature.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{feature.description}</p>
-              </Card>
-            ))}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            <Card className="group bg-gradient-to-br from-prime-accent/5 to-blue-600/10 backdrop-blur-sm border border-prime-accent/10 hover:border-prime-accent/30 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
+              <div className="w-14 h-14 bg-prime-accent/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-prime-accent/20 group-hover:scale-110 transition-all duration-300">
+                <Zap className="h-7 w-7 text-prime-accent" />
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-white group-hover:text-prime-accent transition-colors">Instant Transfers</h3>
+              <p className="text-gray-300 leading-relaxed text-sm">Send money instantly to anyone, anywhere. Zero fees on domestic transfers.</p>
+            </Card>
+            
+            <Card className="group bg-gradient-to-br from-green-500/5 to-emerald-600/10 backdrop-blur-sm border border-green-400/10 hover:border-green-400/30 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
+              <div className="w-14 h-14 bg-green-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-400/20 group-hover:scale-110 transition-all duration-300">
+                <Shield className="h-7 w-7 text-green-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-white group-hover:text-green-400 transition-colors">Secure Vault</h3>
+              <p className="text-gray-300 leading-relaxed text-sm">Bank-grade security with FDIC insurance protecting your savings up to $250,000.</p>
+            </Card>
+            
+            <Card className="group bg-gradient-to-br from-purple-500/5 to-pink-600/10 backdrop-blur-sm border border-purple-400/10 hover:border-purple-400/30 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
+              <div className="w-14 h-14 bg-purple-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-400/20 group-hover:scale-110 transition-all duration-300">
+                <Clock className="h-7 w-7 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-white group-hover:text-purple-400 transition-colors">24/7 Support</h3>
+              <p className="text-gray-300 leading-relaxed text-sm">Round-the-clock support with real humans and AI-powered assistance.</p>
+            </Card>
+            
+            <Card className="group bg-gradient-to-br from-orange-500/5 to-red-600/10 backdrop-blur-sm border border-orange-400/10 hover:border-orange-400/30 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
+              <div className="w-14 h-14 bg-orange-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-orange-400/20 group-hover:scale-110 transition-all duration-300">
+                <DollarSign className="h-7 w-7 text-orange-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-white group-hover:text-orange-400 transition-colors">No Hidden Fees</h3>
+              <p className="text-gray-300 leading-relaxed text-sm">Transparent pricing with no monthly fees, overdraft fees, or surprise charges.</p>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Security Section */}
-      <section id="security" className="py-20 bg-prime-navy">
+      {/* Product Preview Section */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-prime-navy to-prime-charcoal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-bold">Your Security is Our Priority</h2>
-              <p className="text-xl text-gray-300 leading-relaxed">
-                We employ the highest standards of digital security to protect your financial information and transactions.
-              </p>
-              <div className="space-y-4">
-                {securityFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-prime-success/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Check className="h-4 w-4 text-prime-success" />
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+              All Your Money in One <span className="text-prime-accent">Smart Dashboard</span>
+            </h2>
+            <div className="w-12 h-1 bg-prime-accent mx-auto rounded-full mb-6"></div>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              Experience seamless banking with our intuitive dashboard designed for simplicity and power.
+            </p>
+          </div>
+          
+          {/* Dashboard Mockup */}
+          <div className="relative max-w-5xl mx-auto">
+            <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-3xl p-8 shadow-2xl border border-white/10">
+              {/* Browser Chrome */}
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <div className="flex-1 bg-white/10 rounded-lg h-6 flex items-center px-4">
+                  <span className="text-xs text-white/60">primeedge.bank/dashboard</span>
+                </div>
+              </div>
+              
+              {/* Dashboard Content */}
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">SW</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">{feature.split(' - ')[0]}</h4>
-                      <p className="text-gray-300 text-sm">{feature.split(' - ')[1]}</p>
+                      <h3 className="text-xl font-bold text-white">Welcome back, Sarah!</h3>
+                      <p className="text-blue-200 text-sm">Here's your financial overview</p>
                     </div>
                   </div>
-                ))}
+                  <div className="bg-prime-accent text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    Dashboard
+                  </div>
+                </div>
+                
+                {/* Stats Cards */}
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div className="bg-gradient-to-br from-green-500/20 to-emerald-600/20 backdrop-blur-sm border border-green-400/20 rounded-xl p-4">
+                    <div className="text-xs text-green-300 mb-1">BALANCE</div>
+                    <div className="text-2xl font-bold text-white">$2,250.00</div>
+                    <div className="text-xs text-green-300">Available Now</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-500/20 to-indigo-600/20 backdrop-blur-sm border border-blue-400/20 rounded-xl p-4">
+                    <div className="text-xs text-blue-300 mb-1">SPENDING</div>
+                    <div className="text-2xl font-bold text-white">$250.00</div>
+                    <div className="text-xs text-blue-300">This Month</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-500/20 to-pink-600/20 backdrop-blur-sm border border-purple-400/20 rounded-xl p-4">
+                    <div className="text-xs text-purple-300 mb-1">ACTIVITY</div>
+                    <div className="text-2xl font-bold text-white">12</div>
+                    <div className="text-xs text-purple-300">Transactions</div>
+                  </div>
+                </div>
+                
+                {/* Recent Activity */}
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
+                  <h4 className="text-white font-semibold mb-3">Recent Activity</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-green-500/20 border border-green-400/30 rounded-full flex items-center justify-center">
+                          <span className="text-green-400 text-xs">↓</span>
+                        </div>
+                        <div>
+                          <div className="text-white text-sm font-medium">Salary Deposit</div>
+                          <div className="text-gray-400 text-xs">Jan 15, 2025</div>
+                        </div>
+                      </div>
+                      <div className="text-green-400 font-bold">+$3,200.00</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-red-500/20 border border-red-400/30 rounded-full flex items-center justify-center">
+                          <span className="text-red-400 text-xs">↑</span>
+                        </div>
+                        <div>
+                          <div className="text-white text-sm font-medium">Grocery Store</div>
+                          <div className="text-gray-400 text-xs">Jan 14, 2025</div>
+                        </div>
+                      </div>
+                      <div className="text-red-400 font-bold">-$85.50</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1200&h=800" 
-                alt="Secure digital banking interface" 
-                className="rounded-2xl shadow-2xl w-full h-auto" 
-              />
-            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-16 sm:py-24 bg-prime-charcoal">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-white">
+              Trusted by <span className="text-prime-accent">Thousands</span>
+            </h2>
+            <div className="w-12 h-1 bg-prime-accent mx-auto rounded-full mb-6"></div>
+            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              See what our customers are saying about their Prime Edge Banking experience.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold">MJ</span>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">Michael Johnson</div>
+                  <div className="text-gray-400 text-sm">Small Business Owner</div>
+                </div>
+              </div>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                "Prime Edge transformed how I manage my business finances. The instant transfers and clean dashboard make banking effortless."
+              </p>
+              <div className="flex text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>★</span>
+                ))}
+              </div>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold">SC</span>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">Sarah Chen</div>
+                  <div className="text-gray-400 text-sm">CFO at TechStart</div>
+                </div>
+              </div>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                "Finally, a bank that gets it. No hidden fees, transparent pricing, and the security features give me complete peace of mind."
+              </p>
+              <div className="flex text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>★</span>
+                ))}
+              </div>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold">AR</span>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">Alex Rodriguez</div>
+                  <div className="text-gray-400 text-sm">Freelance Designer</div>
+                </div>
+              </div>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                "The 24/7 support is incredible. Whether it's 2 AM or 2 PM, I always get help when I need it. Best banking experience ever."
+              </p>
+              <div className="flex text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>★</span>
+                ))}
+              </div>
+            </Card>
           </div>
         </div>
       </section>
@@ -285,28 +450,52 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 gradient-prime">
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-prime-accent via-blue-600 to-indigo-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">Ready to Experience the Future of Banking?</h2>
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            Join Prime Edge Banking today and discover why thousands of customers trust us with their financial future.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-prime-accent hover:bg-blue-600 text-white px-8 py-4 text-lg font-semibold"
-              onClick={() => setLocation("/register")}
-            >
-              Open Your Account
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-2 border-white text-white hover:bg-white hover:text-prime-navy px-8 py-4 text-lg font-semibold"
-              onClick={() => setLocation("/login")}
-            >
-              Sign In Now
-            </Button>
+          <div className="space-y-8">
+            <div className="space-y-6">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                Ready to Experience the Future of Banking?
+              </h2>
+              <div className="w-16 h-1 bg-white/50 mx-auto rounded-full"></div>
+              <p className="text-lg sm:text-xl text-white/90 leading-relaxed max-w-2xl mx-auto">
+                Join Prime Edge Banking today and discover why thousands of customers trust us with their financial future.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
+              <Button 
+                size="lg" 
+                className="bg-white hover:bg-gray-100 text-prime-navy px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto border-0"
+                onClick={() => setLocation("/register")}
+              >
+                Open Your Account
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white/50 text-white hover:bg-white/10 hover:border-white backdrop-blur-sm px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+                onClick={() => setLocation("/login")}
+              >
+                Sign In Now
+              </Button>
+            </div>
+            
+            {/* Trust Signals */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8 text-white/80">
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                <span className="text-sm font-medium">FDIC Insured</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="h-5 w-5" />
+                <span className="text-sm font-medium">Bank-Grade Security</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                <span className="text-sm font-medium">2,847+ Happy Customers</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
