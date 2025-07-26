@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model admin_logs {
+  id                                   String   @id
+  action                               String
+  amount                               Float?
+  adminId                              String
+  createdAt                            DateTime @default(now())
+  description                          String?
+  targetUserId                         String?
+  users_admin_logs_adminIdTousers      users    @relation("admin_logs_adminIdTousers", fields: [adminId], references: [id], onDelete: Cascade)
+  users_admin_logs_targetUserIdTousers users?   @relation("admin_logs_targetUserIdTousers", fields: [targetUserId], references: [id])
+}
+
+model transactions {
+  id          String            @id
+  amount      Float
+  description String
+  reference   String?
+  createdAt   DateTime          @default(now())
+  userId      String
+  type        TransactionType
+  status      TransactionStatus @default(COMPLETED)
+  users       users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model users {
+  id                                        String         @id
+  name                                      String
+  email                                     String         @unique
+  password                                  String
+  balance                                   Float          @default(0.00)
+  accountNumber                             String         @unique
+  accountType                               AccountType    @default(CHECKING)
+  createdAt                                 DateTime       @default(now())
+  isActive                                  Boolean        @default(true)
+  lastLogin                                 DateTime?
+  updatedAt                                 DateTime
+  role                                      Role           @default(USER)
+  admin_logs_admin_logs_adminIdTousers      admin_logs[]   @relation("admin_logs_adminIdTousers")
+  admin_logs_admin_logs_targetUserIdTousers admin_logs[]   @relation("admin_logs_targetUserIdTousers")
+  transactions                              transactions[]
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  BUSINESS
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
