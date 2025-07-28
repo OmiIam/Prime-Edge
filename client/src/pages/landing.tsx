@@ -54,12 +54,24 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Logo size="md" showText={true} className="cursor-pointer" />
+              <div className="cursor-pointer" onClick={() => setLocation("/")}>
+                <Logo size="md" showText={true} />
+              </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
-              <a href="#security" className="text-gray-300 hover:text-white transition-colors">Security</a>
-              <a href="#about" className="text-gray-300 hover:text-white transition-colors">About</a>
+              <button 
+                onClick={() => setLocation("/support/security")}
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                Security
+              </button>
+              <button 
+                onClick={() => setLocation("/about")}
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                About
+              </button>
               <Button variant="ghost" onClick={() => setLocation("/login")}>
                 Login
               </Button>
@@ -511,19 +523,91 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4">Services</h4>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li>Personal Banking</li>
-                <li>Business Banking</li>
-                <li>Investment Services</li>
-                <li>Loans & Credit</li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/services/personal-banking")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Personal Banking
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/services/business-banking")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Business Banking
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/services/investment-services")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Investment Services
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/services/loans")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Loans & Credit
+                  </button>
+                </li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li>Help Center</li>
-                <li>Contact Us</li>
-                <li>Security Center</li>
-                <li>Privacy Policy</li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/support/help-center")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Help Center
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/support/contact-us")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Contact Us
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/support/security")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Security Center
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/legal/privacy-policy")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Privacy Policy
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/legal/terms-of-service")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    Terms of Service
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => setLocation("/about")}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
+                  >
+                    About Us
+                  </button>
+                </li>
               </ul>
             </div>
             <div>
