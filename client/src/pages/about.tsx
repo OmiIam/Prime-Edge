@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from "@/components/logo";
 import { 
   Building, 
@@ -296,7 +295,7 @@ export default function About() {
         {/* Content Tabs */}
         <section className="py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-12">
+            <div className="space-y-12">
               <div className="flex justify-center">
                 <div className="inline-flex bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
                   <button
@@ -358,7 +357,7 @@ export default function About() {
               </div>
 
               {/* Our Story Tab */}
-              <TabsContent value="story">
+              {activeTab === "story" && (
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Our Journey</h2>
@@ -430,10 +429,10 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+              )}
 
               {/* Leadership Tab */}
-              <TabsContent value="leadership">
+              {activeTab === "leadership" && (
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Executive Leadership</h2>
@@ -489,10 +488,10 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+              )}
 
               {/* Values Tab */}
-              <TabsContent value="values">
+              {activeTab === "values" && (
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Our Core Values</h2>
@@ -549,10 +548,10 @@ export default function About() {
                     </Card>
                   </div>
                 </div>
-              </TabsContent>
+              )}
 
               {/* Community Tab */}
-              <TabsContent value="community">
+              {activeTab === "community" && (
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Community Impact</h2>
@@ -607,8 +606,8 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
+              )}
+            </div>
           </div>
         </section>
 
