@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
 import Navbar from "@/components/navbar";
+import EnhancedStatCard from "@/components/admin/EnhancedStatCard";
+import NotificationCenter from "@/components/admin/NotificationCenter";
+import SystemStatus from "@/components/admin/SystemStatus";
+import TimeRangeFilter, { type TimeRange } from "@/components/admin/TimeRangeFilter";
 import {
   Users,
   DollarSign,
@@ -29,7 +33,10 @@ import {
   History,
   CreditCard,
   UserCheck,
-  UserX
+  UserX,
+  Menu,
+  X,
+  Zap
 } from "lucide-react";
 import {
   AlertDialog,
@@ -57,7 +64,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 
 interface User {
   id: string;
@@ -124,6 +131,13 @@ export default function AdminNew() {
     accountType: 'CHECKING' as 'CHECKING' | 'SAVINGS' | 'BUSINESS', 
     isActive: true 
   });
+  const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>({
+    key: 'last7days',
+    label: 'Last 7 days',
+    from: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+    to: new Date()
+  });
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Queries
   const { data: usersData, isLoading: usersLoading } = useQuery({
@@ -294,13 +308,13 @@ export default function AdminNew() {
 
   if (!authState.isAuthenticated || authState.user?.role !== 'ADMIN') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
         <Navbar user={authState.user || { name: '', email: '', role: 'USER' }} />
         <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
-          <Card>
+          <Card className="bg-white/95 backdrop-blur-sm border-white/20 shadow-2xl">
             <CardContent className="p-8 text-center">
               <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">Access Denied</h2>
               <p className="text-gray-600">You need admin privileges to access this page.</p>
             </CardContent>
           </Card>
@@ -310,29 +324,92 @@ export default function AdminNew() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       <Navbar user={authState.user!} />
       
       <div className="pt-20 px-3 sm:px-6 lg:px-8 pb-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 sm:mb-8">
-            <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Admin Dashboard</h1>
+                  <p className="text-gray-200 text-xs sm:text-sm lg:text-base mt-1">Comprehensive banking administration portal</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-gray-600 text-xs sm:text-sm lg:text-base mt-1">Comprehensive banking administration portal</p>
+              
+              <div className="flex items-center gap-3">
+                <TimeRangeFilter 
+                  value={selectedTimeRange} 
+                  onChange={setSelectedTimeRange}
+                  className="w-full sm:w-auto"
+                />
+                <NotificationCenter />
               </div>
             </div>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+            
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300 mb-6">
               <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Last updated: {format(new Date(), 'MMM dd, yyyy HH:mm')}</span>
             </div>
           </div>
 
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm overflow-hidden">
+          {/* Mobile Navigation Toggle */}
+          <div className="sm:hidden mb-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+              className="w-full justify-between bg-white/95 backdrop-blur-sm border border-white/20 hover:bg-white/90 transition-colors rounded-xl p-4 shadow-lg"
+            >
+              <div className="flex items-center gap-2">
+                <Menu className="h-4 w-4" />
+                <span className="font-semibold">Navigation Menu</span>
+              </div>
+              {isMobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </Button>
+            
+            {isMobileNavOpen && (
+              <div className="mt-3 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl overflow-hidden">
+                <div className="grid grid-cols-1 divide-y divide-gray-100">
+                  <button className="flex items-center gap-3 p-4 hover:bg-blue-50 transition-colors text-left">
+                    <BarChart3 className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Overview</div>
+                      <div className="text-sm text-gray-500">Dashboard stats & analytics</div>
+                    </div>
+                  </button>
+                  <button className="flex items-center gap-3 p-4 hover:bg-green-50 transition-colors text-left">
+                    <Users className="h-5 w-5 text-green-600" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Users</div>
+                      <div className="text-sm text-gray-500">Manage user accounts</div>
+                    </div>
+                  </button>
+                  <button className="flex items-center gap-3 p-4 hover:bg-purple-50 transition-colors text-left">
+                    <Receipt className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Transactions</div>
+                      <div className="text-sm text-gray-500">Financial activity</div>
+                    </div>
+                  </button>
+                  <button className="flex items-center gap-3 p-4 hover:bg-orange-50 transition-colors text-left">
+                    <History className="h-5 w-5 text-orange-600" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Activity Logs</div>
+                      <div className="text-sm text-gray-500">System audit trail</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Desktop/Tablet Navigation */}
+          <TabsList className="hidden sm:grid w-full grid-cols-4 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl p-1.5 shadow-lg overflow-hidden">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
               <BarChart3 className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Overview</span>
@@ -355,100 +432,149 @@ export default function AdminNew() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            {/* Enhanced Stat Cards */}
             <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4">
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Users</CardTitle>
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-xl flex items-center justify-center shadow-sm">
-                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                    {statsLoading ? <Skeleton className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 rounded" /> : dashboardStats?.totalUsers || 0}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-xs sm:text-sm text-green-600 font-medium">+2.5% from last month</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Active Users</CardTitle>
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-xl flex items-center justify-center shadow-sm">
-                    <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                    {statsLoading ? <Skeleton className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 rounded" /> : dashboardStats?.activeUsers || 0}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-xs sm:text-sm text-green-600 font-medium">98.5% active rate</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Transactions</CardTitle>
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-50 rounded-xl flex items-center justify-center shadow-sm">
-                    <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                    {statsLoading ? <Skeleton className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 rounded" /> : dashboardStats?.totalTransactions || 0}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                    <p className="text-xs sm:text-sm text-blue-600 font-medium">+15% this week</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
-                  <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Balance</CardTitle>
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-50 rounded-xl flex items-center justify-center shadow-sm">
-                    <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                    {statsLoading ? (
-                      <Skeleton className="h-7 w-20 sm:h-8 sm:w-24 bg-gray-200 rounded" />
-                    ) : (
-                      `$${(dashboardStats?.totalBalance || 0).toLocaleString()}`
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-xs sm:text-sm text-green-600 font-medium">+8.2% growth</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <EnhancedStatCard
+                title="Total Users"
+                value={dashboardStats?.totalUsers || 0}
+                change={{
+                  value: 2.5,
+                  period: "vs last month",
+                  type: "positive"
+                }}
+                icon={Users}
+                color="blue"
+                trend={[45, 52, 48, 61, 55, 67, 69, 63]}
+                loading={statsLoading}
+                lastUpdated={new Date()}
+                subtitle="Registered accounts"
+                onClick={() => console.log('Navigate to users')}
+                onRefresh={async () => {
+                  queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+                }}
+              />
+              
+              <EnhancedStatCard
+                title="Active Users"
+                value={dashboardStats?.activeUsers || 0}
+                change={{
+                  value: 5.2,
+                  period: "vs last week",
+                  type: "positive"
+                }}
+                icon={UserCheck}
+                color="green"
+                trend={[38, 42, 45, 47, 49, 51, 48, 52]}
+                loading={statsLoading}
+                lastUpdated={new Date()}
+                subtitle="98.5% active rate"
+                onClick={() => console.log('Navigate to active users')}
+                onRefresh={async () => {
+                  queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+                }}
+              />
+              
+              <EnhancedStatCard
+                title="Transactions"
+                value={dashboardStats?.totalTransactions || 0}
+                change={{
+                  value: 15.0,
+                  period: "this week",
+                  type: "positive"
+                }}
+                icon={Activity}
+                color="purple"
+                trend={[120, 132, 128, 145, 140, 158, 162, 155]}
+                loading={statsLoading}
+                lastUpdated={new Date()}
+                subtitle="All-time volume"
+                onClick={() => console.log('Navigate to transactions')}
+                onRefresh={async () => {
+                  queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+                }}
+              />
+              
+              <EnhancedStatCard
+                title="Total Balance"
+                value={`$${(dashboardStats?.totalBalance || 0).toLocaleString()}`}
+                change={{
+                  value: 8.2,
+                  period: "growth",
+                  type: "positive"
+                }}
+                icon={DollarSign}
+                color="orange"
+                trend={[8500, 9200, 8800, 9600, 9300, 10100, 9900, 10400]}
+                loading={statsLoading}
+                lastUpdated={new Date()}
+                subtitle="System-wide funds"
+                onClick={() => console.log('Navigate to financials')}
+                onRefresh={async () => {
+                  queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+                }}
+              />
+            </div>
+            
+            {/* System Status and Recent Transactions Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <SystemStatus />
+              </div>
+              <div className="lg:col-span-1">
+                <Card className="bg-white/95 backdrop-blur-sm border border-white/20 shadow-xl h-full">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center shadow-sm">
+                        <Zap className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">Administrative shortcuts</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Button className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" variant="ghost">
+                      <Users className="h-4 w-4 mr-3" />
+                      Manage Users
+                    </Button>
+                    <Button className="w-full justify-start bg-green-50 text-green-700 hover:bg-green-100 border border-green-200" variant="ghost">
+                      <Receipt className="h-4 w-4 mr-3" />
+                      Review Transactions
+                    </Button>
+                    <Button className="w-full justify-start bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200" variant="ghost">
+                      <History className="h-4 w-4 mr-3" />
+                      Activity Logs
+                    </Button>
+                    <Button className="w-full justify-start bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200" variant="ghost">
+                      <Settings className="h-4 w-4 mr-3" />
+                      System Settings
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* Recent Transactions */}
-            <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
-              <CardHeader className="border-b border-gray-100 pb-4 px-4 sm:px-6 pt-4 sm:pt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center shadow-sm">
-                      <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+            <Card className="bg-white border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 rounded-2xl overflow-hidden">
+              <CardHeader className="border-b border-gray-200 pb-6 px-6 pt-6 bg-gradient-to-r from-gray-50 to-gray-50/50">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <TrendingUp className="h-7 w-7 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-base sm:text-xl font-bold text-gray-900">Recent Transactions</CardTitle>
-                      <p className="text-sm sm:text-base text-gray-500 mt-1">Latest financial activity</p>
+                      <CardTitle className="text-xl font-bold text-gray-900 mb-1">Recent Transactions</CardTitle>
+                      <p className="text-base text-gray-700 font-medium">Latest financial activity</p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="self-start sm:self-auto text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium text-sm px-4 py-2 min-h-[40px] rounded-lg shadow-sm">
-                    <span className="hidden sm:inline">View All</span>
-                    <span className="sm:hidden">View All</span>
+                  <Button 
+                    variant="default" 
+                    size="default" 
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-0 min-h-[48px]"
+                  >
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    View All Transactions
                   </Button>
                 </div>
               </CardHeader>
@@ -467,46 +593,46 @@ export default function AdminNew() {
                     ))}
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-200">
                     {dashboardStats?.recentTransactions?.map((transaction, index) => (
-                      <div key={transaction.id} className="p-4 sm:p-5 hover:bg-gray-50 transition-all duration-200 hover:shadow-sm">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                          <div className="flex items-start space-x-4 flex-1 min-w-0">
-                            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0 ${
+                      <div key={transaction.id} className="p-6 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-all duration-300 hover:shadow-sm cursor-pointer group">
+                        <div className="flex items-center justify-between gap-6">
+                          <div className="flex items-center space-x-5 flex-1">
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 transition-transform group-hover:scale-105 ${
                               transaction.type === 'CREDIT' 
-                                ? 'bg-gradient-to-br from-green-50 to-green-100 border border-green-200' 
-                                : 'bg-gradient-to-br from-red-50 to-red-100 border border-red-200'
+                                ? 'bg-gradient-to-br from-green-500 to-green-600 border-2 border-green-300' 
+                                : 'bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-300'
                             }`}>
                               {transaction.type === 'CREDIT' ? 
-                                <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" /> : 
-                                <Minus className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+                                <Plus className="h-8 w-8 text-white font-bold" /> : 
+                                <Minus className="h-8 w-8 text-white font-bold" />
                               }
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-gray-900 text-base sm:text-lg mb-2 truncate">{transaction.description}</p>
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                                <p className="text-sm sm:text-base text-gray-600 font-medium truncate">{transaction.user.name}</p>
-                                <span className="text-gray-300 hidden sm:inline">•</span>
-                                <p className="text-sm text-gray-500">
+                            <div className="flex-1">
+                              <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-gray-800">{transaction.description}</h3>
+                              <div className="flex items-center gap-3">
+                                <p className="text-base text-gray-800 font-semibold">{transaction.user.name}</p>
+                                <span className="text-gray-400">•</span>
+                                <p className="text-sm text-gray-600 font-medium">
                                   {format(new Date(transaction.createdAt), 'MMM dd, yyyy HH:mm')}
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-1 flex-shrink-0">
-                            <p className={`text-lg sm:text-xl font-bold ${
+                          <div className="text-right flex-shrink-0">
+                            <p className={`text-2xl font-black mb-2 ${
                               transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
                             }`}>
-                              {transaction.type === 'CREDIT' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                              {transaction.type === 'CREDIT' ? '+' : ''}${transaction.amount.toLocaleString()}
                             </p>
-                            <div className="flex items-center gap-2">
-                              <div className={`w-2 h-2 rounded-full ${
+                            <div className="flex items-center justify-end gap-2">
+                              <div className={`w-3 h-3 rounded-full shadow-sm ${
                                 transaction.type === 'CREDIT' ? 'bg-green-500' : 'bg-red-500'
                               }`}></div>
-                              <span className={`text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wide ${
+                              <span className={`text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm ${
                                 transaction.type === 'CREDIT' 
-                                  ? 'bg-green-100 text-green-700' 
-                                  : 'bg-red-100 text-red-700'
+                                  ? 'bg-green-100 text-green-800 border border-green-200' 
+                                  : 'bg-red-100 text-red-800 border border-red-200'
                               }`}>
                                 {transaction.type}
                               </span>
@@ -515,12 +641,12 @@ export default function AdminNew() {
                         </div>
                       </div>
                     )) || (
-                      <div className="p-12 sm:p-16 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                          <Receipt className="h-8 w-8 text-gray-400" />
+                      <div className="p-16 text-center">
+                        <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                          <Receipt className="h-10 w-10 text-gray-500" />
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">No Recent Transactions</h3>
-                        <p className="text-gray-500 text-sm">Transaction activity will appear here once available</p>
+                        <h3 className="font-bold text-gray-900 mb-3 text-lg">No Recent Transactions</h3>
+                        <p className="text-gray-700 font-medium">Transaction activity will appear here once available</p>
                       </div>
                     )}
                   </div>
