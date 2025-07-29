@@ -3,11 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authManager } from "@/lib/auth";
 import Navbar from "@/components/navbar";
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditCard, Home, Briefcase, Send, Plus } from "lucide-react";
+import QuickActions from "@/components/dashboard/QuickActions";
+import FinancialInsights from "@/components/dashboard/FinancialInsights";
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditCard, Home, Briefcase, Send, Plus, Receipt, Smartphone, MapPin, Calculator, PiggyBank, Target, BarChart3, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -64,6 +67,11 @@ export default function Dashboard() {
   const [transferAmount, setTransferAmount] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [transferOpen, setTransferOpen] = useState(false);
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [billPayOpen, setBillPayOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState("");
+  const [depositMethod, setDepositMethod] = useState("bank_transfer");
+  const [payeeSelection, setPayeeSelection] = useState("");
 
   const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ['/api/user/dashboard'],
@@ -140,12 +148,27 @@ export default function Dashboard() {
     setRecipientEmail("");
   };
 
+  const handleDeposit = () => {
+    // In a real app, this would make an API call
+    console.log('Deposit:', { amount: depositAmount, method: depositMethod });
+    setDepositOpen(false);
+    setDepositAmount("");
+    setDepositMethod("bank_transfer");
+  };
+
+  const handleBillPay = () => {
+    // In a real app, this would make an API call
+    console.log('Bill Pay:', { payee: payeeSelection });
+    setBillPayOpen(false);
+    setPayeeSelection("");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       <Navbar user={authState.user!} />
       
       <div className="pt-20 px-3 sm:px-6 lg:px-8 pb-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="container-prime">
           {/* Header */}
           <div className="mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
@@ -163,51 +186,11 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-prime-accent hover:bg-blue-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-sm sm:text-base min-h-[48px] font-semibold">
-                    <Send className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Transfer Money</span>
-                    <span className="sm:hidden">Transfer</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-slate-800 border-slate-700 text-white mx-4 max-w-md rounded-2xl shadow-2xl">
-                  <DialogHeader className="pb-4">
-                    <DialogTitle className="text-xl font-bold text-white">Send Money</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-5 mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="recipient" className="text-base font-semibold text-gray-300">Recipient Email</Label>
-                      <Input
-                        id="recipient"
-                        type="email"
-                        placeholder="recipient@example.com"
-                        value={recipientEmail}
-                        onChange={(e) => setRecipientEmail(e.target.value)}
-                        className="bg-slate-700 border-2 border-slate-600 text-white min-h-[48px] rounded-xl text-base px-4 focus:border-blue-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="amount" className="text-base font-semibold text-gray-300">Amount ($)</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        placeholder="0.00"
-                        value={transferAmount}
-                        onChange={(e) => setTransferAmount(e.target.value)}
-                        className="bg-slate-700 border-2 border-slate-600 text-white min-h-[48px] rounded-xl text-base px-4 focus:border-blue-500"
-                      />
-                    </div>
-                    <Button 
-                      onClick={handleTransfer}
-                      disabled={!transferAmount || !recipientEmail}
-                      className="w-full bg-prime-accent hover:bg-blue-600 text-white min-h-[52px] rounded-xl font-bold text-base shadow-xl hover:shadow-2xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Send ${transferAmount || '0.00'}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button className="btn-prime touch-target">
+                <Send className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Quick Transfer</span>
+                <span className="sm:hidden">Transfer</span>
+              </Button>
             </div>
             
             <div className="flex items-center gap-2 text-xs sm:text-sm text-blue-300">
@@ -217,7 +200,7 @@ export default function Dashboard() {
           </div>
 
           {/* Account Information */}
-          <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl mb-6 sm:mb-8 hover:bg-white/10 transition-all duration-300">
+          <Card className="card-gradient mb-6 sm:mb-8">
             <CardContent className="p-4 sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div className="text-center sm:text-left">
@@ -258,7 +241,7 @@ export default function Dashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 backdrop-blur-sm border border-green-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <Card className="card-stats">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-xl flex items-center justify-center shadow-sm">
@@ -276,7 +259,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-600/10 backdrop-blur-sm border border-blue-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+            <Card className="card-stats">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-xl flex items-center justify-center shadow-sm">
@@ -294,7 +277,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-600/10 backdrop-blur-sm border border-purple-400/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] sm:col-span-2 lg:col-span-1">
+            <Card className="card-stats sm:col-span-2 lg:col-span-1">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-xl flex items-center justify-center shadow-sm">
@@ -312,7 +295,7 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Transactions */}
-          <Card className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+          <Card className="card-gradient">
             <CardHeader className="border-b border-white/10 pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -383,6 +366,27 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+
+          {/* Enhanced Dashboard Components */}
+          <div className="grid lg:grid-cols-3 gap-6 mt-8">
+            {/* Quick Actions */}
+            <div className="lg:col-span-1">
+              <QuickActions 
+                onDeposit={handleDeposit}
+                onTransfer={handleTransfer}
+                onBillPay={handleBillPay}
+              />
+            </div>
+            
+            {/* Financial Insights */}
+            <div className="lg:col-span-2">
+              <FinancialInsights 
+                transactions={data.recentTransactions}
+                monthlySpending={monthlySpending}
+                balance={data.user.balance}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
