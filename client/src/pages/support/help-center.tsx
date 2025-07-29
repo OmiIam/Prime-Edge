@@ -132,7 +132,7 @@ export default function HelpCenter() {
     {
       title: "Phone Support",
       description: "Speak directly with a banking specialist",
-      availability: "1-800-PRIME-EDGE",
+      availability: "+1 (938) 271-8041",
       icon: Phone,
       action: "Call Now",
       color: "green"

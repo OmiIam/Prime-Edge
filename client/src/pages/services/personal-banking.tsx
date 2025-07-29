@@ -424,7 +424,7 @@ export default function PersonalBanking() {
               <div>
                 <h3 className="font-semibold text-white mb-4">Contact</h3>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li>1-800-PRIME-EDGE</li>
+                  <li>+1 (938) 271-8041</li>
                   <li>support@primeedge.com</li>
                   <li>Available 24/7</li>
                 </ul>

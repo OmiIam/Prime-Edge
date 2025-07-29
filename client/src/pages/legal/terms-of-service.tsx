@@ -449,7 +449,7 @@ export default function TermsOfService() {
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <Phone className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                         <p className="font-medium text-gray-900">Phone</p>
-                        <p className="text-sm text-gray-600">1-800-PRIME-EDGE</p>
+                        <p className="text-sm text-gray-600">+1 (938) 271-8041</p>
                         <p className="text-xs text-gray-500">Available 24/7</p>
                       </div>
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
@@ -543,12 +543,12 @@ export default function TermsOfService() {
                     <div className="space-y-3">
                       <div>
                         <p className="font-medium text-gray-900">General Support</p>
-                        <p className="text-sm text-gray-600">1-800-PRIME-EDGE (1-800-774-6333)</p>
+                        <p className="text-sm text-gray-600">+1 (938) 271-8041</p>
                         <p className="text-xs text-gray-500">Available 24/7</p>
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">Dispute Resolution</p>
-                        <p className="text-sm text-gray-600">1-800-DISPUTES (1-800-347-7883)</p>
+                        <p className="text-sm text-gray-600">+1 (938) 271-8041</p>
                         <p className="text-xs text-gray-500">Monday-Friday, 8AM-8PM ET</p>
                       </div>
                     </div>
@@ -766,7 +766,7 @@ export default function TermsOfService() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-DISPUTES
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

@@ -139,7 +139,7 @@ export default function UserDetailPage() {
         id: params.id || '1',
         name: 'John Doe',
         email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567',
+        phone: '+1 (938) 271-8041',
         dateOfBirth: '1990-05-15',
         address: {
           street: '123 Main Street',

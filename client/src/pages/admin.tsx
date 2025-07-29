@@ -373,38 +373,52 @@ export default function AdminNew() {
             </Button>
             
             {isMobileNavOpen && (
-              <div className="mt-3 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl overflow-hidden">
-                <div className="grid grid-cols-1 divide-y divide-gray-100">
-                  <button className="flex items-center gap-3 p-4 hover:bg-blue-50 transition-colors text-left">
-                    <BarChart3 className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Overview</div>
-                      <div className="text-sm text-gray-500">Dashboard stats & analytics</div>
-                    </div>
-                  </button>
-                  <button className="flex items-center gap-3 p-4 hover:bg-green-50 transition-colors text-left">
-                    <Users className="h-5 w-5 text-green-600" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Users</div>
-                      <div className="text-sm text-gray-500">Manage user accounts</div>
-                    </div>
-                  </button>
-                  <button className="flex items-center gap-3 p-4 hover:bg-purple-50 transition-colors text-left">
-                    <Receipt className="h-5 w-5 text-purple-600" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Transactions</div>
-                      <div className="text-sm text-gray-500">Financial activity</div>
-                    </div>
-                  </button>
-                  <button className="flex items-center gap-3 p-4 hover:bg-orange-50 transition-colors text-left">
-                    <History className="h-5 w-5 text-orange-600" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Activity Logs</div>
-                      <div className="text-sm text-gray-500">System audit trail</div>
-                    </div>
-                  </button>
-                </div>
-              </div>
+              <TabsList className="mt-3 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl overflow-hidden flex flex-col h-auto p-0">
+                <TabsTrigger 
+                  value="overview" 
+                  className="flex items-center gap-3 p-4 hover:bg-blue-50 transition-colors text-left w-full border-0 bg-transparent data-[state=active]:bg-blue-50 data-[state=active]:shadow-none rounded-none border-b border-gray-100 last:border-b-0 justify-start"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <BarChart3 className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Overview</div>
+                    <div className="text-sm text-gray-500">Dashboard stats & analytics</div>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="users" 
+                  className="flex items-center gap-3 p-4 hover:bg-green-50 transition-colors text-left w-full border-0 bg-transparent data-[state=active]:bg-green-50 data-[state=active]:shadow-none rounded-none border-b border-gray-100 last:border-b-0 justify-start"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <Users className="h-5 w-5 text-green-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Users</div>
+                    <div className="text-sm text-gray-500">Manage user accounts</div>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="transactions" 
+                  className="flex items-center gap-3 p-4 hover:bg-purple-50 transition-colors text-left w-full border-0 bg-transparent data-[state=active]:bg-purple-50 data-[state=active]:shadow-none rounded-none border-b border-gray-100 last:border-b-0 justify-start"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <Receipt className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Transactions</div>
+                    <div className="text-sm text-gray-500">Financial activity</div>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="logs" 
+                  className="flex items-center gap-3 p-4 hover:bg-orange-50 transition-colors text-left w-full border-0 bg-transparent data-[state=active]:bg-orange-50 data-[state=active]:shadow-none rounded-none border-b border-gray-100 last:border-b-0 justify-start"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <History className="h-5 w-5 text-orange-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Activity Logs</div>
+                    <div className="text-sm text-gray-500">System audit trail</div>
+                  </div>
+                </TabsTrigger>
+              </TabsList>
             )}
           </div>
           
@@ -739,63 +753,75 @@ export default function AdminNew() {
                             </div>
                           </div>
                           
-                          {/* Mobile-Optimized Action Buttons */}
-                          <div className="flex flex-wrap gap-2 sm:gap-3 pt-2 border-t border-gray-100">
+                          {/* Professional Action Buttons */}
+                          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-100">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md"
+                              className="group relative overflow-hidden bg-white border-2 border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600 transition-all duration-300 rounded-xl font-semibold shadow-sm hover:shadow-lg px-4 py-2.5 min-h-[40px]"
                               onClick={() => handleEditUser(user)}
                             >
-                              <Edit className="h-4 w-4 mr-2" />
-                              <span className="hidden sm:inline">Edit User</span>
-                              <span className="sm:hidden">Edit</span>
+                              <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              <div className="relative flex items-center gap-2">
+                                <Edit className="h-4 w-4" />
+                                <span className="hidden sm:inline">Edit User</span>
+                                <span className="sm:hidden">Edit</span>
+                              </div>
                             </Button>
+                            
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-gray-200 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md"
+                              className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-green-500 border-2 border-emerald-400 text-white hover:from-emerald-600 hover:to-green-600 hover:border-emerald-500 transition-all duration-300 rounded-xl font-semibold shadow-lg hover:shadow-xl px-4 py-2.5 min-h-[40px] transform hover:scale-105"
                               onClick={() => handleBalanceUpdate(user)}
                             >
-                              <DollarSign className="h-4 w-4 mr-2" />
-                              <span className="hidden sm:inline">Balance</span>
-                              <span className="sm:hidden">$</span>
+                              <div className="relative flex items-center gap-2">
+                                <DollarSign className="h-4 w-4" />
+                                <span className="hidden sm:inline">Update Balance</span>
+                                <span className="sm:hidden">Balance</span>
+                              </div>
                             </Button>
+                            
                             <Button
                               variant="outline"
                               size="sm"
-                              className={`flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-gray-200 text-gray-600 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md ${
+                              className={`group relative overflow-hidden border-2 transition-all duration-300 rounded-xl font-semibold shadow-sm hover:shadow-lg px-4 py-2.5 min-h-[40px] transform hover:scale-105 ${
                                 user.isActive 
-                                  ? 'hover:bg-red-50 hover:text-red-600 hover:border-red-300' 
-                                  : 'hover:bg-green-50 hover:text-green-600 hover:border-green-300'
+                                  ? 'bg-white border-orange-200 text-orange-600 hover:border-orange-400 hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 hover:text-orange-700' 
+                                  : 'bg-white border-green-200 text-green-600 hover:border-green-400 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700'
                               }`}
                               onClick={() => toggleUserStatusMutation.mutate(user.id)}
                             >
-                              {user.isActive ? (
-                                <>
-                                  <UserX className="h-4 w-4 mr-2" />
-                                  <span className="hidden sm:inline">Deactivate</span>
-                                  <span className="sm:hidden">Disable</span>
-                                </>
-                              ) : (
-                                <>
-                                  <UserCheck className="h-4 w-4 mr-2" />
-                                  <span className="hidden sm:inline">Activate</span>
-                                  <span className="sm:hidden">Enable</span>
-                                </>
-                              )}
+                              <div className="relative flex items-center gap-2">
+                                {user.isActive ? (
+                                  <>
+                                    <UserX className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Deactivate</span>
+                                    <span className="sm:hidden">Disable</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserCheck className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Activate</span>
+                                    <span className="sm:hidden">Enable</span>
+                                  </>
+                                )}
+                              </div>
                             </Button>
+                            
                             {user.role !== 'ADMIN' && (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
-                                    className="flex-1 sm:flex-none min-h-[44px] px-4 py-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all duration-200 rounded-lg font-medium shadow-sm hover:shadow-md"
+                                    className="group relative overflow-hidden bg-white border-2 border-red-200 text-red-600 hover:border-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:text-red-700 transition-all duration-300 rounded-xl font-semibold shadow-sm hover:shadow-lg px-4 py-2.5 min-h-[40px] transform hover:scale-105"
                                   >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    <span className="hidden sm:inline">Delete</span>
-                                    <span className="sm:hidden">Del</span>
+                                    <div className="relative flex items-center gap-2">
+                                      <Trash2 className="h-4 w-4" />
+                                      <span className="hidden sm:inline">Delete User</span>
+                                      <span className="sm:hidden">Delete</span>
+                                    </div>
                                   </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent className="bg-white mx-4 max-w-md rounded-xl shadow-2xl">

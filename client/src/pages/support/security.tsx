@@ -487,7 +487,7 @@ export default function SecurityCenter() {
                         <AlertTriangle className="h-4 w-4 text-red-600" />
                         <AlertDescription className="text-red-800">
                           <strong>Emergency:</strong> If you believe your account has been compromised, 
-                          call us immediately at <strong>1-800-FRAUD-HELP</strong>
+                          call us immediately at <strong>+1 (938) 271-8041</strong>
                         </AlertDescription>
                       </Alert>
 
@@ -660,7 +660,7 @@ export default function SecurityCenter() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-FRAUD-HELP
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

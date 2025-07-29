@@ -356,8 +356,9 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Our Story Tab */}
-              {activeTab === "story" && (
+
+              {/* Tab Content */}
+              <div className={activeTab === "story" ? "block" : "hidden"}>
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Our Journey</h2>
@@ -429,10 +430,9 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* Leadership Tab */}
-              {activeTab === "leadership" && (
+              <div className={activeTab === "leadership" ? "block" : "hidden"}>
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Executive Leadership</h2>
@@ -488,10 +488,9 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* Values Tab */}
-              {activeTab === "values" && (
+              <div className={activeTab === "values" ? "block" : "hidden"}>
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Our Core Values</h2>
@@ -548,10 +547,9 @@ export default function About() {
                     </Card>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* Community Tab */}
-              {activeTab === "community" && (
+              <div className={activeTab === "community" ? "block" : "hidden"}>
                 <div className="space-y-12">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold mb-4">Community Impact</h2>
@@ -606,7 +604,7 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
@@ -693,7 +691,7 @@ export default function About() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-PRIME-EDGE
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

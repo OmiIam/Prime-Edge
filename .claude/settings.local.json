@@ -5,7 +5,8 @@
       "Bash(npm run build:*)",
       "Bash(railway up:*)",
       "Bash(grep:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

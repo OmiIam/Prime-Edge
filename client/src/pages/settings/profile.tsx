@@ -75,7 +75,7 @@ export default function ProfileSettings() {
     id: "user_123",
     name: authState.user?.name || "John Doe",
     email: authState.user?.email || "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
+    phone: "+1 (938) 271-8041",
     dateOfBirth: "1990-05-15",
     address: {
       street: "123 Main Street",

@@ -636,7 +636,7 @@ export default function LoansAndCredit() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-GET-LOAN
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

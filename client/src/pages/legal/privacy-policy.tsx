@@ -449,7 +449,7 @@ export default function PrivacyPolicy() {
                   </Button>
                   <Button size="sm" variant="outline" className="border-blue-300 text-blue-700">
                     <Phone className="mr-2 h-4 w-4" />
-                    Call 1-800-PRIVACY
+                    Call +1 (938) 271-8041
                   </Button>
                 </div>
               </div>
@@ -504,7 +504,7 @@ export default function PrivacyPolicy() {
                     <div className="space-y-3">
                       <div>
                         <p className="font-medium text-gray-900">Privacy Hotline</p>
-                        <p className="text-sm text-gray-600">1-800-PRIVACY (1-800-774-8229)</p>
+                        <p className="text-sm text-gray-600">+1 (938) 271-8041</p>
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">Hours</p>
@@ -696,7 +696,7 @@ export default function PrivacyPolicy() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-PRIVACY
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

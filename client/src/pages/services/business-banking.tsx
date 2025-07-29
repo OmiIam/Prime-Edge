@@ -687,7 +687,7 @@ export default function BusinessBanking() {
                     className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg"
                   >
                     <Phone className="mr-2 h-5 w-5" />
-                    Call 1-800-BUSINESS
+                    Call +1 (938) 271-8041
                   </Button>
                 </div>
                 <div className="flex items-center justify-center gap-8 mt-8 text-blue-100">
@@ -732,7 +732,7 @@ export default function BusinessBanking() {
                 <h3 className="font-semibold text-white mb-4">Support</h3>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li><a href="#" className="hover:text-white transition-colors">Business Support</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">1-800-BUSINESS</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">+1 (938) 271-8041</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Resource Center</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">API Documentation</a></li>
                 </ul>
@@ -742,7 +742,7 @@ export default function BusinessBanking() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-BUSINESS
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

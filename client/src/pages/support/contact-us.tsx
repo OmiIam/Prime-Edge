@@ -70,10 +70,10 @@ export default function ContactUs() {
       title: "Phone Support",
       description: "Speak with our customer service team",
       details: [
-        { label: "General Support", value: "1-800-PRIME-EDGE" },
-        { label: "Business Banking", value: "1-800-BUSINESS" },
-        { label: "Investment Services", value: "1-800-INVEST-NOW" },
-        { label: "Technical Support", value: "1-800-TECH-HELP" }
+        { label: "General Support", value: "+1 (938) 271-8041" },
+        { label: "Business Banking", value: "+1 (938) 271-8041" },
+        { label: "Investment Services", value: "+1 (938) 271-8041" },
+        { label: "Technical Support", value: "+1 (938) 271-8041" }
       ],
       availability: "Available 24/7",
       responseTime: "Immediate",
@@ -138,7 +138,7 @@ export default function ContactUs() {
       city: "New York",
       address: "1250 Broadway, Suite 3600",
       zipCode: "New York, NY 10001",
-      phone: "(212) 555-0123",
+      phone: "+1 (938) 271-8041",
       services: ["Corporate Banking", "Wealth Management", "Investment Services"],
       hours: "Mon-Fri 8AM-7PM, Sat 9AM-3PM"
     },
@@ -146,7 +146,7 @@ export default function ContactUs() {
       city: "San Francisco", 
       address: "555 California Street, 50th Floor",
       zipCode: "San Francisco, CA 94104",
-      phone: "(415) 555-0456",
+      phone: "+1 (938) 271-8041",
       services: ["Business Banking", "Personal Banking", "Loans"],
       hours: "Mon-Fri 9AM-6PM, Sat 9AM-2PM"
     },
@@ -154,7 +154,7 @@ export default function ContactUs() {
       city: "Chicago",
       address: "233 South Wacker Drive, Suite 7800",
       zipCode: "Chicago, IL 60606", 
-      phone: "(312) 555-0789",
+      phone: "+1 (938) 271-8041",
       services: ["Corporate Banking", "Treasury Services", "Trade Finance"],
       hours: "Mon-Fri 8AM-6PM, Sat 10AM-2PM"
     },
@@ -162,7 +162,7 @@ export default function ContactUs() {
       city: "Los Angeles",
       address: "633 West 5th Street, 28th Floor",
       zipCode: "Los Angeles, CA 90071",
-      phone: "(213) 555-0234",
+      phone: "+1 (938) 271-8041",
       services: ["Personal Banking", "Business Banking", "Mortgage Services"],
       hours: "Mon-Fri 9AM-6PM, Sat 9AM-1PM"
     }
@@ -298,7 +298,7 @@ export default function ContactUs() {
                   className="border-gray-400 text-gray-300 hover:bg-white/10 px-8 py-4 text-lg"
                 >
                   <Phone className="mr-2 h-5 w-5" />
-                  Call 1-800-PRIME-EDGE
+                  Call +1 (938) 271-8041
                 </Button>
               </div>
             </div>
@@ -470,7 +470,7 @@ export default function ContactUs() {
                               type="tel"
                               value={form.phone}
                               onChange={(e) => handleInputChange("phone", e.target.value)}
-                              placeholder="(555) 123-4567"
+                              placeholder="+1 (938) 271-8041"
                               className="mt-1"
                             />
                           </div>
@@ -529,7 +529,7 @@ export default function ContactUs() {
                         <Alert className="bg-blue-50 border-blue-200">
                           <AlertTriangle className="h-4 w-4 text-blue-600" />
                           <AlertDescription className="text-blue-800 text-sm">
-                            For urgent matters or account security issues, please call us immediately at 1-800-PRIME-EDGE.
+                            For urgent matters or account security issues, please call us immediately at +1 (938) 271-8041.
                           </AlertDescription>
                         </Alert>
 
@@ -702,7 +702,7 @@ export default function ContactUs() {
                     className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg"
                   >
                     <Phone className="mr-2 h-5 w-5" />
-                    Call 1-800-PRIME-EDGE
+                    Call +1 (938) 271-8041
                   </Button>
                 </div>
                 <div className="flex items-center justify-center gap-8 mt-8 text-blue-100">
@@ -757,7 +757,7 @@ export default function ContactUs() {
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    1-800-PRIME-EDGE
+                    +1 (938) 271-8041
                   </li>
                   <li className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />

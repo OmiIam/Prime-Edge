@@ -613,7 +613,7 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li>1-800-PRIME-EDGE</li>
+                <li>+1 (938) 271-8041</li>
                 <li>support@primeedge.bank</li>
                 <li>New York, NY</li>
               </ul>

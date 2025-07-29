@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,9 +19,32 @@ import {
   CheckCircle, 
   Info,
   X,
-  Clock
+  Clock,
+  DollarSign,
+  UserCheck,
+  UserX,
+  Shield,
+  History
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { authManager } from "@/lib/auth";
+
+interface AdminLog {
+  id: string;
+  action: string;
+  targetUserId: string | null;
+  amount: number | null;
+  description: string | null;
+  createdAt: string;
+  admin: {
+    name: string;
+    email: string;
+  };
+  targetUser: {
+    name: string;
+    email: string;
+  } | null;
+}
 
 interface Notification {
   id: string;
@@ -32,69 +56,108 @@ interface Notification {
   priority: 'low' | 'medium' | 'high';
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'user',
-    title: 'New User Registration',
-    message: 'John Doe (john@example.com) has completed registration',
-    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-    read: false,
-    priority: 'medium'
-  },
-  {
-    id: '2',
-    type: 'transaction',
-    title: 'High-Value Transaction',
-    message: '$25,000 transfer detected - requires review',
-    timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-    read: false,
-    priority: 'high'
-  },
-  {
-    id: '3',
-    type: 'alert',
-    title: 'Failed Login Attempts',
-    message: 'Multiple failed login attempts from IP: 192.168.1.100',
-    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    read: true,
-    priority: 'high'
-  },
-  {
-    id: '4',
-    type: 'system',
-    title: 'System Maintenance',
-    message: 'Scheduled maintenance completed successfully',
-    timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
-    read: true,
-    priority: 'low'
-  },
-  {
-    id: '5',
-    type: 'transaction',
-    title: 'Daily Transaction Limit',
-    message: 'User alice@example.com reached daily transaction limit',
-    timestamp: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
-    read: true,
-    priority: 'medium'
+// Convert admin logs to notifications
+const convertLogToNotification = (log: AdminLog): Notification => {
+  const timestamp = new Date(log.createdAt);
+  const targetUserName = log.targetUser?.name || 'Unknown User';
+  const adminName = log.admin.name;
+  
+  // Determine notification type and priority based on action
+  let type: Notification['type'] = 'system';
+  let priority: Notification['priority'] = 'low';
+  let title = '';
+  let message = '';
+
+  switch (log.action) {
+    case 'USER_CREATED':
+      type = 'user';
+      priority = 'medium';
+      title = 'New User Registration';
+      message = `${targetUserName} has registered a new account`;
+      break;
+    
+    case 'BALANCE_UPDATED':
+      type = 'transaction';
+      priority = log.amount && Math.abs(log.amount) > 10000 ? 'high' : 'medium';
+      title = 'Balance Updated';
+      message = `${adminName} updated ${targetUserName}'s balance by $${log.amount?.toLocaleString() || '0'}`;
+      break;
+    
+    case 'USER_DEACTIVATED':
+      type = 'alert';
+      priority = 'high';
+      title = 'User Account Deactivated';
+      message = `${adminName} deactivated ${targetUserName}'s account`;
+      break;
+    
+    case 'USER_ACTIVATED':
+      type = 'user';
+      priority = 'medium';
+      title = 'User Account Activated';
+      message = `${adminName} activated ${targetUserName}'s account`;
+      break;
+    
+    case 'USER_DELETED':
+      type = 'alert';
+      priority = 'high';
+      title = 'User Account Deleted';
+      message = `${adminName} deleted ${targetUserName}'s account`;
+      break;
+    
+    case 'USER_UPDATED':
+      type = 'user';
+      priority = 'low';
+      title = 'User Profile Updated';
+      message = `${adminName} updated ${targetUserName}'s profile information`;
+      break;
+    
+    default:
+      type = 'system';
+      priority = 'low';
+      title = log.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      message = log.description || `${adminName} performed ${title.toLowerCase()}`;
   }
-];
+
+  return {
+    id: log.id,
+    type,
+    title,
+    message,
+    timestamp,
+    read: false, // All notifications start as unread
+    priority
+  };
+};
 
 export default function NotificationCenter() {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const authState = authManager.getState();
   const [open, setOpen] = useState(false);
+  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Fetch admin logs
+  const { data: logsData } = useQuery({
+    queryKey: ['/api/admin/logs'],
+    enabled: authState.isAuthenticated && authState.user?.role === 'ADMIN',
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+  });
 
-  const getNotificationIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'user': return User;
-      case 'transaction': return CreditCard;
-      case 'alert': return AlertTriangle;
-      case 'system': return CheckCircle;
-      default: return Info;
-    }
-  };
+  const logs = (logsData as any)?.logs || [];
+  
+  // Convert recent logs (last 24 hours) to notifications
+  const notifications = logs
+    .filter((log: AdminLog) => {
+      const logTime = new Date(log.createdAt);
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      return logTime > oneDayAgo;
+    })
+    .slice(0, 20) // Limit to 20 most recent
+    .map((log: AdminLog) => ({
+      ...convertLogToNotification(log),
+      read: readNotifications.has(log.id)
+    }));
+
+  const unreadCount = notifications.filter((n: Notification) => !n.read).length;
+
 
   const getNotificationColor = (type: Notification['type'], priority: Notification['priority']) => {
     if (priority === 'high') {
@@ -111,19 +174,16 @@ export default function NotificationCenter() {
   };
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    );
+    setReadNotifications(prev => new Set([...prev, id]));
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(n => ({ ...n, read: true }))
-    );
+    const allIds = notifications.map((n: Notification) => n.id);
+    setReadNotifications(new Set(allIds));
   };
 
   const dismissNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setReadNotifications(prev => new Set([...prev, id]));
   };
 
   const formatTimeAgo = (timestamp: Date) => {
@@ -140,26 +200,24 @@ export default function NotificationCenter() {
     return `${diffInDays}d ago`;
   };
 
-  // Simulate new notifications
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance every 30 seconds
-        const newNotification: Notification = {
-          id: Date.now().toString(),
-          type: ['user', 'transaction', 'alert', 'system'][Math.floor(Math.random() * 4)] as Notification['type'],
-          title: 'New Activity Detected',
-          message: 'A new event requires your attention',
-          timestamp: new Date(),
-          read: false,
-          priority: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as Notification['priority']
-        };
-        
-        setNotifications(prev => [newNotification, ...prev].slice(0, 10)); // Keep only 10 latest
-      }
-    }, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []);
+  // Enhanced icon mapping based on specific actions
+  const getNotificationIcon = (type: Notification['type'], title: string) => {
+    // Map specific titles to more appropriate icons
+    if (title.includes('Balance')) return DollarSign;
+    if (title.includes('Deactivated')) return UserX;
+    if (title.includes('Activated')) return UserCheck;
+    if (title.includes('Deleted')) return AlertTriangle;
+    if (title.includes('Registration')) return User;
+    
+    // Fallback to type-based icons
+    switch (type) {
+      case 'user': return User;
+      case 'transaction': return DollarSign;
+      case 'alert': return AlertTriangle;
+      case 'system': return Shield;
+      default: return History;
+    }
+  };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -224,7 +282,7 @@ export default function NotificationCenter() {
               ) : (
                 <div className="divide-y divide-gray-100">
                   {notifications.map((notification) => {
-                    const IconComponent = getNotificationIcon(notification.type);
+                    const IconComponent = getNotificationIcon(notification.type, notification.title);
                     const colorClass = getNotificationColor(notification.type, notification.priority);
                     
                     return (
