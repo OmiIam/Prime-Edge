@@ -548,19 +548,19 @@ export default function AdminNew() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200" variant="ghost">
+                    <Button className="btn-prime-secondary w-full justify-start">
                       <Users className="h-4 w-4 mr-3" />
                       Manage Users
                     </Button>
-                    <Button className="w-full justify-start bg-green-50 text-green-700 hover:bg-green-100 border border-green-200" variant="ghost">
+                    <Button className="btn-prime-secondary w-full justify-start">
                       <Receipt className="h-4 w-4 mr-3" />
                       Review Transactions
                     </Button>
-                    <Button className="w-full justify-start bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200" variant="ghost">
+                    <Button className="btn-prime-secondary w-full justify-start">
                       <History className="h-4 w-4 mr-3" />
                       Activity Logs
                     </Button>
-                    <Button className="w-full justify-start bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200" variant="ghost">
+                    <Button className="btn-prime-secondary w-full justify-start">
                       <Settings className="h-4 w-4 mr-3" />
                       System Settings
                     </Button>

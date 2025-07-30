@@ -2,10 +2,41 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Logo from "@/components/logo";
-import { Shield, Smartphone, TrendingUp, Clock, Zap, Gem, Check, Users, DollarSign, Activity, BarChart3 } from "lucide-react";
+import TrustIndicators, { SecurityStatus, RegulatedBadge, CustomerStats } from "@/components/TrustIndicators";
+import { Shield, Smartphone, TrendingUp, Clock, Zap, Gem, Check, Users, DollarSign, Activity, BarChart3, Menu, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen]);
+
+  // Focus management for mobile menu
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      // Focus first menu item when menu opens
+      const firstMenuItem = mobileMenuRef.current?.querySelector('a, button');
+      (firstMenuItem as HTMLElement)?.focus();
+    }
+  }, [mobileMenuOpen]);
+
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   const features = [
     {
@@ -58,6 +89,8 @@ export default function Landing() {
                 <Logo size="md" showText={true} />
               </div>
             </div>
+            
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
               <button 
@@ -72,15 +105,98 @@ export default function Landing() {
               >
                 About
               </button>
-              <Button variant="ghost" onClick={() => setLocation("/login")}>
+              <Button className="btn-prime-ghost" onClick={() => setLocation("/login")}>
                 Login
               </Button>
-              <Button className="bg-prime-accent hover:bg-blue-600" onClick={() => setLocation("/register")}>
+              <Button className="btn-prime-primary" onClick={() => setLocation("/register")}>
                 Get Started
               </Button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button
+                ref={menuButtonRef}
+                onClick={handleMobileMenuToggle}
+                className="text-gray-300 hover:text-white p-2 touch-target focus-ring"
+                aria-label={mobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {mobileMenuOpen && (
+          <div 
+            id="mobile-menu"
+            ref={mobileMenuRef}
+            className="md:hidden absolute top-16 left-0 right-0 bg-prime-navy/98 backdrop-blur-sm border-b border-prime-slate/20 shadow-xl"
+            role="menu"
+            aria-label="Mobile navigation menu"
+          >
+            <div className="px-4 py-6 space-y-4">
+              <a 
+                href="#features" 
+                className="block text-gray-300 hover:text-white focus:text-white transition-colors py-2 text-lg touch-target focus-ring rounded"
+                onClick={() => setMobileMenuOpen(false)}
+                role="menuitem"
+              >
+                Features
+              </a>
+              <button 
+                onClick={() => {
+                  setLocation("/support/security");
+                  setMobileMenuOpen(false);
+                }}
+                className="block w-full text-left text-gray-300 hover:text-white focus:text-white transition-colors py-2 text-lg touch-target focus-ring rounded"
+                role="menuitem"
+              >
+                Security
+              </button>
+              <button 
+                onClick={() => {
+                  setLocation("/about");
+                  setMobileMenuOpen(false);
+                }}
+                className="block w-full text-left text-gray-300 hover:text-white focus:text-white transition-colors py-2 text-lg touch-target focus-ring rounded"
+                role="menuitem"
+              >
+                About
+              </button>
+              
+              <div className="pt-4 border-t border-prime-slate/20 space-y-3" role="group" aria-label="Account actions">
+                <Button 
+                  className="btn-prime-ghost w-full justify-start text-lg py-3 focus-ring"
+                  onClick={() => {
+                    setLocation("/login");
+                    setMobileMenuOpen(false);
+                  }}
+                  role="menuitem"
+                >
+                  Login
+                </Button>
+                <Button 
+                  className="btn-prime-primary w-full text-lg py-3 focus-ring"
+                  onClick={() => {
+                    setLocation("/register");
+                    setMobileMenuOpen(false);
+                  }}
+                  role="menuitem"
+                >
+                  Get Started
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -421,6 +537,23 @@ export default function Landing() {
       {/* Trust Section */}
       <section className="py-20 bg-prime-navy">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Trust Indicators */}
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Bank-Grade Security & Trust</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
+              Your security and trust are our top priorities. We're regulated, insured, and independently audited.
+            </p>
+            <TrustIndicators variant="landing" className="mb-12" />
+            
+            {/* Regulatory Badge */}
+            <div className="flex justify-center mb-8">
+              <RegulatedBadge />
+            </div>
+            
+            {/* Customer Stats */}
+            <CustomerStats />
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <img 

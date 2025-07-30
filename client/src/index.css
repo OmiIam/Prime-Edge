@@ -127,25 +127,98 @@
 }
 
 @layer components {
-  /* Prime Edge Button Variants */
-  .btn-prime {
-    @apply bg-gradient-to-r from-prime-accent to-blue-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0;
+  /* Prime Edge Button System - Banking Professional */
+  
+  /* Primary Action Buttons */
+  .btn-prime-primary {
+    @apply bg-gradient-to-r from-prime-accent to-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0 touch-target;
   }
   
-  .btn-prime:hover {
+  .btn-prime-primary:hover {
     background: linear-gradient(to right, var(--prime-accent-hover), hsl(221, 83%, 48%));
+    transform: translateY(-1px);
+  }
+  
+  .btn-prime-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-prime-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Secondary Action Buttons */
+  .btn-prime-secondary {
+    @apply border-2 border-prime-accent text-prime-accent hover:bg-prime-accent hover:text-white bg-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 touch-target;
+  }
+  
+  .btn-prime-secondary:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Success/Confirmation Buttons */
+  .btn-prime-success {
+    @apply bg-gradient-to-r from-prime-success to-green-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0 touch-target;
+  }
+  
+  .btn-prime-success:hover {
+    background: linear-gradient(to right, hsl(142, 76%, 31%), hsl(142, 71%, 25%));
+    transform: translateY(-1px);
+  }
+  
+  /* Danger/Delete Buttons */
+  .btn-prime-danger {
+    @apply bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0 touch-target;
+  }
+  
+  .btn-prime-danger:hover {
+    background: linear-gradient(to right, hsl(0, 84%, 55%), hsl(0, 84%, 50%));
+    transform: translateY(-1px);
+  }
+  
+  /* Ghost/Subtle Buttons */
+  .btn-prime-ghost {
+    @apply text-gray-300 hover:text-white hover:bg-white/10 font-medium px-6 py-3 rounded-lg transition-all duration-200 border-0 touch-target;
+  }
+  
+  .btn-prime-ghost:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Small Button Variants */
+  .btn-prime-sm {
+    @apply px-4 py-2 text-sm rounded-md;
+  }
+  
+  /* Large Button Variants */
+  .btn-prime-lg {
+    @apply px-8 py-4 text-lg rounded-lg;
+  }
+  
+  /* Loading State */
+  .btn-prime-loading {
+    @apply opacity-75 cursor-not-allowed;
+  }
+  
+  .btn-prime-loading::after {
+    content: '';
+    @apply inline-block w-4 h-4 ml-2 border-2 border-white border-t-transparent rounded-full animate-spin;
+  }
+  
+  /* Legacy Support - maintain backwards compatibility */
+  .btn-prime {
+    @apply btn-prime-primary;
   }
   
   .btn-prime-outline {
-    @apply border-2 border-prime-accent text-prime-accent hover:bg-prime-accent hover:text-white bg-transparent font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105;
+    @apply btn-prime-secondary;
   }
   
   .btn-success {
-    @apply bg-gradient-to-r from-prime-success to-green-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0;
-  }
-  
-  .btn-success:hover {
-    background: linear-gradient(to right, hsl(142, 76%, 31%), hsl(142, 71%, 25%));
+    @apply btn-prime-success;
   }
   
   /* Prime Edge Card Variants */
@@ -297,10 +370,50 @@
     border-radius: 0.75rem;
   }
   
-  /* Mobile Focus States */
-  .mobile-focus:focus {
+  /* Accessibility Focus States */
+  .focus-visible:focus-visible {
+    outline: 3px solid var(--prime-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  .focus-ring:focus {
     outline: 2px solid var(--prime-accent);
     outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+  
+  /* Screen Reader Only Content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  /* High Contrast Mode Support */
+  @media (prefers-contrast: high) {
+    .btn-prime-primary {
+      border: 2px solid currentColor;
+    }
+    
+    .card-gradient {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+  }
+  
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
   
   /* Mobile Shadow Utilities */

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/formatters";
+import { LoadingSpinner } from "@/components/ui/loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -35,26 +37,138 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
   const [recipientEmail, setRecipientEmail] = useState("");
   const [billAmount, setBillAmount] = useState("");
   const [selectedPayee, setSelectedPayee] = useState("");
+  
+  // Loading states
+  const [isDepositLoading, setIsDepositLoading] = useState(false);
+  const [isTransferLoading, setIsTransferLoading] = useState(false);
+  const [isBillPayLoading, setIsBillPayLoading] = useState(false);
+  
+  // Validation errors
+  const [depositError, setDepositError] = useState("");
+  const [transferError, setTransferError] = useState("");
+  const [billPayError, setBillPayError] = useState("");
 
-  const handleDeposit = () => {
-    onDeposit(depositAmount, depositMethod);
-    setDepositOpen(false);
-    setDepositAmount("");
-    setDepositMethod("bank_transfer");
+  const validateDeposit = () => {
+    setDepositError("");
+    const amount = parseFloat(depositAmount);
+    
+    if (!depositAmount) {
+      setDepositError("Amount is required");
+      return false;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      setDepositError("Please enter a valid amount greater than 0");
+      return false;
+    }
+    if (amount > 10000) {
+      setDepositError("Daily deposit limit is $10,000");
+      return false;
+    }
+    return true;
   };
 
-  const handleTransfer = () => {
-    onTransfer(transferAmount, recipientEmail);
-    setTransferOpen(false);
-    setTransferAmount("");
-    setRecipientEmail("");
+  const validateTransfer = () => {
+    setTransferError("");
+    const amount = parseFloat(transferAmount);
+    
+    if (!transferAmount) {
+      setTransferError("Amount is required");
+      return false;
+    }
+    if (!recipientEmail) {
+      setTransferError("Recipient email is required");
+      return false;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      setTransferError("Please enter a valid amount greater than 0");
+      return false;
+    }
+    if (amount > 5000) {
+      setTransferError("Daily transfer limit is $5,000");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(recipientEmail)) {
+      setTransferError("Please enter a valid email address");
+      return false;
+    }
+    return true;
   };
 
-  const handleBillPay = () => {
-    onBillPay(selectedPayee, billAmount);
-    setBillPayOpen(false);
-    setSelectedPayee("");
-    setBillAmount("");
+  const validateBillPay = () => {
+    setBillPayError("");
+    const amount = parseFloat(billAmount);
+    
+    if (!selectedPayee) {
+      setBillPayError("Please select a payee");
+      return false;
+    }
+    if (!billAmount) {
+      setBillPayError("Amount is required");
+      return false;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      setBillPayError("Please enter a valid amount greater than 0");
+      return false;
+    }
+    if (amount > 2000) {
+      setBillPayError("Bill payment limit is $2,000");
+      return false;
+    }
+    return true;
+  };
+
+  const handleDeposit = async () => {
+    if (!validateDeposit()) return;
+    
+    setIsDepositLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      onDeposit(depositAmount, depositMethod);
+      setDepositOpen(false);
+      setDepositAmount("");
+      setDepositMethod("bank_transfer");
+      setDepositError("");
+    } catch (error) {
+      setDepositError("Failed to process deposit. Please try again.");
+    } finally {
+      setIsDepositLoading(false);
+    }
+  };
+
+  const handleTransfer = async () => {
+    if (!validateTransfer()) return;
+    
+    setIsTransferLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      onTransfer(transferAmount, recipientEmail);
+      setTransferOpen(false);
+      setTransferAmount("");
+      setRecipientEmail("");
+      setTransferError("");
+    } catch (error) {
+      setTransferError("Failed to process transfer. Please try again.");
+    } finally {
+      setIsTransferLoading(false);
+    }
+  };
+
+  const handleBillPay = async () => {
+    if (!validateBillPay()) return;
+    
+    setIsBillPayLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      onBillPay(selectedPayee, billAmount);
+      setBillPayOpen(false);
+      setSelectedPayee("");
+      setBillAmount("");
+      setBillPayError("");
+    } catch (error) {
+      setBillPayError("Failed to process payment. Please try again.");
+    } finally {
+      setIsBillPayLoading(false);
+    }
   };
 
   const quickActions = [
@@ -152,29 +266,49 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
 
       {/* Deposit Dialog */}
       <Dialog open={depositOpen} onOpenChange={setDepositOpen}>
-        <DialogContent className="sm:max-w-md bg-white">
+        <DialogContent className="sm:max-w-md bg-white" aria-describedby="deposit-description">
           <DialogHeader>
             <DialogTitle className="text-gray-900 flex items-center gap-2">
-              <Plus className="h-5 w-5 text-green-600" />
+              <Plus className="h-5 w-5 text-green-600" aria-hidden="true" />
               Deposit Money
             </DialogTitle>
           </DialogHeader>
+          <div id="deposit-description" className="sr-only">
+            Add funds to your account using various deposit methods
+          </div>
           <div className="space-y-4">
+            {depositError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
+                <p className="text-sm text-red-600">{depositError}</p>
+              </div>
+            )}
             <div>
-              <Label htmlFor="deposit-amount" className="text-gray-700">Amount</Label>
+              <Label htmlFor="deposit-amount" className="text-gray-700">Amount *</Label>
               <Input
                 id="deposit-amount"
                 type="number"
                 placeholder="Enter amount"
                 value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
-                className="mt-1"
+                onChange={(e) => {
+                  setDepositAmount(e.target.value);
+                  if (depositError) setDepositError("");
+                }}
+                className={`mt-1 focus-ring ${depositError ? 'border-red-300' : ''}`}
+                min="0"
+                step="0.01"
+                disabled={isDepositLoading}
+                aria-describedby={depositError ? "deposit-error" : undefined}
               />
+              {depositError && (
+                <p id="deposit-error" className="text-sm text-red-600 mt-1" role="alert">
+                  {depositError}
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="deposit-method" className="text-gray-700">Deposit Method</Label>
-              <Select value={depositMethod} onValueChange={setDepositMethod}>
-                <SelectTrigger className="mt-1">
+              <Select value={depositMethod} onValueChange={setDepositMethod} disabled={isDepositLoading}>
+                <SelectTrigger className="mt-1 focus-ring">
                   <SelectValue placeholder="Select deposit method" />
                 </SelectTrigger>
                 <SelectContent>
@@ -188,18 +322,36 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleDeposit} 
-                className="btn-success flex-1"
-                disabled={!depositAmount}
+                className="btn-prime-success flex-1 focus-ring"
+                disabled={isDepositLoading || !depositAmount}
+                aria-describedby="deposit-button-description"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Deposit ${depositAmount || '0.00'}
+                {isDepositLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+                    Deposit {formatCurrency(parseFloat(depositAmount) || 0)}
+                  </>
+                )}
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => setDepositOpen(false)}
+                onClick={() => {
+                  setDepositOpen(false);
+                  setDepositError("");
+                }}
+                disabled={isDepositLoading}
+                className="focus-ring"
               >
                 Cancel
               </Button>
+            </div>
+            <div id="deposit-button-description" className="sr-only">
+              Click to deposit the specified amount to your account
             </div>
           </div>
         </DialogContent>
@@ -244,7 +396,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                 disabled={!transferAmount || !recipientEmail}
               >
                 <Send className="h-4 w-4 mr-2" />
-                Send ${transferAmount || '0.00'}
+                Send {formatCurrency(parseFloat(transferAmount) || 0)}
               </Button>
               <Button 
                 variant="outline" 
@@ -297,11 +449,11 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleBillPay} 
-                className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 flex-1"
+                className="btn-prime-primary flex-1"
                 disabled={!selectedPayee || !billAmount}
               >
                 <Receipt className="h-4 w-4 mr-2" />
-                Pay ${billAmount || '0.00'}
+                Pay {formatCurrency(parseFloat(billAmount) || 0)}
               </Button>
               <Button 
                 variant="outline" 
