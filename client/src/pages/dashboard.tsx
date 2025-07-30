@@ -215,7 +215,7 @@ export default function Dashboard() {
               </div>
               <SecurityStatus className="text-xs" />
             </div>
-          </div>
+          </header>
 
           {/* Account Information */}
           <section aria-labelledby="account-info-heading">
