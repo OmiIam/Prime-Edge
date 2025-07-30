@@ -35,6 +35,8 @@ import About from "@/pages/about";
 // User Pages
 import KycSubmit from "@/pages/kyc/submit";
 import ProfileSettings from "@/pages/settings/profile";
+import SecuritySettings from "@/pages/settings/security";
+import Settings from "@/pages/settings/index";
 import TransactionHistory from "@/pages/transactions/history";
 
 // Admin Pages
@@ -77,7 +79,9 @@ function Router() {
         <Route path="/admin" component={Landing} />
         <Route path="/dashboard" component={Landing} />
         <Route path="/kyc/submit" component={Landing} />
+        <Route path="/settings" component={Landing} />
         <Route path="/settings/profile" component={Landing} />
+        <Route path="/settings/security" component={Landing} />
         <Route path="/transactions/history" component={Landing} />
         <Route path="/admin/users/:id" component={Landing} />
         
@@ -96,7 +100,9 @@ function Router() {
         
         {/* User Pages */}
         <Route path="/kyc/submit" component={KycSubmit} />
+        <Route path="/settings" component={Settings} />
         <Route path="/settings/profile" component={ProfileSettings} />
+        <Route path="/settings/security" component={SecuritySettings} />
         <Route path="/transactions/history" component={TransactionHistory} />
         
         {/* Service Pages (available to all users) */}
@@ -129,7 +135,9 @@ function Router() {
       
       {/* User Pages */}
       <Route path="/kyc/submit" component={KycSubmit} />
+      <Route path="/settings" component={Settings} />
       <Route path="/settings/profile" component={ProfileSettings} />
+      <Route path="/settings/security" component={SecuritySettings} />
       <Route path="/transactions/history" component={TransactionHistory} />
       
       {/* Service Pages (available to all users) */}

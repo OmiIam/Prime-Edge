@@ -402,9 +402,9 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                   <SelectValue placeholder="Select transfer destination" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="checking">My Checking Account</SelectItem>
-                  <SelectItem value="savings">My Savings Account</SelectItem>
-                  <SelectItem value="email">Send to Email Address</SelectItem>
+                  <SelectItem value="checking">Checking Account</SelectItem>
+                  <SelectItem value="savings">Savings Account</SelectItem>
+                  <SelectItem value="email">Send to Others</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -420,8 +420,8 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                 type={transferType === "email" ? "email" : "text"}
                 placeholder={
                   transferType === "email" ? "Enter recipient's email" :
-                  transferType === "checking" ? "Your checking account (••••4721)" :
-                  "Your savings account (••••8932)"
+                  transferType === "checking" ? "Checking account (••••4721)" :
+                  "Savings account (••••8932)"
                 }
                 value={recipientInfo}
                 onChange={(e) => {
