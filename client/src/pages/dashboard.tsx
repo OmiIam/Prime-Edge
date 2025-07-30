@@ -71,7 +71,8 @@ const getTransactionColor = (type: string) => {
 export default function Dashboard() {
   const authState = authManager.getState();
   const [transferAmount, setTransferAmount] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientInfo, setRecipientInfo] = useState("");
+  const [transferType, setTransferType] = useState("email");
   const [transferOpen, setTransferOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [billPayOpen, setBillPayOpen] = useState(false);
@@ -146,12 +147,17 @@ export default function Dashboard() {
   const monthlySpending = data.monthlyStats.spent;
   const monthlyTransactions = data.monthlyStats.transactionCount;
 
-  const handleTransfer = () => {
+  const handleTransfer = (amount?: string, recipient?: string, type?: string) => {
     // In a real app, this would make an API call
-    console.log('Transfer:', { amount: transferAmount, recipient: recipientEmail });
+    console.log('Transfer:', { 
+      amount: amount || transferAmount, 
+      recipientInfo: recipient || recipientInfo, 
+      transferType: type || transferType 
+    });
     setTransferOpen(false);
     setTransferAmount("");
-    setRecipientEmail("");
+    setRecipientInfo("");
+    setTransferType("email");
   };
 
   const handleDeposit = () => {
@@ -201,6 +207,7 @@ export default function Dashboard() {
               <Button 
                 className="btn-prime-primary touch-target focus-ring"
                 aria-label="Open quick transfer dialog"
+                onClick={() => setTransferOpen(true)}
               >
                 <Send className="h-4 w-4 mr-2" aria-hidden="true" />
                 <span className="hidden sm:inline">Quick Transfer</span>
@@ -442,6 +449,100 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
+
+      {/* Quick Transfer Dialog */}
+      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+        <DialogContent className="sm:max-w-md bg-white" aria-describedby="transfer-description">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 flex items-center gap-2">
+              <Send className="h-5 w-5 text-blue-600" aria-hidden="true" />
+              Transfer Money
+            </DialogTitle>
+          </DialogHeader>
+          <div id="transfer-description" className="sr-only">
+            Transfer money to your accounts or send to others via email
+          </div>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="transfer-amount" className="text-gray-700">Amount *</Label>
+              <Input
+                id="transfer-amount"
+                type="number"
+                placeholder="Enter amount"
+                value={transferAmount}
+                onChange={(e) => setTransferAmount(e.target.value)}
+                className="mt-1 focus-ring"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="transfer-type" className="text-gray-700">Transfer To</Label>
+              <Select value={transferType} onValueChange={setTransferType}>
+                <SelectTrigger className="mt-1 focus-ring">
+                  <SelectValue placeholder="Select transfer destination" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="checking">My Checking Account</SelectItem>
+                  <SelectItem value="savings">My Savings Account</SelectItem>
+                  <SelectItem value="email">Send to Email Address</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="recipient-info" className="text-gray-700">
+                {transferType === "email" ? "Recipient Email *" : 
+                 transferType === "checking" ? "Checking Account" :
+                 "Savings Account"}
+              </Label>
+              <Input
+                id="recipient-info"
+                type={transferType === "email" ? "email" : "text"}
+                placeholder={
+                  transferType === "email" ? "Enter recipient's email" :
+                  transferType === "checking" ? "Your checking account (••••4721)" :
+                  "Your savings account (••••8932)"
+                }
+                value={recipientInfo}
+                onChange={(e) => setRecipientInfo(e.target.value)}
+                className="mt-1 focus-ring"
+                disabled={transferType !== "email"}
+                aria-describedby={transferType !== "email" ? "account-info" : undefined}
+              />
+              {transferType !== "email" && (
+                <p id="account-info" className="text-sm text-gray-500 mt-1">
+                  Transfer between your own accounts
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button 
+                onClick={handleTransfer} 
+                className="btn-prime-primary flex-1 focus-ring"
+                disabled={!transferAmount || (transferType === "email" && !recipientInfo)}
+              >
+                <Send className="h-4 w-4 mr-2" aria-hidden="true" />
+                Send {formatCurrency(parseFloat(transferAmount) || 0)}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setTransferOpen(false);
+                  setTransferAmount("");
+                  setRecipientInfo("");
+                  setTransferType("email");
+                }}
+                className="focus-ring"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

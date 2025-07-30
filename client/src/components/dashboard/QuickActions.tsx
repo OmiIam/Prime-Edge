@@ -23,7 +23,7 @@ import {
 
 interface QuickActionsProps {
   onDeposit: (amount: string, method: string) => void;
-  onTransfer: (amount: string, recipient: string) => void;
+  onTransfer: (amount: string, recipientInfo: string, transferType: string) => void;
   onBillPay: (payee: string, amount: string) => void;
 }
 
@@ -34,7 +34,8 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
   const [depositAmount, setDepositAmount] = useState("");
   const [depositMethod, setDepositMethod] = useState("bank_transfer");
   const [transferAmount, setTransferAmount] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientInfo, setRecipientInfo] = useState("");
+  const [transferType, setTransferType] = useState("email");
   const [billAmount, setBillAmount] = useState("");
   const [selectedPayee, setSelectedPayee] = useState("");
   
@@ -75,7 +76,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
       setTransferError("Amount is required");
       return false;
     }
-    if (!recipientEmail) {
+    if (transferType === "email" && !recipientInfo) {
       setTransferError("Recipient email is required");
       return false;
     }
@@ -87,7 +88,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
       setTransferError("Daily transfer limit is $5,000");
       return false;
     }
-    if (!/\S+@\S+\.\S+/.test(recipientEmail)) {
+    if (transferType === "email" && !/\S+@\S+\.\S+/.test(recipientInfo)) {
       setTransferError("Please enter a valid email address");
       return false;
     }
@@ -141,10 +142,11 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     setIsTransferLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      onTransfer(transferAmount, recipientEmail);
+      onTransfer(transferAmount, recipientInfo, transferType);
       setTransferOpen(false);
       setTransferAmount("");
-      setRecipientEmail("");
+      setRecipientInfo("");
+      setTransferType("email");
       setTransferError("");
     } catch (error) {
       setTransferError("Failed to process transfer. Please try again.");
@@ -359,48 +361,113 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
 
       {/* Transfer Dialog */}
       <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-        <DialogContent className="sm:max-w-md bg-white">
+        <DialogContent className="sm:max-w-md bg-white" aria-describedby="transfer-description">
           <DialogHeader>
             <DialogTitle className="text-gray-900 flex items-center gap-2">
-              <Send className="h-5 w-5 text-blue-600" />
+              <Send className="h-5 w-5 text-blue-600" aria-hidden="true" />
               Transfer Money
             </DialogTitle>
           </DialogHeader>
+          <div id="transfer-description" className="sr-only">
+            Transfer money to your accounts or send to others via email
+          </div>
           <div className="space-y-4">
+            {transferError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
+                <p className="text-sm text-red-600">{transferError}</p>
+              </div>
+            )}
             <div>
-              <Label htmlFor="transfer-amount" className="text-gray-700">Amount</Label>
+              <Label htmlFor="transfer-amount" className="text-gray-700">Amount *</Label>
               <Input
                 id="transfer-amount"
                 type="number"
                 placeholder="Enter amount"
                 value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                className="mt-1"
+                onChange={(e) => {
+                  setTransferAmount(e.target.value);
+                  if (transferError) setTransferError("");
+                }}
+                className={`mt-1 focus-ring ${transferError ? 'border-red-300' : ''}`}
+                min="0"
+                step="0.01"
+                disabled={isTransferLoading}
               />
             </div>
+            
             <div>
-              <Label htmlFor="recipient-email" className="text-gray-700">Recipient Email</Label>
-              <Input
-                id="recipient-email"
-                type="email"
-                placeholder="Enter recipient's email"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-                className="mt-1"
-              />
+              <Label htmlFor="transfer-type-qa" className="text-gray-700">Transfer To</Label>
+              <Select value={transferType} onValueChange={setTransferType} disabled={isTransferLoading}>
+                <SelectTrigger className="mt-1 focus-ring">
+                  <SelectValue placeholder="Select transfer destination" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="checking">My Checking Account</SelectItem>
+                  <SelectItem value="savings">My Savings Account</SelectItem>
+                  <SelectItem value="email">Send to Email Address</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            <div>
+              <Label htmlFor="recipient-info-qa" className="text-gray-700">
+                {transferType === "email" ? "Recipient Email *" : 
+                 transferType === "checking" ? "Checking Account" :
+                 "Savings Account"}
+              </Label>
+              <Input
+                id="recipient-info-qa"
+                type={transferType === "email" ? "email" : "text"}
+                placeholder={
+                  transferType === "email" ? "Enter recipient's email" :
+                  transferType === "checking" ? "Your checking account (••••4721)" :
+                  "Your savings account (••••8932)"
+                }
+                value={recipientInfo}
+                onChange={(e) => {
+                  setRecipientInfo(e.target.value);
+                  if (transferError) setTransferError("");
+                }}
+                className="mt-1 focus-ring"
+                disabled={transferType !== "email" || isTransferLoading}
+                aria-describedby={transferType !== "email" ? "account-info-qa" : undefined}
+              />
+              {transferType !== "email" && (
+                <p id="account-info-qa" className="text-sm text-gray-500 mt-1">
+                  Transfer between your own accounts
+                </p>
+              )}
+            </div>
+
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleTransfer} 
-                className="btn-prime flex-1"
-                disabled={!transferAmount || !recipientEmail}
+                className="btn-prime-primary flex-1 focus-ring"
+                disabled={isTransferLoading || !transferAmount || (transferType === "email" && !recipientInfo)}
               >
-                <Send className="h-4 w-4 mr-2" />
-                Send {formatCurrency(parseFloat(transferAmount) || 0)}
+                {isTransferLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" aria-hidden="true" />
+                    Send {formatCurrency(parseFloat(transferAmount) || 0)}
+                  </>
+                )}
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => setTransferOpen(false)}
+                onClick={() => {
+                  setTransferOpen(false);
+                  setTransferError("");
+                  setTransferAmount("");
+                  setRecipientInfo("");
+                  setTransferType("email");
+                }}
+                disabled={isTransferLoading}
+                className="focus-ring"
               >
                 Cancel
               </Button>
