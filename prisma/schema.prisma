@@ -21,13 +21,31 @@ model User {
   accountType   AccountType   @default(CHECKING)
   isActive      Boolean       @default(true)
   lastLogin     DateTime?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?       @default("US")
+  dateOfBirth   DateTime?
+  profileImage  String?
+  kycStatus     KycStatus     @default(PENDING)
+  kycDocuments  Json?
+  emailVerified Boolean       @default(false)
+  phoneVerified Boolean       @default(false)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   
   // Relations
-  transactions  Transaction[]
-  adminLogs     AdminLog[]    @relation("AdminLogs")
-  targetLogs    AdminLog[]    @relation("TargetUserLogs")
+  transactions    Transaction[]
+  adminLogs       AdminLog[]        @relation("AdminLogs")
+  targetLogs      AdminLog[]        @relation("TargetUserLogs")
+  userSettings    UserSettings?
+  securitySettings SecuritySettings?
+  notificationSettings NotificationSettings?
+  loginSessions   LoginSession[]
+  securityEvents  SecurityEvent[]
+  documents       Document[]
 
   @@map("users")
 }
@@ -84,4 +102,184 @@ enum TransactionStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+enum KycStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum TwoFactorType {
+  SMS
+  EMAIL
+  AUTHENTICATOR
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
+enum SecurityEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  PASSWORD_CHANGED
+  TWO_FACTOR_ENABLED
+  TWO_FACTOR_DISABLED
+  ACCOUNT_LOCKED
+  SUSPICIOUS_ACTIVITY
+  DATA_EXPORT
+  SETTINGS_CHANGED
+  DEVICE_ADDED
+  DEVICE_REMOVED
+}
+
+enum DocumentType {
+  DRIVERS_LICENSE
+  PASSPORT
+  UTILITY_BILL
+  BANK_STATEMENT
+  TAX_DOCUMENT
+  IDENTITY_VERIFICATION
+}
+
+model UserSettings {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  language         String   @default("en")
+  timezone         String   @default("America/New_York")
+  currency         String   @default("USD")
+  dateFormat       String   @default("MM/DD/YYYY")
+  timeFormat       String   @default("12h")
+  theme            String   @default("light")
+  accessibility    Json?    // Store accessibility preferences
+  dashboard        Json?    // Dashboard layout preferences
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model SecuritySettings {
+  id                    String          @id @default(uuid())
+  userId                String          @unique
+  twoFactorEnabled      Boolean         @default(false)
+  twoFactorType         TwoFactorType?
+  twoFactorSecret       String?         // Encrypted TOTP secret
+  backupCodes           String[]        // Encrypted backup codes
+  passwordLastChanged   DateTime?
+  sessionTimeout        Int             @default(1440) // minutes, default 24 hours
+  ipWhitelist           String[]
+  deviceTrustEnabled    Boolean         @default(true)
+  loginAlertsEnabled    Boolean         @default(true)
+  accountLocked         Boolean         @default(false)
+  lockoutUntil         DateTime?
+  failedLoginAttempts   Int             @default(0)
+  lastSecurityCheck     DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  
+  // Relations
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("security_settings")
+}
+
+model NotificationSettings {
+  id                    String              @id @default(uuid())
+  userId                String              @unique
+  emailNotifications    Boolean             @default(true)
+  smsNotifications      Boolean             @default(false)
+  pushNotifications     Boolean             @default(true)
+  inAppNotifications    Boolean             @default(true)
+  
+  // Specific notification types
+  loginAlerts          Boolean              @default(true)
+  transactionAlerts    Boolean              @default(true)
+  securityAlerts       Boolean              @default(true)
+  marketingEmails      Boolean              @default(false)
+  accountUpdates       Boolean              @default(true)
+  statementReady       Boolean              @default(true)
+  maintenanceAlerts    Boolean              @default(true)
+  
+  // Notification preferences
+  quietHoursStart      String?              @default("22:00")
+  quietHoursEnd        String?              @default("08:00")
+  weekendNotifications Boolean              @default(false)
+  
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  
+  // Relations
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
+}
+
+model LoginSession {
+  id          String    @id @default(uuid())
+  userId      String
+  sessionId   String    @unique
+  deviceInfo  String
+  ipAddress   String
+  userAgent   String
+  location    String?
+  isActive    Boolean   @default(true)
+  lastUsed    DateTime  @default(now())
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("login_sessions")
+}
+
+model SecurityEvent {
+  id          String            @id @default(uuid())
+  userId      String
+  eventType   SecurityEventType
+  description String
+  ipAddress   String?
+  userAgent   String?
+  deviceInfo  String?
+  location    String?
+  riskLevel   String            @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  resolved    Boolean           @default(false)
+  metadata    Json?             // Additional event-specific data
+  createdAt   DateTime          @default(now())
+  
+  // Relations
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("security_events")
+}
+
+model Document {
+  id            String       @id @default(uuid())
+  userId        String
+  type          DocumentType
+  filename      String
+  originalName  String
+  mimeType      String
+  size          Int
+  url           String
+  uploadedAt    DateTime     @default(now())
+  verified      Boolean      @default(false)
+  verifiedAt    DateTime?
+  verifiedBy    String?      // Admin user ID
+  expiresAt     DateTime?
+  metadata      Json?        // Document-specific metadata
+  
+  // Relations
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
 }

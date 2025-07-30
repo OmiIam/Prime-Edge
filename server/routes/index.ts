@@ -3,6 +3,7 @@ import { createServer, Server } from 'http'
 import { authRouter } from './auth'
 import { adminRouter } from './admin'
 import { userRouter } from './user'
+import settingsRouter from './settings'
 import { testDatabaseConnection } from '../prisma'
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -26,6 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/auth', authRouter)
   app.use('/api/admin', adminRouter)
   app.use('/api/user', userRouter)
+  app.use('/api/settings', settingsRouter)
 
   // Create HTTP server
   const httpServer = createServer(app)

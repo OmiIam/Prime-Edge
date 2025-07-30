@@ -36,6 +36,8 @@ import About from "@/pages/about";
 import KycSubmit from "@/pages/kyc/submit";
 import ProfileSettings from "@/pages/settings/profile";
 import SecuritySettings from "@/pages/settings/security";
+import NotificationSettings from "@/pages/settings/notifications";
+import PreferencesSettings from "@/pages/settings/preferences";
 import Settings from "@/pages/settings/index";
 import TransactionHistory from "@/pages/transactions/history";
 
@@ -82,6 +84,8 @@ function Router() {
         <Route path="/settings" component={Landing} />
         <Route path="/settings/profile" component={Landing} />
         <Route path="/settings/security" component={Landing} />
+        <Route path="/settings/notifications" component={Landing} />
+        <Route path="/settings/preferences" component={Landing} />
         <Route path="/transactions/history" component={Landing} />
         <Route path="/admin/users/:id" component={Landing} />
         
@@ -103,6 +107,8 @@ function Router() {
         <Route path="/settings" component={Settings} />
         <Route path="/settings/profile" component={ProfileSettings} />
         <Route path="/settings/security" component={SecuritySettings} />
+        <Route path="/settings/notifications" component={NotificationSettings} />
+        <Route path="/settings/preferences" component={PreferencesSettings} />
         <Route path="/transactions/history" component={TransactionHistory} />
         
         {/* Service Pages (available to all users) */}
@@ -138,6 +144,8 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/settings/profile" component={ProfileSettings} />
       <Route path="/settings/security" component={SecuritySettings} />
+      <Route path="/settings/notifications" component={NotificationSettings} />
+      <Route path="/settings/preferences" component={PreferencesSettings} />
       <Route path="/transactions/history" component={TransactionHistory} />
       
       {/* Service Pages (available to all users) */}
