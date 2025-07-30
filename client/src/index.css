@@ -88,7 +88,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-gray-200;
   }
 
   body {
@@ -129,7 +129,11 @@
 @layer components {
   /* Prime Edge Button Variants */
   .btn-prime {
-    @apply bg-gradient-to-r from-prime-accent to-blue-600 hover:from-prime-accent-hover hover:to-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0;
+    @apply bg-gradient-to-r from-prime-accent to-blue-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0;
+  }
+  
+  .btn-prime:hover {
+    background: linear-gradient(to right, var(--prime-accent-hover), hsl(221, 83%, 48%));
   }
   
   .btn-prime-outline {
@@ -137,7 +141,11 @@
   }
   
   .btn-success {
-    @apply bg-gradient-to-r from-prime-success to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0;
+    @apply bg-gradient-to-r from-prime-success to-green-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0;
+  }
+  
+  .btn-success:hover {
+    background: linear-gradient(to right, hsl(142, 76%, 31%), hsl(142, 71%, 25%));
   }
   
   /* Prime Edge Card Variants */
@@ -150,7 +158,13 @@
   }
   
   .card-stats {
-    @apply bg-gradient-to-br from-prime-accent/5 to-blue-600/10 backdrop-blur-sm border border-prime-accent/10 hover:border-prime-accent/30 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl p-6;
+    @apply backdrop-blur-sm border shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl p-6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
+    border-color: rgba(59, 130, 246, 0.1);
+  }
+  
+  .card-stats:hover {
+    border-color: rgba(59, 130, 246, 0.3);
   }
   
   /* Container Utilities */

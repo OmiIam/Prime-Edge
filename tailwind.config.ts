@@ -56,10 +56,23 @@ export default {
           charcoal: "var(--prime-charcoal)",
           slate: "var(--prime-slate)",
           blue: "var(--prime-blue)",
-          accent: "var(--prime-accent)",
-          success: "var(--prime-success)",
-          warning: "var(--prime-warning)",
-          error: "var(--prime-error)",
+          accent: {
+            DEFAULT: "var(--prime-accent)",
+            hover: "var(--prime-accent-hover)",
+            light: "var(--prime-accent-light)",
+          },
+          success: {
+            DEFAULT: "var(--prime-success)",
+            light: "var(--prime-success-light)",
+          },
+          warning: {
+            DEFAULT: "var(--prime-warning)",
+            light: "var(--prime-warning-light)",
+          },
+          error: {
+            DEFAULT: "var(--prime-error)",
+            light: "var(--prime-error-light)",
+          },
         },
         sidebar: {
           DEFAULT: "var(--sidebar-background)",
