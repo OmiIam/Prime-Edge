@@ -135,6 +135,7 @@ export default function Navbar({ user }: NavbarProps) {
                   
                   <DropdownMenuItem 
                     className="text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer rounded-lg px-4 py-3 font-medium transition-all duration-200 hover:shadow-sm"
+                    onClick={() => setLocation('/settings')}
                   >
                     <Settings className="h-4 w-4 mr-3 text-gray-600" />
                     <div className="flex flex-col">
@@ -233,6 +234,21 @@ export default function Navbar({ user }: NavbarProps) {
                     Admin Panel
                   </Button>
                 )}
+
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 ${location.startsWith('/settings') 
+                    ? 'bg-prime-accent text-white shadow-lg scale-[1.02]' 
+                    : 'text-gray-300 hover:text-white hover:bg-prime-slate/30 hover:scale-[1.01]'
+                  }`}
+                  onClick={() => {
+                    setLocation("/settings");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Settings className="h-5 w-5 mr-4" />
+                  Settings
+                </Button>
               </div>
 
               {/* Sign Out Button */}
