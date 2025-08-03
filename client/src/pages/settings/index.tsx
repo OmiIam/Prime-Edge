@@ -95,7 +95,7 @@ export default function Settings() {
       icon: Eye,
       href: "/settings/privacy",
       requiresVerification: true,
-      status: "pending"
+      status: "complete"
     },
     {
       id: "statements",

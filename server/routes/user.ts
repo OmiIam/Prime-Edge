@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { prisma } from '../prisma'
 import { requireAuth, requireOwnershipOrAdmin } from '../middleware/auth'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 export const userRouter = Router()
 
@@ -249,5 +251,280 @@ userRouter.get('/pending-transfers', async (req, res) => {
   } catch (error) {
     console.error('Get pending transfers error:', error)
     res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// Get privacy settings
+userRouter.get('/privacy', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // For now, return default privacy settings
+    // In a real app, you'd have a PrivacySettings model
+    const defaultSettings = {
+      id: crypto.randomUUID(),
+      userId,
+      marketingDataSharing: false,
+      analyticsTracking: true,
+      personalizationData: true,
+      thirdPartySharing: false,
+      dataRetentionPeriod: 36,
+      allowCookies: true,
+      functionalCookies: true,
+      analyticsCookies: false,
+      marketingCookies: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ settings: defaultSettings });
+  } catch (error) {
+    console.error('Get privacy settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Update privacy settings
+userRouter.patch('/privacy', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const settings = req.body;
+
+    // Log privacy settings change
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'SETTINGS_CHANGED',
+        description: 'Privacy settings updated',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        metadata: {
+          changes: Object.keys(settings)
+        }
+      }
+    });
+
+    // In a real app, you'd update the PrivacySettings model
+    const updatedSettings = {
+      ...settings,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ settings: updatedSettings });
+  } catch (error) {
+    console.error('Update privacy settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Delete user account
+userRouter.delete('/account', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const { password, reason, feedback } = req.body;
+
+    // Verify password
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Log account deletion
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'SUSPICIOUS_ACTIVITY',
+        description: 'Account deletion requested',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        riskLevel: 'HIGH',
+        metadata: {
+          reason,
+          feedback
+        }
+      }
+    });
+
+    // In a real app, you'd implement account deletion logic
+    // For demo purposes, just mark as inactive
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: false }
+    });
+
+    res.json({ message: 'Account deletion requested successfully' });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get support settings
+userRouter.get('/support/settings', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Return default support settings
+    const defaultSettings = {
+      id: crypto.randomUUID(),
+      userId,
+      preferredContactMethod: 'EMAIL',
+      defaultIssueCategory: 'general',
+      allowMarketing: true,
+      timezone: 'America/New_York',
+      language: 'en',
+      availabilityHours: 'business',
+      prioritySupport: req.user!.role === 'ADMIN',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ settings: defaultSettings });
+  } catch (error) {
+    console.error('Get support settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Update support settings
+userRouter.patch('/support/settings', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const settings = req.body;
+
+    // Log support settings change
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'SETTINGS_CHANGED',
+        description: 'Support settings updated',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        metadata: {
+          changes: Object.keys(settings)
+        }
+      }
+    });
+
+    const updatedSettings = {
+      ...settings,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ settings: updatedSettings });
+  } catch (error) {
+    console.error('Update support settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get support tickets
+userRouter.get('/support/tickets', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Return mock support tickets
+    const mockTickets = [
+      {
+        id: crypto.randomUUID(),
+        userId,
+        subject: 'Unable to transfer funds',
+        category: 'transactions',
+        priority: 'HIGH',
+        status: 'IN_PROGRESS',
+        description: 'I am having trouble transferring money to my savings account.',
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        responseCount: 3
+      },
+      {
+        id: crypto.randomUUID(),
+        userId,
+        subject: 'Security question about recent login',
+        category: 'security',
+        priority: 'MEDIUM',
+        status: 'RESOLVED',
+        description: 'I noticed a login from a new device and want to verify it was legitimate.',
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        resolvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        responseCount: 2
+      }
+    ];
+
+    res.json({ tickets: mockTickets });
+  } catch (error) {
+    console.error('Get support tickets error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get statement settings
+userRouter.get('/statements/settings', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    
+    // Return default statement settings
+    const defaultSettings = {
+      id: crypto.randomUUID(),
+      userId,
+      preferredFormat: 'PDF',
+      autoSubscription: true,
+      deliveryMethod: 'EMAIL',
+      statementFrequency: 'MONTHLY',
+      includeImages: false,
+      includeDetails: true,
+      paperlessConsent: true,
+      deliveryDay: 1,
+      language: 'en',
+      timezone: 'America/New_York',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ settings: defaultSettings });
+  } catch (error) {
+    console.error('Get statement settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Update statement settings
+userRouter.patch('/statements/settings', async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const settings = req.body;
+
+    // Log statement settings change
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'SETTINGS_CHANGED',
+        description: 'Statement settings updated',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        metadata: {
+          changes: Object.keys(settings)
+        }
+      }
+    });
+
+    const updatedSettings = {
+      ...settings,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({ settings: updatedSettings });
+  } catch (error) {
+    console.error('Update statement settings error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 })
