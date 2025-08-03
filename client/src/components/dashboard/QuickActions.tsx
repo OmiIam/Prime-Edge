@@ -54,15 +54,137 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
   const [transferError, setTransferError] = useState("");
   const [billPayError, setBillPayError] = useState("");
 
-  // List of valid banks for validation
+  // List of valid banks for validation - Global including comprehensive African banks
   const validBanks = [
+    // US Banks
     "Chase Bank", "Bank of America", "Wells Fargo", "Citibank", "U.S. Bank",
     "PNC Bank", "Goldman Sachs Bank", "Capital One", "TD Bank", "Truist Bank",
     "JPMorgan Chase", "Morgan Stanley", "American Express Bank", "HSBC Bank",
     "Charles Schwab Bank", "Ally Bank", "Discover Bank", "Marcus by Goldman Sachs",
     "SunTrust Bank", "Regions Bank", "Fifth Third Bank", "KeyBank", "Huntington Bank",
     "M&T Bank", "First National Bank", "Santander Bank", "Navy Federal Credit Union",
-    "USAA Bank", "First Citizens Bank", "Comerica Bank"
+    "USAA Bank", "First Citizens Bank", "Comerica Bank",
+    
+    // South African Banks
+    "Standard Bank", "Standard Bank Group", "Absa Bank", "Nedbank", "FirstRand Bank",
+    "FNB", "First National Bank", "Capitec Bank", "Investec", "African Bank",
+    "Discovery Bank", "Bidvest Bank", "Mercantile Bank", "Sasfin Bank", "TymeBank",
+    "Bank Zero", "Grindrod Bank", "Ithala Development Finance Corporation",
+    
+    // Nigerian Banks
+    "United Bank for Africa", "UBA", "Zenith Bank", "Access Bank", "Guaranty Trust Bank",
+    "GTCO", "GTBank", "First Bank of Nigeria", "Stanbic IBTC Bank", "Union Bank",
+    "Fidelity Bank", "Sterling Bank", "Ecobank Nigeria", "Wema Bank", "Unity Bank",
+    "Polaris Bank", "Keystone Bank", "Heritage Bank", "Providus Bank", "Jaiz Bank",
+    "SunTrust Bank Nigeria", "Coronation Merchant Bank", "Rand Merchant Bank Nigeria",
+    
+    // Egyptian Banks
+    "National Bank of Egypt", "Commercial International Bank", "CIB", "Banque Misr",
+    "Housing and Development Bank", "Credit Agricole Egypt", "Banque du Caire",
+    "Export Development Bank of Egypt", "Arab African International Bank",
+    "Egyptian Gulf Bank", "National Societe Generale Bank", "QNB Alahli",
+    "Al Baraka Bank Egypt", "Emirates NBD Egypt", "Faisal Islamic Bank",
+    
+    // Moroccan Banks
+    "Attijariwafa Bank", "Banque Centrale Populaire", "Bank of Africa", "BMCE Bank",
+    "Societe Generale Maroc", "Credit du Maroc", "Banque Marocaine du Commerce Exterieur",
+    "Credit Agricole du Maroc", "Banque Populaire", "BMCI", "Al Barid Bank",
+    "Umnia Bank", "Bank Al-Maghrib", "CFG Bank",
+    
+    // Kenyan Banks
+    "Equity Bank", "Kenya Commercial Bank", "KCB", "Safaricom", "M-Pesa",
+    "Cooperative Bank of Kenya", "Absa Bank Kenya", "Stanbic Bank Kenya",
+    "Standard Chartered Kenya", "NCBA Bank", "Diamond Trust Bank", "DTB",
+    "I&M Bank", "Commercial Bank of Africa", "CBA", "Family Bank", "NIC Bank",
+    "Prime Bank", "Guardian Bank", "Victoria Commercial Bank", "Consolidated Bank",
+    "Development Bank of Kenya", "Sidian Bank", "Credit Bank", "Middle East Bank",
+    
+    // Ghanaian Banks
+    "Ghana Commercial Bank", "GCB Bank", "Ecobank Ghana", "Standard Chartered Ghana",
+    "Absa Bank Ghana", "Access Bank Ghana", "Fidelity Bank Ghana", "Stanbic Bank Ghana",
+    "Zenith Bank Ghana", "United Bank for Africa Ghana", "CAL Bank", "Republic Bank",
+    "First National Bank Ghana", "Agricultural Development Bank", "National Investment Bank",
+    "ARB Apex Bank", "Prudential Bank", "Omni Bank", "Premium Bank", "Bank of Ghana",
+    
+    // Ethiopian Banks
+    "Awash Bank", "Commercial Bank of Ethiopia", "Awash International Bank",
+    "Dashen Bank", "Bank of Abyssinia", "Wegagen Bank", "United Bank",
+    "Nib International Bank", "Cooperative Bank of Oromia", "Lion International Bank",
+    "Zemen Bank", "Bunna International Bank", "Berhan International Bank",
+    "Abay Bank", "Addis International Bank", "Enat Bank", "Shabelle Bank",
+    "Hijra Bank", "Tsehay Bank", "Ahadu Bank", "Rammis Bank", "Goh Betoch Bank",
+    
+    // Algerian Banks
+    "Banque Nationale d'Algerie", "BNA", "BNP Paribas El Djazair", "Banque Exterieure d'Algerie",
+    "BEA", "Credit Populaire d'Algerie", "CPA", "Banque de l'Agriculture et du Developpement Rural",
+    "BADR", "Societe Generale Algerie", "Gulf Bank Algeria", "Trust Bank Algeria",
+    "Al Baraka Bank Algeria", "Bank Al-Salam Algeria", "Natixis Algerie",
+    
+    // Tunisian Banks
+    "Amen Bank", "Attijari Bank", "Banque de Tunisie", "Banque Internationale Arabe de Tunisie",
+    "BIAT", "Banque Zitouna", "Societe Tunisienne de Banque", "STB", "Union Bancaire pour le Commerce et l'Industrie",
+    "UBCI", "Arab Tunisian Bank", "ATB", "Banque de l'Habitat", "Banque Nationale Agricole",
+    "BNA Tunisie", "Citi Bank Tunisia", "Union International des Banques", "UIB",
+    
+    // Tanzanian Banks
+    "CRDB Bank", "NMB Bank", "National Bank of Commerce", "NBC", "Stanbic Bank Tanzania",
+    "Standard Chartered Tanzania", "Exim Bank Tanzania", "Diamond Trust Bank Tanzania",
+    "I&M Bank Tanzania", "TPB Bank", "Peoples Bank of Zanzibar", "PBZ", "FBME Bank",
+    "Access Bank Tanzania", "Azania Bank", "Amana Bank", "Bank of Baroda Tanzania",
+    "Citibank Tanzania", "Cooperative Development Bank", "Dar es Salaam Community Bank",
+    
+    // Ugandan Banks
+    "Stanbic Bank Uganda", "Centenary Bank", "Housing Finance Bank", "Bank of Uganda",
+    "East African Development Bank", "EADB", "Tropical Bank", "Uganda Development Bank",
+    "UDB", "Standard Chartered Uganda", "dfcu Bank", "Equity Bank Uganda", "KCB Bank Uganda",
+    "Orient Bank", "PostBank Uganda", "Pride Microfinance", "Finance Trust Bank",
+    "Cairo International Bank", "United Bank for Africa Uganda", "Absa Bank Uganda",
+    "Bank of Baroda Uganda", "Citibank Uganda", "Opportunity Bank", "NC Bank Uganda",
+    
+    // Zimbabwean Banks
+    "CBZ Bank", "Commercial Bank of Zimbabwe", "Stanbic Bank Zimbabwe", "Standard Chartered Zimbabwe",
+    "Nedbank Zimbabwe", "FBC Bank", "First Capital Bank", "CABS", "Central Africa Building Society",
+    "BancABC", "NMB Bank Zimbabwe", "Steward Bank", "Agribank", "Infrastructure Development Bank of Zimbabwe",
+    "IDBZ", "ZB Bank", "Barclays Bank Zimbabwe", "Ecobank Zimbabwe", "Metbank",
+    "People's Own Savings Bank", "POSB", "Progressive Building Society", "ZBS Bank",
+    
+    // Angolan Banks
+    "Banco Angolano de Investimentos", "BAI", "Banco BIC", "Banco de Poupança e Crédito",
+    "BPC", "Banco Comercial Angolano", "BCA", "Banco Economico", "Banco Keve",
+    "Banco Millennium Atlântico", "BMA", "Banco de Desenvolvimento de Angola", "BDA",
+    "Banco Sol", "Banco Prestígio", "Banco Regional do Keve", "Banco VTB África",
+    "Banco BAI Micro Finanças", "Finibanco Angola", "Standard Bank Angola",
+    
+    // Namibian Banks
+    "Bank Windhoek", "First National Bank Namibia", "FNB Namibia", "Standard Bank Namibia",
+    "Nedbank Namibia", "Banco Nacional de Angola Namibia", "SME Bank", "Development Bank of Namibia",
+    "DBN", "Agribank Namibia", "Capricorn Investment Holdings", "Bank of Namibia",
+    
+    // Ivorian Banks (Côte d'Ivoire)
+    "Banque Internationale pour le Commerce et l'Industrie de Côte d'Ivoire", "BICICI",
+    "Société Générale Côte d'Ivoire", "SGCI", "Ecobank Côte d'Ivoire", "Banque Atlantique Côte d'Ivoire",
+    "Coris Bank International", "Banque Populaire de Côte d'Ivoire", "UBA Côte d'Ivoire",
+    "Standard Chartered Côte d'Ivoire", "Access Bank Côte d'Ivoire", "Banque de l'Habitat de Côte d'Ivoire",
+    "BHCI", "NSIA Banque Côte d'Ivoire", "Orabank Côte d'Ivoire", "Bridge Bank Group",
+    
+    // Senegalese Banks
+    "Banque Atlantique Senegal", "Société Générale Sénégal", "CBAO", "Compagnie Bancaire de l'Afrique Occidentale",
+    "Ecobank Sénégal", "UBA Sénégal", "BICIS", "Banque Internationale pour le Commerce et l'Industrie du Sénégal",
+    "Banque de Dakar", "Crédit du Sénégal", "BSIC", "Banque Sahélo-Saharienne pour l'Investissement et le Commerce",
+    "Banque Agricole", "Banque Islamique du Sénégal", "BIS", "Orabank Sénégal",
+    
+    // Malian Banks
+    "Banque de Développement du Mali", "BDM", "Ecobank Mali", "UBA Mali", "Banque Atlantique Mali",
+    "Banque Internationale pour le Mali", "BIM", "Orabank Mali", "Société Générale Mali",
+    "Bank of Africa Mali", "Banque Malienne de Solidarité", "BMS", "Banque Nationale de Développement Agricole",
+    "BNDA", "Banque Sahélo-Saharienne pour l'Investissement et le Commerce Mali", "BSIC Mali",
+    
+    // Cameroonian Banks
+    "Afriland First Bank", "Société Générale Cameroun", "Commercial Bank of Cameroon", "CBC",
+    "Ecobank Cameroun", "UBA Cameroon", "Standard Chartered Cameroun", "Union Bank of Cameroon",
+    "Banque Internationale du Cameroun pour l'Epargne et le Crédit", "BICEC", "Crédit Lyonnais Cameroun",
+    "National Financial Credit Bank", "NFC Bank", "Banque Atlantique Cameroun", "Express Union",
+    "Micro Finance Bank", "Banque des États de l'Afrique Centrale", "BEAC"
   ];
 
   // Bank validation function
