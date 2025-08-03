@@ -12,6 +12,7 @@ export interface AuthUser {
   email: string
   role: 'USER' | 'ADMIN'
   balance: number
+  createdAt: Date
 }
 
 export class AuthService {
@@ -55,6 +56,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       balance: user.balance,
+      createdAt: user.createdAt,
     }
 
     return { user: authUser, token }
@@ -100,6 +102,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       balance: user.balance,
+      createdAt: user.createdAt,
     }
 
     return { user: authUser, token }
@@ -123,6 +126,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
         balance: user.balance,
+        createdAt: user.createdAt,
       }
     } catch (error) {
       throw new Error('Invalid or expired token')
@@ -144,6 +148,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       balance: user.balance,
+      createdAt: user.createdAt,
     }
   }
 }

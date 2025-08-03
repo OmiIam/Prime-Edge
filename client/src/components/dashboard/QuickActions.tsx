@@ -323,37 +323,46 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authManager.getToken()}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify(transferData)
       });
 
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = 'Transfer failed. Please try again.';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || `HTTP ${response.status}: ${response.statusText}`;
+        } catch {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        setTransferError(errorMessage);
+        return;
+      }
+
       const result = await response.json();
 
-      if (response.ok) {
-        // Call parent callback for any additional handling
-        onTransfer(transferAmount, recipientInfo, transferType, bankName);
-        
-        // Show success message
-        alert(result.message || 'Transfer initiated successfully');
-        
-        // Reset form
-        setTransferOpen(false);
-        setTransferAmount("");
-        setRecipientInfo("");
-        setBankName("");
-        setBankValidation({ isValid: false, isChecking: false });
-        setTransferType("email");
-        setTransferError("");
-        
-        // Refresh page to show updated data
-        window.location.reload();
-      } else {
-        setTransferError(result.message || 'Transfer failed. Please try again.');
-      }
+      // Call parent callback for any additional handling
+      onTransfer(transferAmount, recipientInfo, transferType, bankName);
+      
+      // Show success message
+      alert(result.message || 'Transfer initiated successfully');
+      
+      // Reset form
+      setTransferOpen(false);
+      setTransferAmount("");
+      setRecipientInfo("");
+      setBankName("");
+      setBankValidation({ isValid: false, isChecking: false });
+      setTransferType("email");
+      setTransferError("");
+      
+      // Refresh page to show updated data
+      window.location.reload();
     } catch (error) {
       console.error('Transfer error:', error);
-      setTransferError("Network error. Please check your connection and try again.");
+      setTransferError(`Network error: ${error.message}. Please check your connection and try again.`);
     } finally {
       setIsTransferLoading(false);
     }

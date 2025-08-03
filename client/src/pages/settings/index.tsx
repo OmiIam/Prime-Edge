@@ -178,7 +178,12 @@ export default function Settings() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-blue-300">Account since</p>
-                    <p className="text-white font-medium">Dec 2024</p>
+                    <p className="text-white font-medium">
+                      {new Date(authState.user.createdAt || new Date()).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        year: 'numeric' 
+                      })}
+                    </p>
                   </div>
                 </div>
               </CardContent>

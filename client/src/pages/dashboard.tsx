@@ -315,33 +315,42 @@ export default function Dashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authManager.getToken()}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify(transferData)
       });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        // Show success message
-        alert(result.message || 'Transfer initiated successfully');
-        
-        // Close modal and reset form
-        setTransferOpen(false);
-        setTransferAmount("");
-        setRecipientInfo("");
-        setBankName("");
-        setBankValidation({ isValid: false, isChecking: false });
-        setTransferType("email");
-        
-        // Refresh dashboard data to show updated balance/transactions
-        window.location.reload();
-      } else {
-        alert(result.message || 'Transfer failed. Please try again.');
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = 'Transfer failed. Please try again.';
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.message || `HTTP ${response.status}: ${response.statusText}`;
+        } catch {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        alert(errorMessage);
+        return;
       }
+
+      const result = await response.json();
+      
+      // Show success message
+      alert(result.message || 'Transfer initiated successfully');
+      
+      // Close modal and reset form
+      setTransferOpen(false);
+      setTransferAmount("");
+      setRecipientInfo("");
+      setBankName("");
+      setBankValidation({ isValid: false, isChecking: false });
+      setTransferType("email");
+      
+      // Refresh dashboard data to show updated balance/transactions
+      window.location.reload();
     } catch (error) {
       console.error('Transfer error:', error);
-      alert('Network error. Please check your connection and try again.');
+      alert(`Network error: ${error.message}. Please check your connection and try again.`);
     }
   };
 

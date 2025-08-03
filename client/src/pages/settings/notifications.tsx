@@ -61,7 +61,16 @@ export default function NotificationSettings() {
   // Fetch notification settings
   const { data: settingsData, isLoading } = useQuery({
     queryKey: ['/api/settings/notifications'],
-    enabled: authState.isAuthenticated
+    enabled: authState.isAuthenticated,
+    queryFn: async () => {
+      const response = await fetch('/api/settings/notifications', {
+        headers: authManager.getAuthHeader()
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch notification settings');
+      }
+      return response.json();
+    }
   });
 
   const settings: NotificationSettings = settingsData?.settings || {} as NotificationSettings;
@@ -73,6 +82,7 @@ export default function NotificationSettings() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify(newSettings),
       });
@@ -96,12 +106,14 @@ export default function NotificationSettings() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify({ type }),
       });
       
       if (response.ok) {
         // Show success message
+        alert(`Test ${type} notification sent!`);
       }
     } catch (error) {
       console.error('Test notification failed:', error);

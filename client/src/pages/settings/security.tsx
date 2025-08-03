@@ -111,6 +111,12 @@ export default function SecuritySettings() {
   const [verificationCode, setVerificationCode] = useState('');
   const [showDisable2FA, setShowDisable2FA] = useState(false);
   const [disablePassword, setDisablePassword] = useState('');
+  
+  // Alert states
+  const [emailAlerts, setEmailAlerts] = useState(true);
+  const [smsAlerts, setSmsAlerts] = useState(false);
+  const [loginAlerts, setLoginAlerts] = useState(true);
+  const [transactionAlerts, setTransactionAlerts] = useState(true);
 
   if (!authState.isAuthenticated || !authState.user) {
     setLocation('/login');
@@ -120,7 +126,16 @@ export default function SecuritySettings() {
   // Fetch security settings
   const { data: securityData, isLoading } = useQuery({
     queryKey: ['/api/settings/security'],
-    enabled: authState.isAuthenticated
+    enabled: authState.isAuthenticated,
+    queryFn: async () => {
+      const response = await fetch('/api/settings/security', {
+        headers: authManager.getAuthHeader()
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch security settings');
+      }
+      return response.json();
+    }
   });
 
   const securitySettings: SecuritySettings = securityData?.settings || {} as SecuritySettings;
@@ -134,7 +149,7 @@ export default function SecuritySettings() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify({
           currentPassword: data.currentPassword,
@@ -158,9 +173,7 @@ export default function SecuritySettings() {
     mutationFn: async () => {
       const response = await fetch('/api/settings/security/2fa/setup', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authManager.getAuthHeader()
       });
       if (!response.ok) throw new Error('Failed to setup 2FA');
       return response.json();
@@ -178,7 +191,7 @@ export default function SecuritySettings() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify({ token }),
       });
@@ -203,7 +216,7 @@ export default function SecuritySettings() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify({ password }),
       });
@@ -225,9 +238,7 @@ export default function SecuritySettings() {
     mutationFn: async (sessionId: string) => {
       const response = await fetch(`/api/settings/security/sessions/${sessionId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authManager.getAuthHeader()
       });
       if (!response.ok) throw new Error('Failed to terminate session');
       return response.json();

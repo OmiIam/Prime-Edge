@@ -6,6 +6,7 @@ interface User {
   email: string;
   role: 'USER' | 'ADMIN';
   balance: number;
+  createdAt?: string;
 }
 
 interface AuthState {
@@ -151,6 +152,15 @@ class AuthManager {
       return { Authorization: `Bearer ${this.state.token}` };
     }
     return {};
+  }
+
+  updateUser(user: User) {
+    this.state = {
+      ...this.state,
+      user,
+    };
+    this.saveToStorage();
+    this.notify();
   }
 }
 

@@ -92,7 +92,16 @@ export default function ProfileSettings() {
     queryKey: ['/api/settings/profile'],
     enabled: authState.isAuthenticated,
     retry: 3,
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: async () => {
+      const response = await fetch('/api/settings/profile', {
+        headers: authManager.getAuthHeader()
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+      return response.json();
+    }
   });
 
   const profile: UserProfile = profileData?.user;
@@ -120,7 +129,7 @@ export default function ProfileSettings() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify(updatedData),
       });
@@ -149,9 +158,7 @@ export default function ProfileSettings() {
     mutationFn: async () => {
       const response = await fetch('/api/settings/profile/verify-email', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authManager.getAuthHeader()
       });
       
       if (!response.ok) throw new Error('Failed to send verification email');
@@ -164,9 +171,7 @@ export default function ProfileSettings() {
     mutationFn: async () => {
       const response = await fetch('/api/settings/profile/verify-phone', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authManager.getAuthHeader()
       });
       
       if (!response.ok) throw new Error('Failed to send verification SMS');

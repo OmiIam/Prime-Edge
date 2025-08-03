@@ -60,6 +60,7 @@ model Transaction {
   description String
   reference   String?
   status      TransactionStatus @default(COMPLETED)
+  metadata    Json?             // Additional transaction data (bank info, transfer details, etc.)
   createdAt   DateTime          @default(now())
   
   // Relations

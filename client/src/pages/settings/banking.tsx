@@ -83,7 +83,16 @@ export default function BankingServicesSettings() {
   // Fetch banking settings
   const { data: bankingData, isLoading } = useQuery({
     queryKey: ['/api/settings/banking'],
-    enabled: authState.isAuthenticated
+    enabled: authState.isAuthenticated,
+    queryFn: async () => {
+      const response = await fetch('/api/settings/banking', {
+        headers: authManager.getAuthHeader()
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch banking settings');
+      }
+      return response.json();
+    }
   });
 
   const bankingSettings: BankingPreferences = bankingData?.settings || {} as BankingPreferences;
@@ -97,7 +106,7 @@ export default function BankingServicesSettings() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...authManager.getAuthHeader()
         },
         body: JSON.stringify(newSettings),
       });
@@ -151,9 +160,7 @@ export default function BankingServicesSettings() {
     mutationFn: async (paymentMethodId: string) => {
       const response = await fetch(`/api/settings/banking/payment-methods/${paymentMethodId}/default`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authManager.getAuthHeader()
       });
       if (!response.ok) throw new Error('Failed to set default payment method');
       return response.json();
@@ -168,9 +175,7 @@ export default function BankingServicesSettings() {
     mutationFn: async (paymentMethodId: string) => {
       const response = await fetch(`/api/settings/banking/payment-methods/${paymentMethodId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: authManager.getAuthHeader()
       });
       if (!response.ok) throw new Error('Failed to delete payment method');
       return response.json();
