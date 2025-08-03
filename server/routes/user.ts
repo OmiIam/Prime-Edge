@@ -156,32 +156,64 @@ userRouter.post('/transfer', async (req, res) => {
       return res.status(400).json({ message: 'Insufficient funds' })
     }
 
-    // Create transaction record
+    // For external bank transfers, we need to hold the funds but not deduct them until approved
+    let balanceUpdate = {};
+    if (transferType === 'external_bank') {
+      // Check if user has sufficient balance including any pending external transfers
+      const pendingExternalTransfers = await prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: {
+          userId: req.user!.id,
+          type: 'DEBIT',
+          metadata: {
+            path: ['status'],
+            equals: 'pending'
+          }
+        }
+      });
+      
+      const totalPending = pendingExternalTransfers._sum.amount || 0;
+      if (user.balance - totalPending < transferAmount) {
+        return res.status(400).json({ 
+          message: 'Insufficient funds including pending transfers' 
+        });
+      }
+    } else {
+      // For internal transfers, deduct immediately
+      balanceUpdate = { balance: { decrement: transferAmount } };
+    }
+
+    // Create transaction record with enhanced metadata
     const transaction = await prisma.transaction.create({
       data: {
         userId: req.user!.id,
         type: 'DEBIT',
         amount: transferAmount,
         description: transferType === 'external_bank' 
-          ? `External bank transfer to ${bankName} - Account ending in ${recipientInfo.slice(-4)}`
+          ? `External bank transfer to ${bankName}`
           : transferType === 'email'
           ? `Transfer to ${recipientInfo}`
           : `Internal transfer to ${transferType} account`,
         metadata: {
           transferType,
-          recipientInfo,
+          recipientInfo: transferType === 'external_bank' 
+            ? `Account ending in ${recipientInfo.slice(-4)}` 
+            : recipientInfo,
           bankName: transferType === 'external_bank' ? bankName : undefined,
+          fullAccountInfo: transferType === 'external_bank' ? recipientInfo : undefined,
           status: transferType === 'external_bank' ? 'pending' : 'completed',
-          reason: transferType === 'external_bank' ? 'External bank transfer' : 'Internal transfer'
+          reason: transferType === 'external_bank' ? 'External bank transfer awaiting approval' : 'Internal transfer',
+          submittedAt: new Date().toISOString(),
+          requiresApproval: transferType === 'external_bank'
         }
       }
     })
 
-    // Update user balance (for non-external transfers, external ones would be processed later)
+    // Update user balance for internal transfers only
     if (transferType !== 'external_bank') {
       await prisma.user.update({
         where: { id: req.user!.id },
-        data: { balance: { decrement: transferAmount } }
+        data: balanceUpdate
       })
     }
 
@@ -189,11 +221,33 @@ userRouter.post('/transfer', async (req, res) => {
       success: true,
       transaction,
       message: transferType === 'external_bank' 
-        ? 'External bank transfer initiated. Processing may take 1-3 business days.'
+        ? 'External bank transfer submitted for approval. You will receive a notification once processed.'
         : 'Transfer completed successfully'
     })
   } catch (error) {
     console.error('Transfer error:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// GET /api/user/pending-transfers - Get user's pending external transfers
+userRouter.get('/pending-transfers', async (req, res) => {
+  try {
+    const pendingTransfers = await prisma.transaction.findMany({
+      where: {
+        userId: req.user!.id,
+        type: 'DEBIT',
+        metadata: {
+          path: ['status'],
+          equals: 'pending'
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    res.json(pendingTransfers)
+  } catch (error) {
+    console.error('Get pending transfers error:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 })

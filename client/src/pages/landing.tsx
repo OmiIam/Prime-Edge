@@ -138,14 +138,23 @@ export default function Landing() {
           <div 
             id="mobile-menu"
             ref={mobileMenuRef}
-            className="md:hidden absolute top-16 left-0 right-0 bg-prime-navy/98 backdrop-blur-sm border-b border-prime-slate/20 shadow-xl"
+            className="md:hidden absolute top-16 left-0 right-0 bg-prime-navy/95 backdrop-blur-lg border-b border-prime-slate/30 shadow-2xl"
+            style={{
+              backgroundColor: 'rgba(15, 23, 42, 0.98)',
+              backdropFilter: 'blur(20px)',
+              borderBottom: '1px solid rgba(148, 163, 184, 0.3)'
+            }}
             role="menu"
             aria-label="Mobile navigation menu"
           >
-            <div className="px-4 py-6 space-y-4">
+            <div className="px-4 py-6 space-y-4 bg-prime-navy/20 backdrop-blur-sm rounded-lg m-2"
+                 style={{
+                   backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                   backdropFilter: 'blur(10px)'
+                 }}>
               <a 
                 href="#features" 
-                className="block text-gray-300 hover:text-white focus:text-white transition-colors py-2 text-lg touch-target focus-ring rounded"
+                className="block text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
                 onClick={() => setMobileMenuOpen(false)}
                 role="menuitem"
               >
@@ -156,7 +165,7 @@ export default function Landing() {
                   setLocation("/support/security");
                   setMobileMenuOpen(false);
                 }}
-                className="block w-full text-left text-gray-300 hover:text-white focus:text-white transition-colors py-2 text-lg touch-target focus-ring rounded"
+                className="block w-full text-left text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
                 role="menuitem"
               >
                 Security
@@ -166,15 +175,15 @@ export default function Landing() {
                   setLocation("/about");
                   setMobileMenuOpen(false);
                 }}
-                className="block w-full text-left text-gray-300 hover:text-white focus:text-white transition-colors py-2 text-lg touch-target focus-ring rounded"
+                className="block w-full text-left text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
                 role="menuitem"
               >
                 About
               </button>
               
-              <div className="pt-4 border-t border-prime-slate/20 space-y-3" role="group" aria-label="Account actions">
+              <div className="pt-4 border-t border-white/20 space-y-3" role="group" aria-label="Account actions">
                 <Button 
-                  className="btn-prime-ghost w-full justify-start text-lg py-3 focus-ring"
+                  className="w-full justify-start text-lg py-3 focus-ring bg-white/10 hover:bg-white/20 text-white hover:text-white border border-white/20 hover:border-white/30 font-medium transition-all duration-200"
                   onClick={() => {
                     setLocation("/login");
                     setMobileMenuOpen(false);
@@ -184,7 +193,7 @@ export default function Landing() {
                   Login
                 </Button>
                 <Button 
-                  className="btn-prime-primary w-full text-lg py-3 focus-ring"
+                  className="w-full text-lg py-3 focus-ring bg-prime-accent hover:bg-blue-600 text-white border-0 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                   onClick={() => {
                     setLocation("/register");
                     setMobileMenuOpen(false);

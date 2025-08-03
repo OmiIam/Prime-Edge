@@ -302,20 +302,47 @@ export default function Dashboard() {
   const monthlySpending = data.monthlyStats.spent;
   const monthlyTransactions = data.monthlyStats.transactionCount;
 
-  const handleTransfer = (amount?: string, recipient?: string, type?: string) => {
-    // In a real app, this would make an API call
-    console.log('Transfer:', { 
-      amount: amount || transferAmount, 
-      recipientInfo: recipient || recipientInfo, 
-      transferType: type || transferType,
-      bankName: type === 'external_bank' ? bankName : undefined
-    });
-    setTransferOpen(false);
-    setTransferAmount("");
-    setRecipientInfo("");
-    setBankName("");
-    setBankValidation({ isValid: false, isChecking: false });
-    setTransferType("email");
+  const handleTransfer = async (amount?: string, recipient?: string, type?: string) => {
+    try {
+      const transferData = {
+        amount: amount || transferAmount,
+        recipientInfo: recipient || recipientInfo,
+        transferType: type || transferType,
+        bankName: (type || transferType) === 'external_bank' ? bankName : undefined
+      };
+
+      const response = await fetch('/api/user/transfer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authManager.getToken()}`
+        },
+        body: JSON.stringify(transferData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Show success message
+        alert(result.message || 'Transfer initiated successfully');
+        
+        // Close modal and reset form
+        setTransferOpen(false);
+        setTransferAmount("");
+        setRecipientInfo("");
+        setBankName("");
+        setBankValidation({ isValid: false, isChecking: false });
+        setTransferType("email");
+        
+        // Refresh dashboard data to show updated balance/transactions
+        window.location.reload();
+      } else {
+        alert(result.message || 'Transfer failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Transfer error:', error);
+      alert('Network error. Please check your connection and try again.');
+    }
   };
 
   const handleDeposit = () => {
@@ -530,7 +557,23 @@ export default function Dashboard() {
                               <IconComponent className={`h-5 w-5 ${formattedAmount.colorClass}`} />
                             </div>
                             <div>
-                              <div className="font-semibold text-white mb-1">{transaction.description}</div>
+                              <div className="font-semibold text-white mb-1 flex items-center gap-2">
+                                {transaction.description}
+                                {transaction.metadata?.status && transaction.metadata.status !== 'completed' && (
+                                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                    transaction.metadata.status === 'pending' 
+                                      ? 'bg-orange-500/20 text-orange-300 border border-orange-400/30'
+                                      : transaction.metadata.status === 'approved'
+                                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                                      : 'bg-red-500/20 text-red-300 border border-red-400/30'
+                                  }`}>
+                                    {transaction.metadata.status === 'pending' ? 'Pending Approval' :
+                                     transaction.metadata.status === 'approved' ? 'Sent' :
+                                     transaction.metadata.status === 'rejected' ? 'Rejected' :
+                                     transaction.metadata.status}
+                                  </span>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2 text-sm text-blue-300">
                                 <span>{formatFinancialDate(transaction.createdAt)}</span>
                                 <span className="w-1 h-1 bg-blue-300 rounded-full"></span>

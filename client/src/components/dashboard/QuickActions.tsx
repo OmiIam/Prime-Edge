@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/formatters";
 import { LoadingSpinner } from "@/components/ui/loading";
+import { authManager } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ import {
 
 interface QuickActionsProps {
   onDeposit: (amount: string, method: string) => void;
-  onTransfer: (amount: string, recipientInfo: string, transferType: string) => void;
+  onTransfer: (amount: string, recipientInfo: string, transferType: string, bankName?: string) => void;
   onBillPay: (payee: string, amount: string) => void;
 }
 
@@ -311,17 +312,48 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     
     setIsTransferLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      onTransfer(transferAmount, recipientInfo, transferType);
-      setTransferOpen(false);
-      setTransferAmount("");
-      setRecipientInfo("");
-      setBankName("");
-      setBankValidation({ isValid: false, isChecking: false });
-      setTransferType("email");
-      setTransferError("");
+      const transferData = {
+        amount: transferAmount,
+        recipientInfo,
+        transferType,
+        bankName: transferType === 'external_bank' ? bankName : undefined
+      };
+
+      const response = await fetch('/api/user/transfer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authManager.getToken()}`
+        },
+        body: JSON.stringify(transferData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Call parent callback for any additional handling
+        onTransfer(transferAmount, recipientInfo, transferType, bankName);
+        
+        // Show success message
+        alert(result.message || 'Transfer initiated successfully');
+        
+        // Reset form
+        setTransferOpen(false);
+        setTransferAmount("");
+        setRecipientInfo("");
+        setBankName("");
+        setBankValidation({ isValid: false, isChecking: false });
+        setTransferType("email");
+        setTransferError("");
+        
+        // Refresh page to show updated data
+        window.location.reload();
+      } else {
+        setTransferError(result.message || 'Transfer failed. Please try again.');
+      }
     } catch (error) {
-      setTransferError("Failed to process transfer. Please try again.");
+      console.error('Transfer error:', error);
+      setTransferError("Network error. Please check your connection and try again.");
     } finally {
       setIsTransferLoading(false);
     }

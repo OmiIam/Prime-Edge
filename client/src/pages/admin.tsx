@@ -423,7 +423,7 @@ export default function AdminNew() {
           </div>
           
           {/* Desktop/Tablet Navigation */}
-          <TabsList className="hidden sm:grid w-full grid-cols-4 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl p-1.5 shadow-lg overflow-hidden">
+          <TabsList className="hidden sm:grid w-full grid-cols-5 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl p-1.5 shadow-lg overflow-hidden">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
               <BarChart3 className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Overview</span>
@@ -437,6 +437,11 @@ export default function AdminNew() {
               <Receipt className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Transactions</span>
               <span className="sm:hidden text-xs font-medium">Trans</span>
+            </TabsTrigger>
+            <TabsTrigger value="pending-transfers" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
+              <Clock className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="hidden lg:inline">Pending</span>
+              <span className="lg:hidden text-xs font-medium">Transfers</span>
             </TabsTrigger>
             <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
               <History className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -1044,6 +1049,36 @@ export default function AdminNew() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Pending Transfers Tab */}
+          <TabsContent value="pending-transfers" className="space-y-6">
+            <Card className="bg-white border border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100 pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                        <Clock className="h-4 w-4 text-orange-600" />
+                      </div>
+                      <CardTitle className="text-lg font-semibold text-gray-900">Pending External Transfers</CardTitle>
+                    </div>
+                    <p className="text-sm text-gray-500">Review and approve external bank transfers</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-gray-600 border-gray-200 hover:bg-gray-50 transition-colors font-medium"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/pending-transfers'] })}
+                  >
+                    Refresh
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <PendingTransfersTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -1196,6 +1231,161 @@ export default function AdminNew() {
         </DialogContent>
       </Dialog>
       </div>
+    </div>
+  );
+}
+
+// Pending Transfers Table Component
+function PendingTransfersTable() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: pendingTransfers, isLoading } = useQuery({
+    queryKey: ['/api/admin/pending-transfers'],
+    queryFn: () => apiRequest('/api/admin/pending-transfers'),
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  const approveTransferMutation = useMutation({
+    mutationFn: ({ transferId, action, reason }: { transferId: string, action: 'approve' | 'reject', reason?: string }) =>
+      apiRequest(`/api/admin/approve-transfer/${transferId}`, {
+        method: 'POST',
+        body: JSON.stringify({ action, reason }),
+      }),
+    onSuccess: (data, variables) => {
+      toast({
+        title: "Success",
+        description: `Transfer ${variables.action}d successfully`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/pending-transfers'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to process transfer",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleApprove = (transferId: string) => {
+    approveTransferMutation.mutate({ transferId, action: 'approve' });
+  };
+
+  const handleReject = (transferId: string, reason?: string) => {
+    approveTransferMutation.mutate({ transferId, action: 'reject', reason });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+            <Skeleton className="h-12 w-12 rounded-lg" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-20" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!pendingTransfers || pendingTransfers.length === 0) {
+    return (
+      <div className="p-12 text-center">
+        <Clock className="h-8 w-8 text-gray-300 mx-auto mb-3" />
+        <p className="text-gray-500 text-lg mb-2">No pending transfers</p>
+        <p className="text-gray-400 text-sm">All external bank transfers have been processed</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-gray-100">
+      {pendingTransfers.map((transfer: any) => (
+        <div key={transfer.id} className="p-6 hover:bg-gray-50 transition-colors">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="font-semibold text-gray-900 text-lg">
+                    ${transfer.amount.toLocaleString()}
+                  </h3>
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-200">
+                    Pending
+                  </Badge>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="font-medium">From:</span>
+                    <span>{transfer.user.name} ({transfer.user.email})</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="font-medium">To:</span>
+                    <span>{transfer.metadata?.bankName}</span>
+                    <span className="text-gray-400">•</span>
+                    <span>{transfer.metadata?.recipientInfo}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="font-medium">Submitted:</span>
+                    <span>{format(new Date(transfer.createdAt), 'MMM dd, yyyy HH:mm')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={() => handleApprove(transfer.id)}
+                disabled={approveTransferMutation.isPending}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white min-w-[80px] shadow-sm"
+              >
+                {approveTransferMutation.isPending ? '...' : 'Approve'}
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 min-w-[80px]"
+                    disabled={approveTransferMutation.isPending}
+                  >
+                    Reject
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-white">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reject Transfer</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to reject this external bank transfer of ${transfer.amount.toLocaleString()} 
+                      to {transfer.metadata?.bankName}? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => handleReject(transfer.id, 'Rejected by administrator')}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Reject Transfer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
