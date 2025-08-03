@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { authManager } from "@/lib/auth";
 import { useLocation } from "wouter";
 import Logo from "@/components/logo";
-import { LogOut, User, Settings, Shield, Menu, X } from "lucide-react";
+import { LogOut, User, Settings, Shield, Menu, X, FileText, Upload } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -132,6 +132,28 @@ export default function Navbar({ user }: NavbarProps) {
                       </div>
                     </DropdownMenuItem>
                   )}
+                  
+                  <DropdownMenuItem 
+                    className="text-gray-700 hover:bg-green-50 hover:text-green-700 cursor-pointer rounded-lg px-4 py-3 font-medium transition-all duration-200 hover:shadow-sm"
+                    onClick={() => setLocation('/statements')}
+                  >
+                    <FileText className="h-4 w-4 mr-3 text-green-600" />
+                    <div className="flex flex-col">
+                      <span>Statements</span>
+                      <span className="text-xs text-gray-500">Account statements</span>
+                    </div>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem 
+                    className="text-gray-700 hover:bg-orange-50 hover:text-orange-700 cursor-pointer rounded-lg px-4 py-3 font-medium transition-all duration-200 hover:shadow-sm"
+                    onClick={() => setLocation('/documents')}
+                  >
+                    <Upload className="h-4 w-4 mr-3 text-orange-600" />
+                    <div className="flex flex-col">
+                      <span>Documents</span>
+                      <span className="text-xs text-gray-500">Upload & manage</span>
+                    </div>
+                  </DropdownMenuItem>
                   
                   <DropdownMenuItem 
                     className="text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer rounded-lg px-4 py-3 font-medium transition-all duration-200 hover:shadow-sm"

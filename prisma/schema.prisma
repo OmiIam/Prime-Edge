@@ -43,6 +43,8 @@ model User {
   userSettings    UserSettings?
   securitySettings SecuritySettings?
   notificationSettings NotificationSettings?
+  bankingSettings BankingSettings?
+  paymentMethods  PaymentMethod[]
   loginSessions   LoginSession[]
   securityEvents  SecurityEvent[]
   documents       Document[]
@@ -136,6 +138,17 @@ enum SecurityEventType {
   SETTINGS_CHANGED
   DEVICE_ADDED
   DEVICE_REMOVED
+  PAYMENT_METHOD_ADDED
+  PAYMENT_METHOD_REMOVED
+  EMAIL_VERIFICATION_SENT
+  PHONE_VERIFICATION_SENT
+  DOCUMENT_UPLOADED
+  DOCUMENT_DELETED
+  DOCUMENT_VERIFIED
+  DOCUMENT_REJECTED
+  STATEMENT_REQUESTED
+  STATEMENT_DOWNLOADED
+  TAX_DOCUMENTS_REQUESTED
 }
 
 enum DocumentType {
@@ -282,4 +295,52 @@ model Document {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("documents")
+}
+
+enum PaymentMethodType {
+  CARD
+  BANK_ACCOUNT
+  DIGITAL_WALLET
+}
+
+model BankingSettings {
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  autoSaveEnabled         Boolean  @default(false)
+  autoSavePercentage      Int      @default(10)
+  overdraftProtection     Boolean  @default(true)
+  lowBalanceAlerts        Boolean  @default(true)
+  lowBalanceThreshold     Float    @default(100)
+  monthlySpendingLimit    Float?
+  internationalTransactions Boolean @default(false)
+  mobilePayments          Boolean  @default(true)
+  contactlessPayments     Boolean  @default(true)
+  recurringTransfers      Boolean  @default(false)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  
+  // Relations
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("banking_settings")
+}
+
+model PaymentMethod {
+  id           String            @id @default(uuid())
+  userId       String
+  type         PaymentMethodType
+  name         String
+  last4        String
+  expiryMonth  Int?
+  expiryYear   Int?
+  provider     String?
+  isDefault    Boolean           @default(false)
+  isVerified   Boolean           @default(false)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  
+  // Relations
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_methods")
 }

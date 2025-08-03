@@ -15,7 +15,7 @@ import { LoadingSpinner } from "@/components/ui/loading";
 // Lazy load heavy dashboard components
 const QuickActions = lazy(() => import("@/components/dashboard/QuickActions"));
 const FinancialInsights = lazy(() => import("@/components/dashboard/FinancialInsights"));
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditCard, Home, Briefcase, Send, Plus, Receipt, Smartphone, MapPin, Calculator, PiggyBank, Target, BarChart3, DollarSign } from "lucide-react";
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditCard, Home, Briefcase, Send, Plus, Receipt, Smartphone, MapPin, Calculator, PiggyBank, Target, BarChart3, DollarSign, CheckCircle, XCircle, Building2 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { formatCurrency, formatAccountNumber, formatFinancialDate, formatTransactionAmount } from "@/lib/formatters";
@@ -73,12 +73,45 @@ export default function Dashboard() {
   const [transferAmount, setTransferAmount] = useState("");
   const [recipientInfo, setRecipientInfo] = useState("");
   const [transferType, setTransferType] = useState("email");
+  const [bankName, setBankName] = useState("");
+  const [bankValidation, setBankValidation] = useState({ isValid: false, isChecking: false });
   const [transferOpen, setTransferOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [billPayOpen, setBillPayOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [depositMethod, setDepositMethod] = useState("bank_transfer");
   const [payeeSelection, setPayeeSelection] = useState("");
+
+  // List of valid banks for validation
+  const validBanks = [
+    "Chase Bank", "Bank of America", "Wells Fargo", "Citibank", "U.S. Bank",
+    "PNC Bank", "Goldman Sachs Bank", "Capital One", "TD Bank", "Truist Bank",
+    "JPMorgan Chase", "Morgan Stanley", "American Express Bank", "HSBC Bank",
+    "Charles Schwab Bank", "Ally Bank", "Discover Bank", "Marcus by Goldman Sachs",
+    "SunTrust Bank", "Regions Bank", "Fifth Third Bank", "KeyBank", "Huntington Bank",
+    "M&T Bank", "First National Bank", "Santander Bank", "Navy Federal Credit Union",
+    "USAA Bank", "First Citizens Bank", "Comerica Bank"
+  ];
+
+  // Bank validation function
+  const validateBankName = async (name: string) => {
+    if (!name || name.length < 3) {
+      setBankValidation({ isValid: false, isChecking: false });
+      return;
+    }
+
+    setBankValidation({ isValid: false, isChecking: true });
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const isValid = validBanks.some(bank => 
+      bank.toLowerCase().includes(name.toLowerCase()) || 
+      name.toLowerCase().includes(bank.toLowerCase())
+    );
+    
+    setBankValidation({ isValid, isChecking: false });
+  };
 
   const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ['/api/user/dashboard'],
@@ -152,11 +185,14 @@ export default function Dashboard() {
     console.log('Transfer:', { 
       amount: amount || transferAmount, 
       recipientInfo: recipient || recipientInfo, 
-      transferType: type || transferType 
+      transferType: type || transferType,
+      bankName: type === 'external_bank' ? bankName : undefined
     });
     setTransferOpen(false);
     setTransferAmount("");
     setRecipientInfo("");
+    setBankName("");
+    setBankValidation({ isValid: false, isChecking: false });
     setTransferType("email");
   };
 
@@ -487,13 +523,50 @@ export default function Dashboard() {
                   <SelectItem value="checking">Checking Account</SelectItem>
                   <SelectItem value="savings">Savings Account</SelectItem>
                   <SelectItem value="email">Send to Others</SelectItem>
+                  <SelectItem value="external_bank">External Bank</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
+            {transferType === "external_bank" && (
+              <div>
+                <Label htmlFor="bank-name" className="text-gray-700">Bank Name *</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="bank-name"
+                    type="text"
+                    placeholder="Enter bank name (e.g., Chase Bank, Bank of America)"
+                    value={bankName}
+                    onChange={(e) => {
+                      setBankName(e.target.value);
+                      validateBankName(e.target.value);
+                    }}
+                    className="focus-ring pr-10"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    {bankValidation.isChecking ? (
+                      <LoadingSpinner size="sm" />
+                    ) : bankName.length >= 3 ? (
+                      bankValidation.isValid ? (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-500" />
+                      )
+                    ) : null}
+                  </div>
+                </div>
+                {bankName.length >= 3 && !bankValidation.isChecking && (
+                  <p className={`text-sm mt-1 ${bankValidation.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                    {bankValidation.isValid ? '✓ Valid bank name' : '✗ Bank not recognized'}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div>
               <Label htmlFor="recipient-info" className="text-gray-700">
                 {transferType === "email" ? "Recipient Email *" : 
+                 transferType === "external_bank" ? "Account Number/Routing Number *" :
                  transferType === "checking" ? "Checking Account" :
                  "Savings Account"}
               </Label>
@@ -502,18 +575,24 @@ export default function Dashboard() {
                 type={transferType === "email" ? "email" : "text"}
                 placeholder={
                   transferType === "email" ? "Enter recipient's email" :
+                  transferType === "external_bank" ? "Account: 1234567890, Routing: 021000021" :
                   transferType === "checking" ? "Checking account (••••4721)" :
                   "Savings account (••••8932)"
                 }
                 value={recipientInfo}
                 onChange={(e) => setRecipientInfo(e.target.value)}
                 className="mt-1 focus-ring"
-                disabled={transferType !== "email"}
-                aria-describedby={transferType !== "email" ? "account-info" : undefined}
+                disabled={transferType !== "email" && transferType !== "external_bank"}
+                aria-describedby={(transferType !== "email" && transferType !== "external_bank") ? "account-info" : undefined}
               />
-              {transferType !== "email" && (
+              {(transferType !== "email" && transferType !== "external_bank") && (
                 <p id="account-info" className="text-sm text-gray-500 mt-1">
                   Transfer between your own accounts
+                </p>
+              )}
+              {transferType === "external_bank" && (
+                <p className="text-sm text-gray-500 mt-1">
+                  External bank transfers may take 1-3 business days
                 </p>
               )}
             </div>
@@ -522,7 +601,9 @@ export default function Dashboard() {
               <Button 
                 onClick={handleTransfer} 
                 className="btn-prime-primary flex-1 focus-ring"
-                disabled={!transferAmount || (transferType === "email" && !recipientInfo)}
+                disabled={!transferAmount || 
+                  (transferType === "email" && !recipientInfo) ||
+                  (transferType === "external_bank" && (!recipientInfo || !bankName || !bankValidation.isValid))}
               >
                 <Send className="h-4 w-4 mr-2" aria-hidden="true" />
                 Send {formatCurrency(parseFloat(transferAmount) || 0)}
@@ -533,6 +614,8 @@ export default function Dashboard() {
                   setTransferOpen(false);
                   setTransferAmount("");
                   setRecipientInfo("");
+                  setBankName("");
+                  setBankValidation({ isValid: false, isChecking: false });
                   setTransferType("email");
                 }}
                 className="focus-ring"

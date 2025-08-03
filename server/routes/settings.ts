@@ -628,4 +628,229 @@ router.get('/privacy/export', requireAuth, async (req, res) => {
   }
 });
 
+// Get banking preferences
+router.get('/banking', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    let bankingSettings = await prisma.bankingSettings.findUnique({
+      where: { userId }
+    });
+
+    // Create default settings if they don't exist
+    if (!bankingSettings) {
+      bankingSettings = await prisma.bankingSettings.create({
+        data: { userId }
+      });
+    }
+
+    // Get payment methods
+    const paymentMethods = await prisma.paymentMethod.findMany({
+      where: { userId },
+      orderBy: { isDefault: 'desc' }
+    });
+
+    // Get transfer limits (mock data for now)
+    const transferLimits = [
+      { type: 'DAILY', amount: 5000, remaining: 3500 },
+      { type: 'WEEKLY', amount: 25000, remaining: 18750 },
+      { type: 'MONTHLY', amount: 100000, remaining: 75000 }
+    ];
+
+    res.json({ 
+      settings: bankingSettings,
+      paymentMethods,
+      transferLimits
+    });
+  } catch (error) {
+    console.error('Get banking settings error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update banking preferences
+router.put('/banking', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const settings = req.body;
+
+    const updatedSettings = await prisma.bankingSettings.upsert({
+      where: { userId },
+      update: settings,
+      create: {
+        userId,
+        ...settings
+      }
+    });
+
+    // Log settings change
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'SETTINGS_CHANGED',
+        description: 'Banking preferences updated',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        metadata: {
+          changes: Object.keys(settings)
+        }
+      }
+    });
+
+    res.json({ settings: updatedSettings });
+  } catch (error) {
+    console.error('Update banking settings error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add payment method
+router.post('/banking/payment-methods', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { type, name, last4, expiryMonth, expiryYear, provider } = req.body;
+
+    const paymentMethod = await prisma.paymentMethod.create({
+      data: {
+        userId,
+        type,
+        name,
+        last4,
+        expiryMonth,
+        expiryYear,
+        provider,
+        isDefault: false,
+        isVerified: false
+      }
+    });
+
+    // Log payment method addition
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'PAYMENT_METHOD_ADDED',
+        description: `New ${type.toLowerCase()} payment method added`,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        riskLevel: 'MEDIUM'
+      }
+    });
+
+    res.json({ paymentMethod });
+  } catch (error) {
+    console.error('Add payment method error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Set default payment method
+router.put('/banking/payment-methods/:id/default', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    // Remove default from all other payment methods
+    await prisma.paymentMethod.updateMany({
+      where: { userId },
+      data: { isDefault: false }
+    });
+
+    // Set new default
+    await prisma.paymentMethod.update({
+      where: { 
+        id,
+        userId // Ensure user owns the payment method
+      },
+      data: { isDefault: true }
+    });
+
+    res.json({ message: 'Default payment method updated' });
+  } catch (error) {
+    console.error('Set default payment method error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete payment method
+router.delete('/banking/payment-methods/:id', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await prisma.paymentMethod.delete({
+      where: { 
+        id,
+        userId // Ensure user owns the payment method
+      }
+    });
+
+    // Log payment method deletion
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'PAYMENT_METHOD_REMOVED',
+        description: 'Payment method removed',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        riskLevel: 'MEDIUM'
+      }
+    });
+
+    res.json({ message: 'Payment method deleted successfully' });
+  } catch (error) {
+    console.error('Delete payment method error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Send email verification
+router.post('/profile/verify-email', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // In a real app, this would send an actual email
+    // For now, just log the event
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'EMAIL_VERIFICATION_SENT',
+        description: 'Email verification sent',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        riskLevel: 'LOW'
+      }
+    });
+
+    res.json({ message: 'Verification email sent' });
+  } catch (error) {
+    console.error('Send email verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Send phone verification
+router.post('/profile/verify-phone', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // In a real app, this would send an actual SMS
+    // For now, just log the event
+    await prisma.securityEvent.create({
+      data: {
+        userId,
+        eventType: 'PHONE_VERIFICATION_SENT',
+        description: 'Phone verification SMS sent',
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        riskLevel: 'LOW'
+      }
+    });
+
+    res.json({ message: 'Verification SMS sent' });
+  } catch (error) {
+    console.error('Send phone verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

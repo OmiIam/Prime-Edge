@@ -72,14 +72,58 @@ const timezones = [
 ];
 
 const currencies = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' }
+  { code: 'USD', name: 'US Dollar', symbol: '$', region: 'Americas' },
+  { code: 'EUR', name: 'Euro', symbol: '€', region: 'Europe' },
+  { code: 'GBP', name: 'British Pound', symbol: '£', region: 'Europe' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥', region: 'Asia' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$', region: 'Americas' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', region: 'Oceania' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', region: 'Europe' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', region: 'Asia' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹', region: 'Asia' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', region: 'Asia' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$', region: 'Asia' },
+  // African Currencies
+  { code: 'ZAR', name: 'South African Rand', symbol: 'R', region: 'Africa' },
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦', region: 'Africa' },
+  { code: 'EGP', name: 'Egyptian Pound', symbol: '£E', region: 'Africa' },
+  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh', region: 'Africa' },
+  { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵', region: 'Africa' },
+  { code: 'UGX', name: 'Ugandan Shilling', symbol: 'USh', region: 'Africa' },
+  { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh', region: 'Africa' },
+  { code: 'ETB', name: 'Ethiopian Birr', symbol: 'Br', region: 'Africa' },
+  { code: 'MAD', name: 'Moroccan Dirham', symbol: 'د.م.', region: 'Africa' },
+  { code: 'BWP', name: 'Botswana Pula', symbol: 'P', region: 'Africa' },
+  { code: 'MUR', name: 'Mauritian Rupee', symbol: '₨', region: 'Africa' },
+  { code: 'XOF', name: 'West African CFA Franc', symbol: 'CFA', region: 'Africa' },
+  { code: 'XAF', name: 'Central African CFA Franc', symbol: 'FCFA', region: 'Africa' },
+  { code: 'DZD', name: 'Algerian Dinar', symbol: 'د.ج', region: 'Africa' },
+  { code: 'AOA', name: 'Angolan Kwanza', symbol: 'Kz', region: 'Africa' },
+  { code: 'BIF', name: 'Burundian Franc', symbol: 'Fr', region: 'Africa' },
+  { code: 'XPF', name: 'CFP Franc', symbol: '₣', region: 'Africa' },
+  { code: 'CDF', name: 'Congolese Franc', symbol: 'FC', region: 'Africa' },
+  { code: 'DJF', name: 'Djiboutian Franc', symbol: 'Fdj', region: 'Africa' },
+  { code: 'ERN', name: 'Eritrean Nakfa', symbol: 'Nfk', region: 'Africa' },
+  { code: 'SZL', name: 'Eswatini Lilangeni', symbol: 'L', region: 'Africa' },
+  { code: 'GMD', name: 'Gambian Dalasi', symbol: 'D', region: 'Africa' },
+  { code: 'GNF', name: 'Guinean Franc', symbol: 'Fr', region: 'Africa' },
+  { code: 'LRD', name: 'Liberian Dollar', symbol: 'L$', region: 'Africa' },
+  { code: 'LYD', name: 'Libyan Dinar', symbol: 'ل.د', region: 'Africa' },
+  { code: 'MGA', name: 'Malagasy Ariary', symbol: 'Ar', region: 'Africa' },
+  { code: 'MWK', name: 'Malawian Kwacha', symbol: 'MK', region: 'Africa' },
+  { code: 'MRU', name: 'Mauritanian Ouguiya', symbol: 'UM', region: 'Africa' },
+  { code: 'MZN', name: 'Mozambican Metical', symbol: 'MT', region: 'Africa' },
+  { code: 'NAD', name: 'Namibian Dollar', symbol: 'N$', region: 'Africa' },
+  { code: 'RWF', name: 'Rwandan Franc', symbol: 'Fr', region: 'Africa' },
+  { code: 'STN', name: 'São Tomé and Príncipe Dobra', symbol: 'Db', region: 'Africa' },
+  { code: 'SCR', name: 'Seychellois Rupee', symbol: '₨', region: 'Africa' },
+  { code: 'SLL', name: 'Sierra Leonean Leone', symbol: 'Le', region: 'Africa' },
+  { code: 'SOS', name: 'Somali Shilling', symbol: 'Sh', region: 'Africa' },
+  { code: 'SSP', name: 'South Sudanese Pound', symbol: '£', region: 'Africa' },
+  { code: 'SDG', name: 'Sudanese Pound', symbol: 'ج.س.', region: 'Africa' },
+  { code: 'TND', name: 'Tunisian Dinar', symbol: 'د.ت', region: 'Africa' },
+  { code: 'ZMW', name: 'Zambian Kwacha', symbol: 'ZK', region: 'Africa' },
+  { code: 'ZWL', name: 'Zimbabwean Dollar', symbol: 'Z$', region: 'Africa' }
 ];
 
 const dateFormats = [
@@ -280,8 +324,9 @@ export default function PreferencesSettings() {
                         {currencies.map((curr) => (
                           <SelectItem key={curr.code} value={curr.code}>
                             <span className="flex items-center gap-2">
-                              <span>{curr.symbol}</span>
+                              <span className="font-mono text-sm">{curr.symbol}</span>
                               <span>{curr.name}</span>
+                              <span className="text-xs text-gray-500">({curr.region})</span>
                             </span>
                           </SelectItem>
                         ))}
