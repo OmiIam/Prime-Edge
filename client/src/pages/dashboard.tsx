@@ -377,46 +377,65 @@ export default function Dashboard() {
       
       <div className="pt-20 px-3 sm:px-6 lg:px-8 pb-8">
         <div className="container-prime">
-          {/* Header */}
-          <header className="mb-6 sm:mb-8" role="banner">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
-              <div className="flex items-center gap-3 sm:gap-4">
+          {/* Minimalist Header */}
+          <header className="mb-12" role="banner">
+            {/* Clean Welcome Section */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
                 <div 
-                  className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
+                  className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"
                   role="img"
                   aria-label={`Profile avatar for ${data.user.name}`}
                 >
-                  <span className="text-white font-bold text-sm sm:text-lg">
+                  <span className="text-white font-bold text-lg">
                     {data.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">
-                    <span className="sr-only">Dashboard for </span>
-                    Welcome back, {data.user.name.split(' ')[0]}! 
-                    <span role="img" aria-label="waving hand">👋</span>
+                  <h1 className="text-heading-secondary text-white">
+                    Welcome back, {data.user.name.split(' ')[0]}!
                   </h1>
-                  <p className="text-blue-200 text-xs sm:text-sm lg:text-base">Here's your financial overview for today.</p>
+                  <p className="text-banking-muted text-body-small mt-1">
+                    {format(new Date(), 'EEEE, MMMM d, yyyy')}
+                  </p>
                 </div>
               </div>
               
               <Button 
-                className="btn-prime-primary touch-target focus-ring"
-                aria-label="Open quick transfer dialog"
+                className="btn-micro-primary bg-banking-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 ripple-effect"
                 onClick={() => setTransferOpen(true)}
+                aria-label="Open quick transfer dialog"
               >
-                <Send className="h-4 w-4 mr-2" aria-hidden="true" />
-                <span className="hidden sm:inline">Quick Transfer</span>
-                <span className="sm:hidden">Transfer</span>
+                <Send className="h-4 w-4 mr-2" />
+                Transfer
               </Button>
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-blue-300">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Last updated: {new Date().toLocaleString()}</span>
+            {/* Minimalist Status Bar */}
+            <div className="flex items-center justify-between py-4 px-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full status-pulse"></div>
+                  <span className="text-sm text-banking-muted font-medium">
+                    Last updated: {format(new Date(), 'HH:mm:ss')}
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="w-4 h-4 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-banking-muted font-medium">Secure Connection</span>
+                </div>
               </div>
-              <SecurityStatus className="text-xs" />
+              
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-sm text-banking-muted font-medium">Protected by Prime Edge</span>
+              </div>
             </div>
           </header>
 

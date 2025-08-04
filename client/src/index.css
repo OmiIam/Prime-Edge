@@ -630,19 +630,612 @@
     }
   }
   
-  /* Banking Typography Enhancements */
+  /* Professional Banking Typography System */
   .text-balance {
     @apply font-mono font-bold tracking-wide;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
   }
   
   .text-currency {
     @apply font-mono font-semibold;
     letter-spacing: 0.025em;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
   }
   
   .text-account {
     @apply font-mono text-sm tracking-wider;
     letter-spacing: 0.1em;
+    font-feature-settings: 'tnum' 1;
+  }
+  
+  /* Professional Heading Typography */
+  .text-heading-primary {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  
+  .text-heading-secondary {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  
+  .text-heading-tertiary {
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  
+  /* Professional Body Typography */
+  .text-body-large {
+    @apply text-lg leading-relaxed;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  
+  .text-body-medium {
+    @apply text-base leading-relaxed;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  
+  .text-body-small {
+    @apply text-sm leading-relaxed;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+  }
+  
+  /* Professional Banking Labels */
+  .text-label-primary {
+    @apply text-sm font-semibold uppercase tracking-wider;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.075em;
+  }
+  
+  .text-label-secondary {
+    @apply text-xs font-medium uppercase tracking-wide;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Professional Status Typography */
+  .text-status {
+    @apply text-xs font-bold uppercase tracking-widest;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  
+  /* Professional Number Typography */
+  .text-metric-large {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-bold;
+    font-family: 'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-weight: 700;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.02em;
+  }
+  
+  .text-metric-medium {
+    @apply text-2xl sm:text-3xl font-semibold;
+    font-family: 'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-weight: 600;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.015em;
+  }
+  
+  .text-metric-small {
+    @apply text-lg font-medium;
+    font-family: 'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-weight: 500;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  
+  /* Advanced Professional Color System */
+  
+  /* Primary Banking Colors */
+  .bg-banking-primary {
+    background: linear-gradient(135deg, var(--prime-accent) 0%, hsl(221, 83%, 48%) 100%);
+  }
+  
+  .bg-banking-success {
+    background: linear-gradient(135deg, var(--prime-success) 0%, var(--prime-emerald) 100%);
+  }
+  
+  .bg-banking-warning {
+    background: linear-gradient(135deg, var(--prime-warning) 0%, var(--prime-gold) 100%);
+  }
+  
+  .bg-banking-error {
+    background: linear-gradient(135deg, var(--prime-error) 0%, hsl(0, 84%, 55%) 100%);
+  }
+  
+  /* Professional Gradient Backgrounds */
+  .bg-gradient-banking {
+    background: linear-gradient(135deg, 
+      var(--prime-navy) 0%, 
+      var(--prime-charcoal) 50%, 
+      var(--prime-slate) 100%);
+  }
+  
+  .bg-gradient-success-subtle {
+    background: linear-gradient(135deg, 
+      rgba(34, 197, 94, 0.1) 0%, 
+      rgba(16, 185, 129, 0.1) 50%, 
+      rgba(6, 182, 212, 0.1) 100%);
+  }
+  
+  .bg-gradient-warning-subtle {
+    background: linear-gradient(135deg, 
+      rgba(245, 158, 11, 0.1) 0%, 
+      rgba(251, 191, 36, 0.1) 50%, 
+      rgba(252, 211, 77, 0.1) 100%);
+  }
+  
+  .bg-gradient-error-subtle {
+    background: linear-gradient(135deg, 
+      rgba(239, 68, 68, 0.1) 0%, 
+      rgba(220, 38, 38, 0.1) 50%, 
+      rgba(185, 28, 28, 0.1) 100%);
+  }
+  
+  /* Professional Text Colors */
+  .text-banking-primary {
+    color: var(--prime-accent);
+  }
+  
+  .text-banking-success {
+    color: var(--prime-success);
+  }
+  
+  .text-banking-warning {
+    color: var(--prime-warning);
+  }
+  
+  .text-banking-error {
+    color: var(--prime-error);
+  }
+  
+  .text-banking-muted {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .text-banking-subtle {
+    color: rgba(255, 255, 255, 0.4);
+  }
+  
+  /* Professional Border Colors */
+  .border-banking-primary {
+    border-color: var(--prime-accent);
+  }
+  
+  .border-banking-success {
+    border-color: var(--prime-success);
+  }
+  
+  .border-banking-warning {
+    border-color: var(--prime-warning);
+  }
+  
+  .border-banking-error {
+    border-color: var(--prime-error);
+  }
+  
+  .border-banking-subtle {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .border-banking-muted {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Professional Card Color Themes */
+  .card-theme-primary {
+    background: linear-gradient(135deg, 
+      rgba(59, 130, 246, 0.1) 0%, 
+      rgba(99, 102, 241, 0.1) 100%);
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+  
+  .card-theme-success {
+    background: linear-gradient(135deg, 
+      rgba(34, 197, 94, 0.1) 0%, 
+      rgba(16, 185, 129, 0.1) 100%);
+    border-color: rgba(34, 197, 94, 0.2);
+  }
+  
+  .card-theme-warning {
+    background: linear-gradient(135deg, 
+      rgba(245, 158, 11, 0.1) 0%, 
+      rgba(251, 191, 36, 0.1) 100%);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+  
+  .card-theme-error {
+    background: linear-gradient(135deg, 
+      rgba(239, 68, 68, 0.1) 0%, 
+      rgba(220, 38, 38, 0.1) 100%);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  
+  /* Professional Interactive States */
+  .interactive-primary {
+    @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+    cursor: pointer;
+  }
+  
+  .interactive-primary:hover {
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+  }
+  
+  .interactive-success {
+    @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+    cursor: pointer;
+  }
+  
+  .interactive-success:hover {
+    box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.2);
+  }
+  
+  .interactive-warning {
+    @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+    cursor: pointer;
+  }
+  
+  .interactive-warning:hover {
+    box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.2);
+  }
+  
+  .interactive-error {
+    @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+    cursor: pointer;
+  }
+  
+  .interactive-error:hover {
+    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.2);
+  }
+  
+  /* Advanced Micro-Interactions System */
+  
+  /* Sophisticated Button Interactions */
+  .btn-micro-primary {
+    @apply relative overflow-hidden transition-all duration-300 ease-out;
+    transform: translateZ(0);
+  }
+  
+  .btn-micro-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .btn-micro-primary:hover::before {
+    left: 100%;
+  }
+  
+  .btn-micro-primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  .btn-micro-primary:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 0.1s;
+  }
+  
+  /* Advanced Card Interactions */
+  .card-micro-interactive {
+    @apply relative transition-all duration-500 ease-out cursor-pointer;
+    transform: translateZ(0);
+  }
+  
+  .card-micro-interactive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  
+  .card-micro-interactive:hover::before {
+    opacity: 1;
+  }
+  
+  .card-micro-interactive:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .card-micro-interactive:active {
+    transform: translateY(-4px) scale(1.01);
+    transition-duration: 0.1s;
+  }
+  
+  /* Magnetic Button Effect */
+  .btn-magnetic {
+    @apply relative transition-all duration-300 ease-out;
+    transform-style: preserve-3d;
+  }
+  
+  .btn-magnetic:hover {
+    transform: translateZ(20px);
+  }
+  
+  /* Ripple Effect */
+  .ripple-effect {
+    @apply relative overflow-hidden;
+  }
+  
+  .ripple-effect::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+  }
+  
+  .ripple-effect:active::after {
+    width: 300px;
+    height: 300px;
+    left: calc(50% - 150px);
+    top: calc(50% - 150px);
+    transform: scale(1);
+    transition: all 0.5s ease-out;
+  }
+  
+  /* Floating Animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .floating {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .floating-delayed {
+    animation: float 3s ease-in-out infinite;
+    animation-delay: 1.5s;
+  }
+  
+  /* Glow Pulse Animation */
+  @keyframes glowPulse {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    }
+  }
+  
+  .glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+  
+  /* Typewriter Effect */
+  @keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  
+  @keyframes blinkCursor {
+    from, to { border-color: transparent; }
+    50% { border-color: currentColor; }
+  }
+  
+  .typewriter {
+    overflow: hidden;
+    border-right: 2px solid;
+    white-space: nowrap;
+    animation: 
+      typewriter 3s steps(40, end),
+      blinkCursor 0.75s step-end infinite;
+  }
+  
+  /* Morphing Shapes */
+  @keyframes morphShape {
+    0%, 100% { border-radius: 1rem; }
+    25% { border-radius: 50%; }
+    50% { border-radius: 0.5rem; }
+    75% { border-radius: 2rem; }
+  }
+  
+  .morph-shape {
+    animation: morphShape 4s ease-in-out infinite;
+  }
+  
+  /* Parallax Scroll Effects */
+  .parallax-slow {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  /* Stagger Animation Utilities */
+  .stagger-animation > * {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInUp 0.6s ease-out forwards;
+  }
+  
+  .stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+  .stagger-animation > *:nth-child(6) { animation-delay: 0.6s; }
+  
+  /* Loading Skeleton Animations */
+  @keyframes skeletonLoading {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+  }
+  
+  .skeleton-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: skeletonLoading 1.5s infinite;
+  }
+  
+  .skeleton-loading-dark {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200px 100%;
+    animation: skeletonLoading 1.5s infinite;
+  }
+  
+  /* Progressive Image Loading */
+  .image-progressive {
+    @apply relative overflow-hidden;
+  }
+  
+  .image-progressive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.1;
+  }
+  
+  /* Micro Bounce Effect */
+  @keyframes microBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  
+  .micro-bounce {
+    animation: microBounce 0.3s ease-in-out;
+  }
+  
+  /* Success Checkmark Animation */
+  @keyframes checkmarkSlide {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+  }
+  
+  .checkmark-animate {
+    transform-origin: left center;
+    animation: checkmarkSlide 0.3s ease-out;
+  }
+  
+  /* Loading Dots Animation */
+  @keyframes loadingDots {
+    0%, 20% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.8); }
+  }
+  
+  .loading-dots span {
+    display: inline-block;
+    animation: loadingDots 1.4s infinite ease-in-out;
+  }
+  
+  .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+  .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0s; }
+  
+  /* Banking-Specific Micro-Interactions */
+  
+  /* Currency Counter Animation */
+  .currency-counter {
+    @apply font-mono;
+    counter-reset: currency;
+  }
+  
+  .currency-counter::before {
+    counter-increment: currency;
+    content: counter(currency);
+  }
+  
+  /* Transaction Success Animation */
+  @keyframes transactionSuccess {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  .transaction-success {
+    animation: transactionSuccess 0.5s ease-out;
+  }
+  
+  /* Balance Change Indicator */
+  @keyframes balanceChange {
+    0% { transform: translateX(-10px); opacity: 0; }
+    50% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(10px); opacity: 0; }
+  }
+  
+  .balance-change-indicator {
+    animation: balanceChange 1s ease-out;
+  }
+  
+  /* Security Lock Animation */
+  @keyframes securityLock {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+  }
+  
+  .security-lock-animate {
+    animation: securityLock 0.5s ease-in-out;
+  }
+  
+  /* Performance Optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  .will-change-opacity {
+    will-change: opacity;
+  }
+  
+  .will-change-auto {
+    will-change: auto;
   }
 }
