@@ -15,6 +15,7 @@ import EnhancedStatCard from "@/components/admin/EnhancedStatCard";
 import NotificationCenter from "@/components/admin/NotificationCenter";
 import SystemStatus from "@/components/admin/SystemStatus";
 import TimeRangeFilter, { type TimeRange } from "@/components/admin/TimeRangeFilter";
+import VerificationQueue from "@/components/admin/VerificationQueue";
 import {
   Users,
   DollarSign,
@@ -408,6 +409,17 @@ export default function AdminNew() {
                   </div>
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="verifications" 
+                  className="flex items-center gap-3 p-4 hover:bg-indigo-50 transition-colors text-left w-full border-0 bg-transparent data-[state=active]:bg-indigo-50 data-[state=active]:shadow-none rounded-none border-b border-gray-100 last:border-b-0 justify-start"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <Shield className="h-5 w-5 text-indigo-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Verifications</div>
+                    <div className="text-sm text-gray-500">KYC & document review</div>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger 
                   value="logs" 
                   className="flex items-center gap-3 p-4 hover:bg-orange-50 transition-colors text-left w-full border-0 bg-transparent data-[state=active]:bg-orange-50 data-[state=active]:shadow-none rounded-none border-b border-gray-100 last:border-b-0 justify-start"
                   onClick={() => setIsMobileNavOpen(false)}
@@ -423,7 +435,7 @@ export default function AdminNew() {
           </div>
           
           {/* Desktop/Tablet Navigation */}
-          <TabsList className="hidden sm:grid w-full grid-cols-5 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl p-1.5 shadow-lg overflow-hidden">
+          <TabsList className="hidden sm:grid w-full grid-cols-6 bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl p-1.5 shadow-lg overflow-hidden">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
               <BarChart3 className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Overview</span>
@@ -442,6 +454,11 @@ export default function AdminNew() {
               <Clock className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="hidden lg:inline">Pending</span>
               <span className="lg:hidden text-xs font-medium">Transfers</span>
+            </TabsTrigger>
+            <TabsTrigger value="verifications" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
+              <Shield className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="hidden lg:inline">Verifications</span>
+              <span className="lg:hidden text-xs font-medium">KYC</span>
             </TabsTrigger>
             <TabsTrigger value="logs" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:scale-[1.02] text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 rounded-lg font-semibold text-xs sm:text-sm lg:text-base py-3 px-2 sm:px-3 min-h-[44px] flex items-center justify-center gap-1.5">
               <History className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -1048,6 +1065,11 @@ export default function AdminNew() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Verifications Tab */}
+          <TabsContent value="verifications" className="space-y-6">
+            <VerificationQueue />
           </TabsContent>
 
           {/* Pending Transfers Tab */}
