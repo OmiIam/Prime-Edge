@@ -439,14 +439,19 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
 
   return (
     <>
-      <Card className="card-gradient border-white/10 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-            <ArrowUpRight className="h-5 w-5 text-prime-accent" />
-            Quick Actions
-          </CardTitle>
+      <Card className="card-elevated slide-in">
+        <CardHeader className="border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <ArrowUpRight className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold text-white">Quick Actions</CardTitle>
+              <p className="text-sm text-white/60">Fast access to essential banking features</p>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {quickActions.map((action, index) => {
               const IconComponent = action.icon;
@@ -455,46 +460,103 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                   key={index}
                   onClick={action.onClick}
                   disabled={action.disabled}
-                  className={`touch-target p-4 rounded-xl transition-all duration-300 transform hover:scale-105 ${
-                    action.disabled 
-                      ? 'bg-gray-600/20 cursor-not-allowed opacity-50' 
-                      : 'bg-gradient-to-br hover:shadow-lg'
-                  } ${!action.disabled ? action.color : ''}`}
+                  className={`
+                    group relative touch-target p-5 rounded-2xl transition-all duration-300 
+                    transform hover:scale-[1.02] hover-lift
+                    ${action.disabled 
+                      ? 'bg-gray-600/10 cursor-not-allowed opacity-40 border border-gray-500/20' 
+                      : 'bg-gradient-to-br border border-white/10 hover:border-white/20'
+                    } 
+                    ${!action.disabled ? action.color : ''}
+                  `}
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      action.disabled ? 'bg-gray-500/30' : 'bg-white/20'
-                    }`}>
-                      <IconComponent className="h-5 w-5 text-white" />
+                  {/* Background gradient overlay for enabled actions */}
+                  {!action.disabled && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
+                  
+                  <div className="relative flex flex-col items-center gap-3 text-center">
+                    <div className={`
+                      w-12 h-12 rounded-xl flex items-center justify-center shadow-md transition-all duration-300
+                      ${action.disabled 
+                        ? 'bg-gray-500/20' 
+                        : 'bg-white/20 group-hover:bg-white/30 group-hover:scale-110'
+                      }
+                    `}>
+                      <IconComponent className={`h-6 w-6 transition-colors duration-300 ${
+                        action.disabled ? 'text-gray-400' : 'text-white group-hover:text-white'
+                      }`} />
                     </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">{action.title}</p>
-                      <p className="text-white/70 text-xs">{action.description}</p>
+                    
+                    <div className="space-y-1">
+                      <p className={`font-semibold text-sm transition-colors duration-300 ${
+                        action.disabled 
+                          ? 'text-gray-400' 
+                          : 'text-white group-hover:text-blue-100'
+                      }`}>
+                        {action.title}
+                      </p>
+                      <p className={`text-xs leading-tight transition-colors duration-300 ${
+                        action.disabled 
+                          ? 'text-gray-500' 
+                          : 'text-white/70 group-hover:text-white/80'
+                      }`}>
+                        {action.description}
+                      </p>
                     </div>
+                    
+                    {/* Status indicator for disabled items */}
+                    {action.disabled && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-2 h-2 bg-yellow-400/60 rounded-full status-pulse" />
+                      </div>
+                    )}
                   </div>
                 </button>
               );
             })}
+          </div>
+          
+          {/* Bottom info section */}
+          <div className="mt-6 pt-4 border-t border-white/10">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/60">
+                {quickActions.filter(a => !a.disabled).length} of {quickActions.length} features available
+              </span>
+              <div className="flex items-center gap-2 text-white/50">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full status-pulse" />
+                <span className="text-xs">All systems operational</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Deposit Dialog */}
       <Dialog open={depositOpen} onOpenChange={setDepositOpen}>
-        <DialogContent className="sm:max-w-md bg-white" aria-describedby="deposit-description">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900 flex items-center gap-2">
-              <Plus className="h-5 w-5 text-green-600" aria-hidden="true" />
-              Deposit Money
-            </DialogTitle>
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-white via-gray-50 to-white border border-gray-200 shadow-2xl backdrop-blur-sm" aria-describedby="deposit-description">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Plus className="h-5 w-5 text-white" aria-hidden="true" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-gray-900">Deposit Money</DialogTitle>
+                <p className="text-sm text-gray-600">Add funds to your account securely</p>
+              </div>
+            </div>
           </DialogHeader>
           <div id="deposit-description" className="sr-only">
             Add funds to your account using various deposit methods
           </div>
           <div className="space-y-4">
             {depositError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
-                <p className="text-sm text-red-600">{depositError}</p>
+              <div className="p-4 bg-gradient-to-r from-red-50 to-red-50/50 border border-red-200 rounded-xl shadow-sm" role="alert">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <p className="text-sm text-red-700 font-medium">{depositError}</p>
+                </div>
               </div>
             )}
             <div>
@@ -537,7 +599,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleDeposit} 
-                className="btn-prime-success flex-1 focus-ring"
+                className="btn-prime-success flex-1 focus-ring shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isDepositLoading || !depositAmount}
                 aria-describedby="deposit-button-description"
               >
@@ -574,20 +636,28 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
 
       {/* Transfer Dialog */}
       <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-        <DialogContent className="sm:max-w-md bg-white" aria-describedby="transfer-description">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900 flex items-center gap-2">
-              <Send className="h-5 w-5 text-blue-600" aria-hidden="true" />
-              Transfer Money
-            </DialogTitle>
+        <DialogContent className="sm:max-w-lg bg-gradient-to-br from-white via-blue-50/30 to-white border border-gray-200 shadow-2xl backdrop-blur-sm" aria-describedby="transfer-description">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Send className="h-5 w-5 text-white" aria-hidden="true" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-gray-900">Transfer Money</DialogTitle>
+                <p className="text-sm text-gray-600">Send money securely to accounts or recipients</p>
+              </div>
+            </div>
           </DialogHeader>
           <div id="transfer-description" className="sr-only">
             Transfer money to your accounts or send to others via email
           </div>
           <div className="space-y-4">
             {transferError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg" role="alert">
-                <p className="text-sm text-red-600">{transferError}</p>
+              <div className="p-4 bg-gradient-to-r from-red-50 to-red-50/50 border border-red-200 rounded-xl shadow-sm" role="alert">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <p className="text-sm text-red-700 font-medium">{transferError}</p>
+                </div>
               </div>
             )}
             <div>
@@ -701,7 +771,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleTransfer} 
-                className="btn-prime-primary flex-1 focus-ring"
+                className="btn-prime-primary flex-1 focus-ring shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isTransferLoading || !transferAmount || 
                   (transferType === "email" && !recipientInfo) ||
                   (transferType === "external_bank" && (!recipientInfo || !bankName || !bankValidation.isValid))}
@@ -741,19 +811,24 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
 
       {/* Bill Pay Dialog */}
       <Dialog open={billPayOpen} onOpenChange={setBillPayOpen}>
-        <DialogContent className="sm:max-w-md bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900 flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-purple-600" />
-              Pay Bills
-            </DialogTitle>
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-white via-purple-50/30 to-white border border-gray-200 shadow-2xl backdrop-blur-sm">
+          <DialogHeader className="border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Receipt className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-gray-900">Pay Bills</DialogTitle>
+                <p className="text-sm text-gray-600">Quick and secure bill payments</p>
+              </div>
+            </div>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="payee-selection" className="text-gray-700">Select Payee</Label>
-              <Select value={selectedPayee} onValueChange={setSelectedPayee}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select a payee" />
+              <Label htmlFor="payee-selection" className="text-gray-700 font-medium">Select Payee *</Label>
+              <Select value={selectedPayee} onValueChange={setSelectedPayee} disabled={isBillPayLoading}>
+                <SelectTrigger className="mt-1 focus-ring">
+                  <SelectValue placeholder="Choose a payee to pay" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="electric_company">Electric Company</SelectItem>
@@ -766,28 +841,55 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
               </Select>
             </div>
             <div>
-              <Label htmlFor="bill-amount" className="text-gray-700">Amount</Label>
+              <Label htmlFor="bill-amount" className="text-gray-700 font-medium">Amount *</Label>
               <Input
                 id="bill-amount"
                 type="number"
                 placeholder="Enter amount"
                 value={billAmount}
-                onChange={(e) => setBillAmount(e.target.value)}
-                className="mt-1"
+                onChange={(e) => {
+                  setBillAmount(e.target.value);
+                  if (billPayError) setBillPayError("");
+                }}
+                className={`mt-1 focus-ring ${billPayError ? 'border-red-300' : ''}`}
+                min="0"
+                step="0.01"
+                disabled={isBillPayLoading}
               />
+              {billPayError && (
+                <p className="text-sm text-red-600 mt-1" role="alert">
+                  {billPayError}
+                </p>
+              )}
             </div>
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleBillPay} 
-                className="btn-prime-primary flex-1"
-                disabled={!selectedPayee || !billAmount}
+                className="btn-prime-primary flex-1 focus-ring shadow-lg hover:shadow-xl transition-all duration-200"
+                disabled={isBillPayLoading || !selectedPayee || !billAmount}
               >
-                <Receipt className="h-4 w-4 mr-2" />
-                Pay {formatCurrency(parseFloat(billAmount) || 0)}
+                {isBillPayLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Receipt className="h-4 w-4 mr-2" />
+                    Pay {formatCurrency(parseFloat(billAmount) || 0)}
+                  </>
+                )}
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => setBillPayOpen(false)}
+                onClick={() => {
+                  setBillPayOpen(false);
+                  setBillPayError("");
+                  setSelectedPayee("");
+                  setBillAmount("");
+                }}
+                disabled={isBillPayLoading}
+                className="focus-ring"
               >
                 Cancel
               </Button>

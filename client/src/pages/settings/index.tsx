@@ -148,42 +148,72 @@ export default function Settings() {
       <div className="pt-20 px-3 sm:px-6 lg:px-8 pb-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Account Settings</h1>
-            <p className="text-blue-200">Manage your account settings and preferences</p>
+          <div className="mb-12">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <SettingsIcon className="h-6 w-6 text-white" />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-4xl font-bold text-white tracking-tight">Account Settings</h1>
+                  <p className="text-white/70 text-lg font-medium">Complete control over your banking experience</p>
+                </div>
+              </div>
+              
+              {/* Progress indicator */}
+              <div className="flex items-center justify-center gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full status-pulse" />
+                  <span className="text-white/80 font-medium">
+                    {settingsSections.filter(s => s.status === 'complete').length}/{settingsSections.length} sections configured
+                  </span>
+                </div>
+                <span className="text-white/40">•</span>
+                <span className="text-white/60">Last updated today</span>
+              </div>
+            </div>
             
             {/* Account Status Summary */}
-            <Card className="card-gradient mt-6 border-white/10">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">
-                        {authState.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </span>
+            <Card className="card-hero slide-in hover-lift">
+              <CardContent className="p-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                  <div className="flex items-center gap-6">
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl">
+                        <span className="text-white font-bold text-xl">
+                          {authState.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center border-2 border-white/20">
+                        <CheckCircle className="h-3 w-3 text-white" />
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{authState.user.name}</h3>
-                      <p className="text-blue-200 text-sm">{authState.user.email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-green-400 border-green-400/30">
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold text-white">{authState.user.name}</h3>
+                      <p className="text-white/70 text-base">{authState.user.email}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className="status-success text-xs px-3 py-1">
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Verified Account
                         </Badge>
-                        <Badge variant="outline" className="text-blue-400 border-blue-400/30">
-                          {authState.user.role}
+                        <Badge className="status-info text-xs px-3 py-1">
+                          {authState.user.role.charAt(0).toUpperCase() + authState.user.role.slice(1)}
                         </Badge>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-blue-300">Account since</p>
-                    <p className="text-white font-medium">
+                  <div className="text-left sm:text-right space-y-2">
+                    <p className="text-sm text-white/60 font-medium uppercase tracking-wider">Member since</p>
+                    <p className="text-white font-bold text-lg">
                       {new Date(authState.user.createdAt || new Date()).toLocaleDateString('en-US', { 
-                        month: 'short', 
+                        month: 'long', 
                         year: 'numeric' 
                       })}
                     </p>
+                    <div className="flex items-center gap-2 text-sm text-white/70">
+                      <div className="w-2 h-2 bg-green-400 rounded-full status-pulse" />
+                      <span>Account Active</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -192,57 +222,79 @@ export default function Settings() {
 
           {/* Settings Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {settingsSections.map((section) => {
+            {settingsSections.map((section, index) => {
               const IconComponent = section.icon;
               return (
                 <Card 
                   key={section.id}
-                  className="card-gradient border-white/10 hover:border-white/20 transition-all duration-300 cursor-pointer group"
+                  className="card-elevated slide-in hover-lift cursor-pointer group border border-white/10 hover:border-white/20 transition-all duration-300"
                   onClick={() => setLocation(section.href)}
                   role="button"
                   tabIndex={0}
                   aria-label={`Go to ${section.title} settings`}
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
-                          <IconComponent className="h-5 w-5 text-blue-400" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-white group-hover:text-blue-200 transition-colors">
-                              {section.title}
-                            </h3>
-                            {section.badge && (
-                              <Badge variant={section.badgeVariant} className="text-xs">
-                                {section.badge}
-                              </Badge>
+                  <CardContent className="p-6 relative overflow-hidden">
+                    {/* Background decorative elements */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="relative">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className={`
+                            w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300
+                            ${
+                              section.status === 'complete' ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
+                              section.status === 'action-required' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                              section.status === 'pending' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                              'bg-gradient-to-r from-blue-500 to-indigo-600'
+                            }
+                            group-hover:scale-110 group-hover:shadow-xl
+                          `}>
+                            <IconComponent className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-bold text-white group-hover:text-blue-200 transition-colors text-lg">
+                                {section.title}
+                              </h3>
+                              {section.badge && (
+                                <Badge variant={section.badgeVariant} className="text-xs px-2 py-1">
+                                  {section.badge}
+                                </Badge>
+                              )}
+                            </div>
+                            {section.status && (
+                              <div className="flex items-center gap-2 mb-3">
+                                {getStatusIcon(section.status)}
+                                <span className={`text-sm font-medium ${
+                                  section.status === 'complete' ? 'text-green-400' :
+                                  section.status === 'action-required' ? 'text-red-400' :
+                                  section.status === 'pending' ? 'text-yellow-400' :
+                                  'text-gray-400'
+                                }`}>
+                                  {getStatusText(section.status)}
+                                </span>
+                              </div>
                             )}
                           </div>
-                          {section.status && (
-                            <div className="flex items-center gap-1 mb-2">
-                              {getStatusIcon(section.status)}
-                              <span className="text-xs text-gray-400">
-                                {getStatusText(section.status)}
-                              </span>
-                            </div>
-                          )}
                         </div>
+                        <ChevronRight className="h-5 w-5 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
                       </div>
-                      <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
+                      
+                      <p className="text-sm text-white/70 mb-4 leading-relaxed">
+                        {section.description}
+                      </p>
+                      
+                      {section.requiresVerification && (
+                        <div className="flex items-center gap-2 text-xs font-medium">
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-400/20 text-yellow-300 rounded-full border border-yellow-400/30">
+                            <Lock className="h-3 w-3" />
+                            <span>Requires identity verification</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    <p className="text-sm text-gray-300 mb-4">
-                      {section.description}
-                    </p>
-                    
-                    {section.requiresVerification && (
-                      <div className="flex items-center gap-2 text-xs text-yellow-400">
-                        <Lock className="h-3 w-3" />
-                        Requires identity verification
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               );
@@ -250,56 +302,71 @@ export default function Settings() {
           </div>
 
           {/* Quick Actions */}
-          <Card className="card-gradient border-white/10 mt-8">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <SettingsIcon className="h-5 w-5 text-blue-400" />
-                Quick Actions
-              </CardTitle>
+          <Card className="card-elevated slide-in mt-8">
+            <CardHeader className="border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <SettingsIcon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-white">Quick Actions</CardTitle>
+                  <p className="text-sm text-white/60">Common settings shortcuts</p>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Button 
-                  variant="outline" 
-                  className="justify-start h-auto p-4 border-white/20 hover:bg-white/10"
+                <button
+                  className="group text-left p-5 rounded-2xl border border-white/10 hover:border-white/20 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 hover:from-blue-500/20 hover:to-indigo-600/20 transition-all duration-300 hover-lift"
                   onClick={() => setLocation('/settings/security')}
                 >
-                  <div className="text-left">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Shield className="h-4 w-4 text-blue-400" />
-                      <span className="font-medium">Enable 2FA</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                      <Shield className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-xs text-gray-400">Secure your account</p>
+                    <span className="font-semibold text-white group-hover:text-blue-200 transition-colors">Enable 2FA</span>
                   </div>
-                </Button>
+                  <p className="text-sm text-white/70 group-hover:text-white/80 transition-colors">Add an extra layer of security to your account</p>
+                </button>
                 
-                <Button 
-                  variant="outline" 
-                  className="justify-start h-auto p-4 border-white/20 hover:bg-white/10"
+                <button
+                  className="group text-left p-5 rounded-2xl border border-white/10 hover:border-white/20 bg-gradient-to-br from-green-500/10 to-emerald-600/10 hover:from-green-500/20 hover:to-emerald-600/20 transition-all duration-300 hover-lift"
                   onClick={() => setLocation('/settings/statements')}
                 >
-                  <div className="text-left">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Download className="h-4 w-4 text-green-400" />
-                      <span className="font-medium">Download Statements</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                      <Download className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-xs text-gray-400">Get account records</p>
+                    <span className="font-semibold text-white group-hover:text-green-200 transition-colors">Download Statements</span>
                   </div>
-                </Button>
+                  <p className="text-sm text-white/70 group-hover:text-white/80 transition-colors">Get your account records and tax documents</p>
+                </button>
                 
-                <Button 
-                  variant="outline" 
-                  className="justify-start h-auto p-4 border-white/20 hover:bg-white/10"
+                <button
+                  className="group text-left p-5 rounded-2xl border border-white/10 hover:border-white/20 bg-gradient-to-br from-purple-500/10 to-purple-600/10 hover:from-purple-500/20 hover:to-purple-600/20 transition-all duration-300 hover-lift"
                   onClick={() => setLocation('/settings/help')}
                 >
-                  <div className="text-left">
-                    <div className="flex items-center gap-2 mb-1">
-                      <HelpCircle className="h-4 w-4 text-purple-400" />
-                      <span className="font-medium">Get Help</span>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                      <HelpCircle className="h-5 w-5 text-white" />
                     </div>
-                    <p className="text-xs text-gray-400">Contact support</p>
+                    <span className="font-semibold text-white group-hover:text-purple-200 transition-colors">Get Help</span>
                   </div>
-                </Button>
+                  <p className="text-sm text-white/70 group-hover:text-white/80 transition-colors">Contact our support team for assistance</p>
+                </button>
+              </div>
+              
+              {/* Bottom stats */}
+              <div className="mt-6 pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/60">
+                    {settingsSections.filter(s => s.status === 'complete').length} of {settingsSections.length} sections configured
+                  </span>
+                  <div className="flex items-center gap-2 text-white/50">
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full status-pulse" />
+                    <span className="text-xs">Account secure</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

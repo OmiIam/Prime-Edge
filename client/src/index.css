@@ -24,7 +24,7 @@
   --ring: hsl(221, 83%, 53%);
   --radius: 0.5rem;
   
-  /* Prime Edge Banking Colors */
+  /* Prime Edge Banking Colors - Professional Banking Palette */
   --prime-navy: hsl(222, 47%, 11%);
   --prime-charcoal: hsl(215, 25%, 19%);
   --prime-slate: hsl(215, 16%, 27%);
@@ -38,6 +38,37 @@
   --prime-warning-light: hsl(38, 92%, 85%);
   --prime-error: hsl(0, 84%, 60%);
   --prime-error-light: hsl(0, 84%, 85%);
+  
+  /* Extended Professional Color Palette */
+  --prime-emerald: hsl(156, 81%, 29%);
+  --prime-emerald-light: hsl(156, 81%, 85%);
+  --prime-gold: hsl(45, 93%, 47%);
+  --prime-gold-light: hsl(45, 93%, 85%);
+  --prime-purple: hsl(262, 83%, 58%);
+  --prime-purple-light: hsl(262, 83%, 85%);
+  --prime-teal: hsl(178, 78%, 32%);
+  --prime-teal-light: hsl(178, 78%, 85%);
+  
+  /* Glassmorphism Colors */
+  --glass-white: rgba(255, 255, 255, 0.1);
+  --glass-white-light: rgba(255, 255, 255, 0.15);
+  --glass-dark: rgba(0, 0, 0, 0.1);
+  --glass-backdrop: rgba(255, 255, 255, 0.05);
+  
+  /* Professional Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  
+  /* Banking-Specific Gradients */
+  --gradient-success: linear-gradient(135deg, var(--prime-success) 0%, var(--prime-emerald) 100%);
+  --gradient-warning: linear-gradient(135deg, var(--prime-warning) 0%, var(--prime-gold) 100%);
+  --gradient-info: linear-gradient(135deg, var(--prime-accent) 0%, var(--prime-purple) 100%);
+  --gradient-premium: linear-gradient(135deg, var(--prime-gold) 0%, var(--prime-warning) 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
   
   /* Prime Edge Gradients */
   --prime-gradient-primary: linear-gradient(135deg, var(--prime-accent) 0%, hsl(221, 83%, 48%) 100%);
@@ -221,23 +252,73 @@
     @apply btn-prime-success;
   }
   
-  /* Prime Edge Card Variants */
+  /* Prime Edge Card Variants - Professional Banking Cards */
   .card-prime {
     @apply bg-white/95 backdrop-blur-sm border-white/20 shadow-xl rounded-2xl;
   }
   
   .card-gradient {
-    @apply bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/10 shadow-xl rounded-2xl;
+    @apply backdrop-blur-md border border-white/10 rounded-2xl;
+    background: var(--gradient-glass);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .card-glass {
+    @apply backdrop-blur-lg border rounded-2xl;
+    background: var(--glass-white);
+    border-color: var(--glass-white-light);
+    box-shadow: var(--shadow-2xl);
+  }
+  
+  .card-hero {
+    @apply backdrop-blur-lg border-2 rounded-3xl relative overflow-hidden;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 50%, rgba(6, 182, 212, 0.1) 100%);
+    border-color: rgba(34, 197, 94, 0.2);
+    box-shadow: 
+      var(--shadow-2xl),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .card-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   }
   
   .card-stats {
-    @apply backdrop-blur-sm border shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl p-6;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
-    border-color: rgba(59, 130, 246, 0.1);
+    @apply backdrop-blur-md border hover:border-opacity-50 transition-all duration-300 rounded-2xl;
+    background: var(--gradient-glass);
+    border-color: var(--glass-white-light);
+    box-shadow: var(--shadow-lg);
   }
   
   .card-stats:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
     border-color: rgba(59, 130, 246, 0.3);
+  }
+  
+  .card-elevated {
+    @apply backdrop-blur-md border rounded-2xl relative;
+    background: var(--gradient-glass);
+    border-color: var(--glass-white-light);
+    box-shadow: 
+      var(--shadow-xl),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .card-transaction {
+    @apply backdrop-blur-sm border border-white/5 rounded-lg hover:bg-white/5 transition-all duration-200;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  .card-transaction:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
   }
   
   /* Container Utilities */
@@ -448,7 +529,7 @@
     transform: scale(0.98);
   }
   
-  /* Mobile Animation Utilities */
+  /* Professional Banking Animations */
   .mobile-transition {
     transition: all 0.2s ease-in-out;
   }
@@ -456,5 +537,112 @@
   .mobile-hover:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Balance Counter Animation */
+  @keyframes countUp {
+    from { opacity: 0.3; }
+    to { opacity: 1; }
+  }
+  
+  .balance-counter {
+    animation: countUp 0.8s ease-out;
+  }
+  
+  /* Pulse Animation for Status Indicators */
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .status-pulse {
+    animation: statusPulse 2s ease-in-out infinite;
+  }
+  
+  /* Slide In Animation for Cards */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .slide-in {
+    animation: slideInUp 0.5s ease-out;
+  }
+  
+  /* Hover Lift Effect */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-2xl);
+  }
+  
+  /* Shimmer Loading Effect */
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+  }
+  
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  /* Professional Status Indicators */
+  .status-success {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background: var(--gradient-success);
+    color: white;
+  }
+  
+  .status-warning {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background: var(--gradient-warning);
+    color: white;
+  }
+  
+  .status-info {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background: var(--gradient-info);
+    color: white;
+  }
+  
+  .status-premium {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background: var(--gradient-premium);
+    color: white;
+  }
+  
+  /* Progressive Enhancement for Advanced Features */
+  @supports (backdrop-filter: blur(10px)) {
+    .glass-enhanced {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+  }
+  
+  /* Banking Typography Enhancements */
+  .text-balance {
+    @apply font-mono font-bold tracking-wide;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-currency {
+    @apply font-mono font-semibold;
+    letter-spacing: 0.025em;
+  }
+  
+  .text-account {
+    @apply font-mono text-sm tracking-wider;
+    letter-spacing: 0.1em;
   }
 }

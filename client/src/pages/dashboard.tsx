@@ -9,13 +9,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { authManager } from "@/lib/auth";
 import Navbar from "@/components/navbar";
 import TrustIndicators, { SecurityStatus } from "@/components/TrustIndicators";
+import BalanceCard from "@/components/dashboard/BalanceCard";
+import TransactionList from "@/components/dashboard/TransactionList";
 import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/ui/loading";
 
 // Lazy load heavy dashboard components
 const QuickActions = lazy(() => import("@/components/dashboard/QuickActions"));
 const FinancialInsights = lazy(() => import("@/components/dashboard/FinancialInsights"));
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditCard, Home, Briefcase, Send, Plus, Receipt, Smartphone, MapPin, Calculator, PiggyBank, Target, BarChart3, DollarSign, CheckCircle, XCircle, Building2 } from "lucide-react";
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, ShoppingCart, CreditCard, Home, Briefcase, Send, Plus, Receipt, Smartphone, MapPin, Calculator, PiggyBank, Target, BarChart3, DollarSign, CheckCircle, XCircle, Building2, ArrowDownLeft } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { formatCurrency, formatAccountNumber, formatFinancialDate, formatTransactionAmount } from "@/lib/formatters";
@@ -418,46 +420,76 @@ export default function Dashboard() {
             </div>
           </header>
 
-          {/* Account Information */}
-          <section aria-labelledby="account-info-heading">
+          {/* Enhanced Account Information */}
+          <section aria-labelledby="account-info-heading" className="mb-8">
             <h2 id="account-info-heading" className="sr-only">Account Information</h2>
-            <Card className="card-gradient mb-6 sm:mb-8" role="region" aria-label="Account details">
-              <CardContent className="p-4 sm:p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                  <div className="text-center sm:text-left">
-                    <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide" id="account-holder-label">Account Holder</div>
-                    <div className="text-base sm:text-lg font-bold text-white mb-1 truncate" aria-labelledby="account-holder-label">{data.user.name}</div>
-                    <div className="text-xs sm:text-sm text-blue-200 truncate" aria-label={`Email address: ${data.user.email}`}>{data.user.email}</div>
+            <Card className="card-elevated hover-lift slide-in" role="region" aria-label="Account details">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl relative">
+                      <span className="text-white font-bold text-xl">
+                        {data.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </span>
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
+                        <CheckCircle className="h-4 w-4 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1">{data.user.name}</h3>
+                      <p className="text-blue-200 text-sm">{data.user.email}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="status-success">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Verified Member
+                        </div>
+                        <div className="status-info text-xs">
+                          {data.user.role}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-center sm:text-left">
-                    <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide" id="account-details-label">Account Details</div>
-                    <div 
-                      className="text-base sm:text-lg font-mono font-bold text-white mb-1"
-                      aria-label={`Account number ending in ${(data.user.accountNumber || '').slice(-4)}`}
-                    >
+                  <div className="text-right">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-1">Account Since</div>
+                    <div className="text-white font-semibold">
+                      {new Date(data.user.createdAt || new Date()).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        year: 'numeric' 
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="text-center sm:text-left p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-2">Account Number</div>
+                    <div className="text-account text-white font-bold mb-1">
                       {formatAccountNumber(data.user.accountNumber || '')}
                     </div>
                     <div className="flex items-center justify-center sm:justify-start gap-2">
-                      <div className="text-xs sm:text-sm text-blue-200 uppercase">{data.user.accountType || 'BUSINESS'}</div>
-                      <span className="w-1 h-1 bg-blue-300 rounded-full" aria-hidden="true"></span>
-                      <div className="text-xs sm:text-sm text-blue-200">Account</div>
+                      <div className="text-xs text-blue-300 uppercase font-medium">{data.user.accountType || 'BUSINESS'}</div>
+                      <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
+                      <div className="text-xs text-blue-300">Account</div>
                     </div>
                   </div>
-                  <div className="text-center sm:text-left">
-                    <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide" id="status-label">Status</div>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-2" role="status" aria-live="polite">
-                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" aria-hidden="true"></div>
-                      <div className="text-base sm:text-lg font-bold text-green-400">Active</div>
+
+                  <div className="text-center sm:text-left p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-2">Status</div>
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+                      <div className="w-3 h-3 bg-green-400 rounded-full status-pulse"></div>
+                      <div className="text-lg font-bold text-green-400">Active</div>
                     </div>
+                    <div className="text-xs text-green-300">All systems operational</div>
                   </div>
-                  <div className="text-center sm:text-left">
-                    <div className="text-xs text-blue-300 mb-2 font-medium uppercase tracking-wide" id="last-updated-label">Last Updated</div>
-                    <div className="text-xs sm:text-sm text-blue-200" aria-labelledby="last-updated-label">
+
+                  <div className="text-center sm:text-left p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-2">Last Activity</div>
+                    <div className="text-white font-semibold mb-1">
                       <time dateTime={new Date().toISOString()}>
                         {format(new Date(), 'MMM d, yyyy')}
                       </time>
                     </div>
-                    <div className="text-xs sm:text-sm text-blue-200">
+                    <div className="text-xs text-blue-300">
                       <time dateTime={new Date().toISOString()}>
                         {format(new Date(), 'h:mm a')}
                       </time>
@@ -468,148 +500,125 @@ export default function Dashboard() {
             </Card>
           </section>
 
-          {/* Primary Balance Card - Hero Element */}
-          <section aria-labelledby="balance-heading">
-            <Card className="card-gradient mb-6 sm:mb-8 border-2 border-green-400/20" role="region" aria-label="Account balance">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <div className="mb-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg" aria-hidden="true">
-                    <Wallet className="h-8 w-8 sm:h-10 sm:w-10 text-green-400" />
-                  </div>
-                  <h2 id="balance-heading" className="text-sm text-green-300 font-semibold uppercase tracking-wider mb-2">Available Balance</h2>
-                </div>
-                <div 
-                  className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight"
-                  aria-label={`Your available balance is ${formatCurrency(data.user.balance)}`}
-                  role="status"
-                  aria-live="polite"
-                >
-                  {formatCurrency(data.user.balance)}
-                </div>
-                <div className="flex items-center justify-center gap-3" role="status">
-                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" aria-hidden="true"></div>
-                  <div className="text-lg text-green-300 font-medium">Ready to Use</div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Professional Balance Card - Hero Element */}
+          <section aria-labelledby="balance-heading" className="mb-8">
+            <BalanceCard
+              balance={data.user.balance}
+              accountType={data.user.accountType || 'BUSINESS'}
+              accountNumber={data.user.accountNumber || ''}
+              monthlyChange={{
+                amount: data.monthlyStats.received - data.monthlyStats.spent,
+                percentage: ((data.monthlyStats.received - data.monthlyStats.spent) / Math.max(data.user.balance, 1000)) * 100,
+                trend: data.monthlyStats.received > data.monthlyStats.spent ? 'up' : 'down'
+              }}
+              quickStats={{
+                available: data.user.balance,
+                pending: 0, // This would come from API
+                reserved: 0 // This would come from API
+              }}
+            />
           </section>
 
-          {/* Secondary Stats - Compact Display */}
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-8">
-            <Card className="card-stats">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
+          {/* Enhanced Secondary Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <Card className="card-stats hover-lift slide-in">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <TrendingUp className="h-6 w-6 text-white" />
                   </div>
-                  <div className="text-xs text-blue-300 font-semibold uppercase tracking-wide">Monthly Spending</div>
+                  <div className="text-right">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium">Monthly</div>
+                    <div className="text-xs text-red-300">Spending</div>
+                  </div>
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-white mb-2">
+                <div className="text-2xl font-bold text-white mb-2 text-currency">
                   {formatCurrency(monthlySpending)}
                 </div>
-                <div className="text-xs text-blue-300">This Month</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-400 rounded-full status-pulse"></div>
+                  <div className="text-xs text-white/60">This Month</div>
+                </div>
               </CardContent>
             </Card>
             
-            <Card className="card-stats">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                    <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400" />
+            <Card className="card-stats hover-lift slide-in" style={{ animationDelay: '100ms' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <ArrowDownRight className="h-6 w-6 text-white" />
                   </div>
-                  <div className="text-xs text-purple-300 font-semibold uppercase tracking-wide">Transactions</div>
+                  <div className="text-right">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium">Monthly</div>
+                    <div className="text-xs text-green-300">Income</div>
+                  </div>
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-white mb-2">{monthlyTransactions}</div>
-                <div className="text-xs text-purple-300">This Month</div>
+                <div className="text-2xl font-bold text-white mb-2 text-currency">
+                  {formatCurrency(data.monthlyStats.received)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full status-pulse"></div>
+                  <div className="text-xs text-white/60">This Month</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="card-stats hover-lift slide-in" style={{ animationDelay: '200ms' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <ArrowUpRight className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium">Total</div>
+                    <div className="text-xs text-purple-300">Transactions</div>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-white mb-2">
+                  {monthlyTransactions}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full status-pulse"></div>
+                  <div className="text-xs text-white/60">This Month</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="card-stats hover-lift slide-in" style={{ animationDelay: '300ms' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium">Net</div>
+                    <div className="text-xs text-blue-300">Change</div>
+                  </div>
+                </div>
+                <div className={`text-2xl font-bold mb-2 text-currency ${
+                  (data.monthlyStats.received - monthlySpending) >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {formatCurrency(data.monthlyStats.received - monthlySpending)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full status-pulse ${
+                    (data.monthlyStats.received - monthlySpending) >= 0 ? 'bg-green-400' : 'bg-red-400'
+                  }`}></div>
+                  <div className="text-xs text-white/60">This Month</div>
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Recent Transactions */}
-          <Card className="card-gradient">
-            <CardHeader className="border-b border-white/10 pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <ArrowUpRight className="h-5 w-5 text-white" />
-                  </div>
-                  <CardTitle className="text-xl font-bold text-white">Recent Activity</CardTitle>
-                </div>
-                <div className="text-sm text-blue-300">
-                  {data.recentTransactions.length} recent
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              {data.recentTransactions.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 bg-gray-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Wallet className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <p className="text-white font-medium mb-2">No transactions yet</p>
-                  <p className="text-sm text-blue-300">Your transaction history will appear here</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-white/5">
-                  {data.recentTransactions.map((transaction, index) => {
-                    const IconComponent = getTransactionIcon(transaction.description);
-                    const formattedAmount = formatTransactionAmount(transaction.amount, transaction.type as 'CREDIT' | 'DEBIT');
-                    return (
-                      <div key={transaction.id} className="p-6 hover:bg-white/5 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
-                              formattedAmount.isPositive 
-                                ? 'bg-green-500/10 border-green-400/20' 
-                                : 'bg-red-500/10 border-red-400/20'
-                            }`}>
-                              <IconComponent className={`h-5 w-5 ${formattedAmount.colorClass}`} />
-                            </div>
-                            <div>
-                              <div className="font-semibold text-white mb-1 flex items-center gap-2">
-                                {transaction.description}
-                                {transaction.metadata?.status && transaction.metadata.status !== 'completed' && (
-                                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                    transaction.metadata.status === 'pending' 
-                                      ? 'bg-orange-500/20 text-orange-300 border border-orange-400/30'
-                                      : transaction.metadata.status === 'approved'
-                                      ? 'bg-green-500/20 text-green-300 border border-green-400/30'
-                                      : 'bg-red-500/20 text-red-300 border border-red-400/30'
-                                  }`}>
-                                    {transaction.metadata.status === 'pending' ? 'Pending Approval' :
-                                     transaction.metadata.status === 'approved' ? 'Sent' :
-                                     transaction.metadata.status === 'rejected' ? 'Rejected' :
-                                     transaction.metadata.status}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-blue-300">
-                                <span>{formatFinancialDate(transaction.createdAt)}</span>
-                                <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
-                                <span>{format(new Date(transaction.createdAt), 'h:mm a')}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className={`text-lg font-bold ${formattedAmount.colorClass}`}>
-                              {formattedAmount.display}
-                            </div>
-                            <div className={`text-xs font-medium px-2 py-1 rounded-full mt-1 ${
-                              formattedAmount.isPositive 
-                                ? 'bg-green-500/20 text-green-300' 
-                                : 'bg-red-500/20 text-red-300'
-                            }`}>
-                              {transaction.type}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Professional Transaction List */}
+          <div className="mb-8">
+            <TransactionList 
+              transactions={data.recentTransactions}
+              title="Recent Activity"
+              showSearch={true}
+              maxHeight="600px"
+            />
+          </div>
 
           {/* Enhanced Dashboard Components */}
           <div className="grid lg:grid-cols-3 gap-6 mt-8">
