@@ -59,8 +59,8 @@ export default function Settings() {
       title: "Security & Privacy",
       description: "Password, two-factor authentication, and privacy controls",
       icon: Shield,
-      badge: "Action Required",
-      badgeVariant: "destructive",
+      badge: "Needs Attention",
+      badgeVariant: "outline",
       href: "/settings/security",
       status: "action-required"
     },

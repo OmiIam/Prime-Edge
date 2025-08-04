@@ -13,6 +13,9 @@ datasource db {
 model User {
   id            String        @id @default(uuid())
   name          String
+  firstName     String?
+  middleName    String?
+  lastName      String?
   email         String        @unique
   password      String
   role          Role          @default(USER)
@@ -21,18 +24,52 @@ model User {
   accountType   AccountType   @default(CHECKING)
   isActive      Boolean       @default(true)
   lastLogin     DateTime?
+  
+  // Contact Information
   phone         String?
+  alternatePhone String?
   address       String?
   city          String?
   state         String?
   zipCode       String?
   country       String?       @default("US")
+  
+  // Personal Information
   dateOfBirth   DateTime?
+  placeOfBirth  String?       // City, State, Country
+  nationality   String?
+  gender        String?
+  maritalStatus String?
+  
+  // Government IDs (encrypted)
+  ssn           String?       // Social Security Number (encrypted)
+  taxId         String?       // Tax ID if different from SSN
+  driversLicense String?      // Driver's License Number
+  passportNumber String?      // Passport Number
+  
+  // Employment & Financial Information
+  employmentStatus String?    // EMPLOYED, SELF_EMPLOYED, UNEMPLOYED, RETIRED, STUDENT
+  employer      String?
+  jobTitle      String?
+  annualIncome  String?       // Income range for privacy
+  sourceOfFunds String?       // Primary source of funds
+  
+  // Verification Status
   profileImage  String?
   kycStatus     KycStatus     @default(PENDING)
   kycDocuments  Json?
   emailVerified Boolean       @default(false)
   phoneVerified Boolean       @default(false)
+  addressVerified Boolean     @default(false)
+  identityVerified Boolean    @default(false)
+  incomeVerified Boolean      @default(false)
+  
+  // Risk & Compliance
+  riskLevel     String        @default("LOW")    // LOW, MEDIUM, HIGH
+  isPep         Boolean       @default(false)    // Politically Exposed Person
+  sanctionsCheck DateTime?                       // Last sanctions screening
+  
+  // Timestamps
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   
@@ -48,6 +85,10 @@ model User {
   loginSessions   LoginSession[]
   securityEvents  SecurityEvent[]
   documents       Document[]
+  addressHistory  AddressHistory[]
+  verificationRequests VerificationRequest[]
+  adminVerifications AdminVerification[] @relation("VerifiedUser")
+  verificationActions AdminVerification[] @relation("VerifyingAdmin")
 
   @@map("users")
 }
@@ -344,4 +385,107 @@ model PaymentMethod {
   user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("payment_methods")
+}
+
+// Address History for AML Compliance
+model AddressHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  country     String   @default("US")
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean  @default(false)
+  verified    Boolean  @default(false)
+  verifiedAt  DateTime?
+  verifiedBy  String?  // Admin user ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("address_history")
+}
+
+// Verification Requests Queue
+model VerificationRequest {
+  id            String             @id @default(uuid())
+  userId        String
+  requestType   VerificationType
+  status        VerificationStatus @default(PENDING)
+  priority      String             @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  documentIds   String[]           // Associated document IDs
+  submittedData Json?              // Data submitted for verification
+  adminNotes    String?
+  rejectionReason String?
+  assignedTo    String?            // Admin user ID
+  completedBy   String?            // Admin user ID who completed it
+  requestedAt   DateTime           @default(now())
+  completedAt   DateTime?
+  dueDate       DateTime?
+  
+  // Relations
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_requests")
+}
+
+// Admin Verification Actions Audit Trail
+model AdminVerification {
+  id              String             @id @default(uuid())
+  userId          String             // User being verified
+  adminId         String             // Admin performing verification
+  verificationType VerificationType
+  action          VerificationAction
+  previousStatus  String?
+  newStatus       String
+  documentIds     String[]           // Documents reviewed
+  notes           String?
+  riskAssessment  String?            // Risk notes
+  complianceFlags Json?              // Compliance-related flags
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime           @default(now())
+  
+  // Relations
+  user            User               @relation("VerifiedUser", fields: [userId], references: [id], onDelete: Cascade)
+  admin           User               @relation("VerifyingAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("admin_verifications")
+}
+
+// Enhanced Document Types
+enum VerificationType {
+  IDENTITY
+  ADDRESS
+  INCOME
+  EMPLOYMENT
+  BANK_ACCOUNT
+  PHONE
+  EMAIL
+  FULL_KYC
+  ENHANCED_DD
+  SANCTIONS_SCREENING
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  REQUIRES_ADDITIONAL_INFO
+  EXPIRED
+}
+
+enum VerificationAction {
+  APPROVE
+  REJECT
+  REQUEST_MORE_INFO
+  ESCALATE
+  RESET
+  OVERRIDE
 }

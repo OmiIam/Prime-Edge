@@ -11,7 +11,7 @@ const router = Router();
 // Get user settings
 router.get('/profile', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -49,7 +49,7 @@ router.get('/profile', requireAuth, async (req, res) => {
 // Update user profile
 router.put('/profile', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const {
       name,
       phone,
@@ -631,7 +631,7 @@ router.get('/privacy/export', requireAuth, async (req, res) => {
 // Get banking preferences
 router.get('/banking', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     
     let bankingSettings = await prisma.bankingSettings.findUnique({
       where: { userId }
@@ -671,7 +671,7 @@ router.get('/banking', requireAuth, async (req, res) => {
 // Update banking preferences
 router.put('/banking', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const settings = req.body;
 
     const updatedSettings = await prisma.bankingSettings.upsert({
@@ -707,7 +707,7 @@ router.put('/banking', requireAuth, async (req, res) => {
 // Add payment method
 router.post('/banking/payment-methods', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const { type, name, last4, expiryMonth, expiryYear, provider } = req.body;
 
     const paymentMethod = await prisma.paymentMethod.create({
@@ -746,7 +746,7 @@ router.post('/banking/payment-methods', requireAuth, async (req, res) => {
 // Set default payment method
 router.put('/banking/payment-methods/:id/default', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const { id } = req.params;
 
     // Remove default from all other payment methods
@@ -774,7 +774,7 @@ router.put('/banking/payment-methods/:id/default', requireAuth, async (req, res)
 // Delete payment method
 router.delete('/banking/payment-methods/:id', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const { id } = req.params;
 
     await prisma.paymentMethod.delete({

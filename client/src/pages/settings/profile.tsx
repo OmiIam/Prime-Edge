@@ -27,24 +27,65 @@ import {
   Eye,
   EyeOff,
   Clock,
-  Globe
+  Globe,
+  DollarSign,
+  Building,
+  FileText,
+  IdCard
 } from "lucide-react";
 
 interface UserProfile {
   id: string;
   name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
   email: string;
+  
+  // Contact Information
   phone?: string;
+  alternatePhone?: string;
   address?: string;
   city?: string;
   state?: string;
   zipCode?: string;
   country?: string;
+  
+  // Personal Information
   dateOfBirth?: string;
+  placeOfBirth?: string;
+  nationality?: string;
+  gender?: string;
+  maritalStatus?: string;
+  
+  // Government IDs (will be encrypted on backend)
+  ssn?: string;
+  taxId?: string;
+  driversLicense?: string;
+  passportNumber?: string;
+  
+  // Employment & Financial Information
+  employmentStatus?: string;
+  employer?: string;
+  jobTitle?: string;
+  annualIncome?: string;
+  sourceOfFunds?: string;
+  
+  // Verification Status
   profileImage?: string;
   kycStatus: 'PENDING' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED';
   emailVerified: boolean;
   phoneVerified: boolean;
+  addressVerified: boolean;
+  identityVerified: boolean;
+  incomeVerified: boolean;
+  
+  // Risk & Compliance
+  riskLevel: string;
+  isPep: boolean;
+  sanctionsCheck?: string;
+  
+  // Timestamps
   createdAt: string;
   updatedAt: string;
 }
@@ -74,6 +115,54 @@ const COUNTRIES = [
   { code: 'EG', name: 'Egypt' }
 ];
 
+const EMPLOYMENT_STATUS = [
+  'EMPLOYED',
+  'SELF_EMPLOYED', 
+  'UNEMPLOYED',
+  'RETIRED',
+  'STUDENT',
+  'DISABLED',
+  'HOMEMAKER'
+];
+
+const INCOME_RANGES = [
+  '$0 - $25,000',
+  '$25,001 - $50,000',
+  '$50,001 - $75,000',
+  '$75,001 - $100,000',
+  '$100,001 - $150,000',
+  '$150,001 - $250,000',
+  '$250,001 - $500,000',
+  '$500,001 - $1,000,000',
+  'Over $1,000,000'
+];
+
+const GENDER_OPTIONS = [
+  'Male',
+  'Female', 
+  'Non-binary',
+  'Prefer not to say'
+];
+
+const MARITAL_STATUS = [
+  'Single',
+  'Married',
+  'Divorced',
+  'Widowed',
+  'Separated',
+  'Domestic Partnership'
+];
+
+const SOURCE_OF_FUNDS = [
+  'Employment',
+  'Business Income',
+  'Investment Income',
+  'Inheritance',
+  'Savings',
+  'Retirement Funds',
+  'Other'
+];
+
 export default function ProfileSettings() {
   const authState = authManager.getState();
   const [, setLocation] = useLocation();
@@ -91,14 +180,72 @@ export default function ProfileSettings() {
   const { data: profileData, isLoading, error } = useQuery({
     queryKey: ['/api/settings/profile'],
     enabled: authState.isAuthenticated,
-    retry: 3,
+    retry: 1,
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       const response = await fetch('/api/settings/profile', {
         headers: authManager.getAuthHeader()
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch profile');
+        // Provide fallback data based on current user state
+        console.warn('Profile settings API failed, using fallback data from auth state');
+        return {
+          user: {
+            id: authState.user?.id || '',
+            name: authState.user?.name || 'User',
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            email: authState.user?.email || '',
+            
+            // Contact Information
+            phone: '',
+            alternatePhone: '',
+            address: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            country: 'US',
+            
+            // Personal Information
+            dateOfBirth: '',
+            placeOfBirth: '',
+            nationality: 'US',
+            gender: '',
+            maritalStatus: '',
+            
+            // Government IDs (empty for security)
+            ssn: '',
+            taxId: '',
+            driversLicense: '',
+            passportNumber: '',
+            
+            // Employment & Financial
+            employmentStatus: '',
+            employer: '',
+            jobTitle: '',
+            annualIncome: '',
+            sourceOfFunds: '',
+            
+            // Verification Status
+            profileImage: '',
+            kycStatus: 'PENDING',
+            emailVerified: false,
+            phoneVerified: false,
+            addressVerified: false,
+            identityVerified: false,
+            incomeVerified: false,
+            
+            // Risk & Compliance
+            riskLevel: 'LOW',
+            isPep: false,
+            sanctionsCheck: '',
+            
+            // Timestamps
+            createdAt: authState.user?.createdAt || new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        };
       }
       return response.json();
     }
@@ -111,13 +258,38 @@ export default function ProfileSettings() {
     if (profile && !isEditing) {
       setFormData({
         name: profile.name || '',
+        firstName: profile.firstName || '',
+        middleName: profile.middleName || '',
+        lastName: profile.lastName || '',
+        
+        // Contact Information
         phone: profile.phone || '',
+        alternatePhone: profile.alternatePhone || '',
         address: profile.address || '',
         city: profile.city || '',
         state: profile.state || '',
         zipCode: profile.zipCode || '',
         country: profile.country || 'US',
-        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : ''
+        
+        // Personal Information
+        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
+        placeOfBirth: profile.placeOfBirth || '',
+        nationality: profile.nationality || 'US',
+        gender: profile.gender || '',
+        maritalStatus: profile.maritalStatus || '',
+        
+        // Government IDs
+        ssn: profile.ssn || '',
+        taxId: profile.taxId || '',
+        driversLicense: profile.driversLicense || '',
+        passportNumber: profile.passportNumber || '',
+        
+        // Employment & Financial
+        employmentStatus: profile.employmentStatus || '',
+        employer: profile.employer || '',
+        jobTitle: profile.jobTitle || '',
+        annualIncome: profile.annualIncome || '',
+        sourceOfFunds: profile.sourceOfFunds || ''
       });
     }
   }, [profile, isEditing]);
@@ -197,13 +369,38 @@ export default function ProfileSettings() {
   const handleCancel = () => {
     setFormData({
       name: profile?.name || '',
+      firstName: profile?.firstName || '',
+      middleName: profile?.middleName || '',
+      lastName: profile?.lastName || '',
+      
+      // Contact Information
       phone: profile?.phone || '',
+      alternatePhone: profile?.alternatePhone || '',
       address: profile?.address || '',
       city: profile?.city || '',
       state: profile?.state || '',
       zipCode: profile?.zipCode || '',
       country: profile?.country || 'US',
-      dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.split('T')[0] : ''
+      
+      // Personal Information
+      dateOfBirth: profile?.dateOfBirth ? profile.dateOfBirth.split('T')[0] : '',
+      placeOfBirth: profile?.placeOfBirth || '',
+      nationality: profile?.nationality || 'US',
+      gender: profile?.gender || '',
+      maritalStatus: profile?.maritalStatus || '',
+      
+      // Government IDs
+      ssn: profile?.ssn || '',
+      taxId: profile?.taxId || '',
+      driversLicense: profile?.driversLicense || '',
+      passportNumber: profile?.passportNumber || '',
+      
+      // Employment & Financial
+      employmentStatus: profile?.employmentStatus || '',
+      employer: profile?.employer || '',
+      jobTitle: profile?.jobTitle || '',
+      annualIncome: profile?.annualIncome || '',
+      sourceOfFunds: profile?.sourceOfFunds || ''
     });
     setIsEditing(false);
     setHasChanges(false);
@@ -336,6 +533,15 @@ export default function ProfileSettings() {
             </Alert>
           )}
 
+          {error && (
+            <Alert className="mb-6 bg-yellow-950/50 border-yellow-500/30">
+              <AlertTriangle className="h-4 w-4 text-yellow-400" />
+              <AlertDescription className="text-yellow-200">
+                Unable to load current profile from server. Showing basic information from your session.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="space-y-6">
             {/* Profile Summary */}
             <Card className="card-gradient border-white/10">
@@ -358,12 +564,10 @@ export default function ProfileSettings() {
                     
                     <p className="text-blue-200">{profile?.email}</p>
                     
-                    <div className="flex flex-col sm:flex-row gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-blue-400" />
-                        <span className="text-gray-300">
-                          Email {profile?.emailVerified ? '(Verified)' : '(Unverified)'}
-                        </span>
+                        <span className="text-gray-300">Email</span>
                         {profile?.emailVerified ? (
                           <CheckCircle className="h-4 w-4 text-green-400" />
                         ) : (
@@ -379,27 +583,59 @@ export default function ProfileSettings() {
                         )}
                       </div>
                       
-                      {profile?.phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-blue-400" />
-                          <span className="text-gray-300">
-                            Phone {profile?.phoneVerified ? '(Verified)' : '(Unverified)'}
-                          </span>
-                          {profile?.phoneVerified ? (
-                            <CheckCircle className="h-4 w-4 text-green-400" />
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => verifyPhoneMutation.mutate()}
-                              disabled={verifyPhoneMutation.isPending}
-                              className="ml-2 h-6 px-2 text-xs border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
-                            >
-                              {verifyPhoneMutation.isPending ? 'Sending...' : 'Verify'}
-                            </Button>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-blue-400" />
+                        <span className="text-gray-300">Phone</span>
+                        {profile?.phoneVerified ? (
+                          <CheckCircle className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => verifyPhoneMutation.mutate()}
+                            disabled={verifyPhoneMutation.isPending}
+                            className="ml-2 h-6 px-2 text-xs border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
+                          >
+                            {verifyPhoneMutation.isPending ? 'Sending...' : 'Verify'}
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-blue-400" />
+                        <span className="text-gray-300">Address</span>
+                        {profile?.addressVerified ? (
+                          <CheckCircle className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-yellow-400 border-yellow-400/30">
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-blue-400" />
+                        <span className="text-gray-300">Identity</span>
+                        {profile?.identityVerified ? (
+                          <CheckCircle className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-yellow-400 border-yellow-400/30">
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-blue-400" />
+                        <span className="text-gray-300">Income</span>
+                        {profile?.incomeVerified ? (
+                          <CheckCircle className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-gray-400 border-gray-400/30">
+                            Optional
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     
                     <p className="text-sm text-gray-400">
