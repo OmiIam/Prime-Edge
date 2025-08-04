@@ -11,6 +11,8 @@ import Navbar from "@/components/navbar";
 import TrustIndicators, { SecurityStatus } from "@/components/TrustIndicators";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import TransactionList from "@/components/dashboard/TransactionList";
+import SpendingChart from "@/components/dashboard/SpendingChart";
+import AccountOverviewWidget from "@/components/dashboard/AccountOverviewWidget";
 import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/ui/loading";
 
@@ -439,84 +441,80 @@ export default function Dashboard() {
             </div>
           </header>
 
-          {/* Enhanced Account Information */}
-          <section aria-labelledby="account-info-heading" className="mb-8">
+          {/* Minimalist Account Information */}
+          <section aria-labelledby="account-info-heading" className="mb-12">
             <h2 id="account-info-heading" className="sr-only">Account Information</h2>
-            <Card className="card-elevated hover-lift slide-in" role="region" aria-label="Account details">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl relative">
-                      <span className="text-white font-bold text-xl">
-                        {data.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </span>
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
-                        <CheckCircle className="h-4 w-4 text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-1">{data.user.name}</h3>
-                      <p className="text-blue-200 text-sm">{data.user.email}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="status-success">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Verified Member
-                        </div>
-                        <div className="status-info text-xs">
-                          {data.user.role}
-                        </div>
-                      </div>
-                    </div>
+            
+            {/* Simplified User Profile */}
+            <div className="flex items-center justify-between mb-8 p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-xl">
+                      {data.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-1">Account Since</div>
-                    <div className="text-white font-semibold">
-                      {new Date(data.user.createdAt || new Date()).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        year: 'numeric' 
-                      })}
-                    </div>
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full flex items-center justify-center border-2 border-white/20">
+                    <CheckCircle className="h-3 w-3 text-white" />
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="text-center sm:text-left p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-2">Account Number</div>
-                    <div className="text-account text-white font-bold mb-1">
-                      {formatAccountNumber(data.user.accountNumber || '')}
-                    </div>
-                    <div className="flex items-center justify-center sm:justify-start gap-2">
-                      <div className="text-xs text-blue-300 uppercase font-medium">{data.user.accountType || 'BUSINESS'}</div>
-                      <span className="w-1 h-1 bg-blue-300 rounded-full"></span>
-                      <div className="text-xs text-blue-300">Account</div>
-                    </div>
-                  </div>
-
-                  <div className="text-center sm:text-left p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-2">Status</div>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
-                      <div className="w-3 h-3 bg-green-400 rounded-full status-pulse"></div>
-                      <div className="text-lg font-bold text-green-400">Active</div>
-                    </div>
-                    <div className="text-xs text-green-300">All systems operational</div>
-                  </div>
-
-                  <div className="text-center sm:text-left p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div className="text-xs text-white/60 uppercase tracking-wide font-medium mb-2">Last Activity</div>
-                    <div className="text-white font-semibold mb-1">
-                      <time dateTime={new Date().toISOString()}>
-                        {format(new Date(), 'MMM d, yyyy')}
-                      </time>
-                    </div>
-                    <div className="text-xs text-blue-300">
-                      <time dateTime={new Date().toISOString()}>
-                        {format(new Date(), 'h:mm a')}
-                      </time>
-                    </div>
+                <div>
+                  <h3 className="text-heading-tertiary text-white">{data.user.name}</h3>
+                  <p className="text-banking-muted text-body-small">{data.user.email}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-500/20 text-green-300 rounded-full border border-green-400/30">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Verified Member
+                    </span>
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
+                      {data.user.role}
+                    </span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-right">
+                <div className="text-label-secondary text-banking-subtle mb-1">Account Since</div>
+                <div className="text-white font-bold text-lg">
+                  {format(new Date(data.user.createdAt || new Date()), 'MMM yyyy')}
+                </div>
+              </div>
+            </div>
+
+            {/* Clean Information Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="group p-5 bg-white/3 border border-white/5 rounded-2xl hover:bg-white/5 hover:border-white/10 transition-all duration-300">
+                <div className="text-label-secondary text-banking-subtle mb-3">Account Number</div>
+                <div className="text-metric-small text-white mb-2">
+                  {formatAccountNumber(data.user.accountNumber || '')}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-blue-400 uppercase tracking-wider">
+                    {data.user.accountType || 'BUSINESS'}
+                  </span>
+                  <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
+                  <span className="text-xs text-banking-muted">Account</span>
+                </div>
+              </div>
+
+              <div className="group p-5 bg-white/3 border border-white/5 rounded-2xl hover:bg-white/5 hover:border-white/10 transition-all duration-300">
+                <div className="text-label-secondary text-banking-subtle mb-3">Status</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full status-pulse"></div>
+                  <span className="text-metric-small text-green-400 font-bold">Active</span>
+                </div>
+                <div className="text-xs text-green-300/80">All systems operational</div>
+              </div>
+
+              <div className="group p-5 bg-white/3 border border-white/5 rounded-2xl hover:bg-white/5 hover:border-white/10 transition-all duration-300">
+                <div className="text-label-secondary text-banking-subtle mb-3">Last Activity</div>
+                <div className="text-metric-small text-white font-bold mb-1">
+                  {format(new Date(), 'MMM d, yyyy')}
+                </div>
+                <div className="text-xs text-blue-300">
+                  {format(new Date(), 'h:mm a')}
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Professional Balance Card - Hero Element */}
@@ -636,6 +634,95 @@ export default function Dashboard() {
               title="Recent Activity"
               showSearch={true}
               maxHeight="600px"
+            />
+          </div>
+
+          {/* Advanced Data Visualization Section */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            {/* Account Overview Widget */}
+            <AccountOverviewWidget
+              metrics={{
+                totalBalance: data.user.balance,
+                monthlyIncome: data.monthlyStats.received,
+                monthlyExpenses: monthlySpending,
+                savingsRate: ((data.monthlyStats.received - monthlySpending) / data.monthlyStats.received) * 100,
+                creditUtilization: 25.5,
+                accountHealth: data.user.balance > 10000 ? 'excellent' : data.user.balance > 5000 ? 'good' : 'fair',
+                goals: {
+                  savingsGoal: 25000,
+                  currentSavings: data.user.balance * 0.6,
+                  targetDate: 'December 2025'
+                },
+                trends: {
+                  incomeChange: 8.5,
+                  expenseChange: -2.1,
+                  balanceChange: 12.3
+                }
+              }}
+              period="This Month"
+            />
+
+            {/* Spending Chart */}
+            <SpendingChart
+              data={[
+                {
+                  category: 'Groceries & Food',
+                  amount: monthlySpending * 0.35,
+                  percentage: 35,
+                  change: -5.2,
+                  trend: 'down' as const,
+                  color: 'bg-gradient-to-r from-green-500 to-green-600',
+                  icon: <ShoppingCart className="h-4 w-4" />
+                },
+                {
+                  category: 'Transportation',
+                  amount: monthlySpending * 0.20,
+                  percentage: 20,
+                  change: 3.1,
+                  trend: 'up' as const,
+                  color: 'bg-gradient-to-r from-blue-500 to-blue-600',
+                  icon: <Target className="h-4 w-4" />
+                },
+                {
+                  category: 'Entertainment',
+                  amount: monthlySpending * 0.15,
+                  percentage: 15,
+                  change: 1.8,
+                  trend: 'up' as const,
+                  color: 'bg-gradient-to-r from-purple-500 to-purple-600',
+                  icon: <Smartphone className="h-4 w-4" />
+                },
+                {
+                  category: 'Utilities',
+                  amount: monthlySpending * 0.12,
+                  percentage: 12,
+                  change: 0,
+                  trend: 'neutral' as const,
+                  color: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+                  icon: <Home className="h-4 w-4" />
+                },
+                {
+                  category: 'Shopping',
+                  amount: monthlySpending * 0.10,
+                  percentage: 10,
+                  change: -8.3,
+                  trend: 'down' as const,
+                  color: 'bg-gradient-to-r from-pink-500 to-pink-600',
+                  icon: <CreditCard className="h-4 w-4" />
+                },
+                {
+                  category: 'Other',
+                  amount: monthlySpending * 0.08,
+                  percentage: 8,
+                  change: 4.2,
+                  trend: 'up' as const,
+                  color: 'bg-gradient-to-r from-gray-500 to-gray-600',
+                  icon: <Briefcase className="h-4 w-4" />
+                }
+              ]}
+              totalSpent={monthlySpending}
+              period="This Month"
+              showComparison={true}
             />
           </div>
 
