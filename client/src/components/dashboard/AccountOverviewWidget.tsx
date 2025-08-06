@@ -148,7 +148,7 @@ export default function AccountOverviewWidget({
 
       <CardContent className="p-6">
         {/* Primary Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {/* Total Balance */}
           <div 
             className={`
@@ -177,7 +177,7 @@ export default function AccountOverviewWidget({
                 <span>{Math.abs(metrics.trends.balanceChange)}%</span>
               </div>
             </div>
-            <div className="text-2xl font-bold text-white text-currency mb-1">
+            <div className="text-xl sm:text-2xl font-bold text-white text-currency mb-1 break-all">
               {formatCurrency(animatedMetrics.totalBalance)}
             </div>
             <div className="text-xs text-white/60 uppercase tracking-wider">
@@ -213,7 +213,7 @@ export default function AccountOverviewWidget({
                 <span>{Math.abs(metrics.trends.incomeChange)}%</span>
               </div>
             </div>
-            <div className="text-2xl font-bold text-white text-currency mb-1">
+            <div className="text-xl sm:text-2xl font-bold text-white text-currency mb-1 break-all">
               {formatCurrency(animatedMetrics.monthlyIncome)}
             </div>
             <div className="text-xs text-white/60 uppercase tracking-wider">
@@ -249,7 +249,7 @@ export default function AccountOverviewWidget({
                 <span>{Math.abs(metrics.trends.expenseChange)}%</span>
               </div>
             </div>
-            <div className="text-2xl font-bold text-white text-currency mb-1">
+            <div className="text-xl sm:text-2xl font-bold text-white text-currency mb-1 break-all">
               {formatCurrency(animatedMetrics.monthlyExpenses)}
             </div>
             <div className="text-xs text-white/60 uppercase tracking-wider">
@@ -259,7 +259,7 @@ export default function AccountOverviewWidget({
         </div>
 
         {/* Secondary Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
           {/* Net Cash Flow */}
           <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
             <div className="flex items-center justify-between mb-2">
@@ -270,7 +270,7 @@ export default function AccountOverviewWidget({
                 {netCashFlow >= 0 ? 'Positive' : 'Negative'}
               </div>
             </div>
-            <div className={`text-lg font-bold text-currency ${
+            <div className={`text-base sm:text-lg font-bold text-currency break-all ${
               netCashFlow >= 0 ? 'text-green-300' : 'text-red-300'
             }`}>
               {formatCurrency(netCashFlow)}
@@ -319,7 +319,7 @@ export default function AccountOverviewWidget({
               <Target className="h-4 w-4 text-purple-400" />
               <span className="font-semibold text-white">Savings Goal Progress</span>
             </div>
-            <span className="text-sm text-white/60">
+            <span className="text-sm text-white/60 break-all">
               {formatCurrency(metrics.goals.currentSavings)} / {formatCurrency(metrics.goals.savingsGoal)}
             </span>
           </div>

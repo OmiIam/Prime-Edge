@@ -194,24 +194,24 @@ export default function BalanceCard({
 
         {/* Quick Stats */}
         {quickStats && isBalanceVisible && (
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 pt-6 border-t border-white/10">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white text-currency">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-white text-currency break-all">
                 {formatCurrency(quickStats.available)}
               </div>
-              <div className="text-xs text-white/60 uppercase tracking-wide">Available</div>
+              <div className="text-xs text-white/60 uppercase tracking-wide mt-1">Available</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-300 text-currency">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-orange-300 text-currency break-all">
                 {formatCurrency(quickStats.pending)}
               </div>
-              <div className="text-xs text-white/60 uppercase tracking-wide">Pending</div>
+              <div className="text-xs text-white/60 uppercase tracking-wide mt-1">Pending</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-300 text-currency">
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-blue-300 text-currency break-all">
                 {formatCurrency(quickStats.reserved)}
               </div>
-              <div className="text-xs text-white/60 uppercase tracking-wide">Reserved</div>
+              <div className="text-xs text-white/60 uppercase tracking-wide mt-1">Reserved</div>
             </div>
           </div>
         )}
