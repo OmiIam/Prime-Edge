@@ -153,13 +153,13 @@ export default function BalanceCard({
           <div className="text-sm text-white/60 font-semibold uppercase tracking-wider mb-3">
             Available Balance
           </div>
-          <div className="relative">
+          <div className="relative overflow-hidden text-center">
             {isBalanceVisible ? (
-              <div className="text-balance text-6xl md:text-7xl text-white mb-2 balance-counter">
+              <div className="text-balance text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-2 balance-counter break-all overflow-wrap-anywhere">
                 {formatCurrency(animatedBalance)}
               </div>
             ) : (
-              <div className="text-6xl md:text-7xl text-white mb-2 font-mono">
+              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-2 font-mono">
                 ••••••
               </div>
             )}
