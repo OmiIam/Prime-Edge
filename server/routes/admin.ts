@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { AdminService } from '../services/adminService'
 import { adminUpdateUserSchema, adminUpdateBalanceSchema } from '../../shared/validation'
 import { requireAuth, requireAdmin } from '../middleware/auth'
+import adminKycRouter from './admin/kyc'
 
 export const adminRouter = Router()
 
@@ -424,3 +425,6 @@ adminRouter.post('/users/:userId/bulk-verify', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' })
   }
 })
+
+// Mount KYC admin routes
+adminRouter.use('/kyc', adminKycRouter)
