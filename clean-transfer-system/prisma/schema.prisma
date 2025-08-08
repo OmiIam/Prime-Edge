@@ -1,0 +1,70 @@
+// Clean Money Transfer System - Prisma Schema
+// Designed for secure, maintainable external bank transfers
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with essential fields for authentication and balance tracking
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // Hashed with bcrypt
+  role      Role     @default(USER)
+  balance   Float    @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  transactions Transaction[]
+  
+  @@map("users")
+}
+
+// Transaction model - Core of the money transfer system
+model Transaction {
+  id          String            @id @default(cuid())
+  userId      String
+  type        TransactionType   
+  amount      Float
+  status      TransactionStatus @default(PENDING)
+  description String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  // Flexible metadata for transfer details (bank info, approval data, etc.)
+  metadata    Json?
+  
+  // Relations
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("transactions")
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+// Enums for type safety and data consistency
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TransactionType {
+  DEBIT   // Outgoing transfer
+  CREDIT  // Incoming deposit
+}
+
+enum TransactionStatus {
+  PENDING     // Awaiting admin approval
+  APPROVED    // Admin approved (processing)
+  COMPLETED   // Successfully processed
+  REJECTED    // Admin rejected
+  FAILED      // Technical failure
+}
