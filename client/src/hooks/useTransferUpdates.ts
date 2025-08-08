@@ -38,7 +38,7 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         return;
       }
       
-      const response = await fetch(`/api/user/transactions?limit=50&since=${lastCheckTime.current.toISOString()}`, {
+      const response = await fetch(`/api/user/transactions?limit=50&page=1`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -85,11 +85,26 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         }
 
         // Check required fields exist
-        if (!transaction.id || !transaction.metadata) {
+        if (!transaction.id) {
           return false;
         }
 
-        // Check if it's an external bank transfer
+        // Check if this is a recent transaction (since last check)
+        try {
+          const transactionTime = new Date(transaction.createdAt);
+          if (transactionTime <= lastCheckTime.current) {
+            return false; // Skip old transactions
+          }
+        } catch (dateError) {
+          console.warn('Invalid date in transaction:', transaction.id);
+          return false;
+        }
+
+        // Check if it has metadata and is an external bank transfer
+        if (!transaction.metadata) {
+          return false;
+        }
+
         const metadata = transaction.metadata;
         if (metadata.transferType !== 'external_bank') {
           return false;
@@ -105,14 +120,7 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
           return false;
         }
 
-        // Check if this is a new update
-        try {
-          const updateTime = new Date(transaction.updatedAt || transaction.createdAt);
-          return updateTime > lastCheckTime.current;
-        } catch (dateError) {
-          console.warn('Invalid date in transaction:', transaction.id);
-          return false;
-        }
+        return true;
       });
 
       if (updatedTransfers.length > 0) {
