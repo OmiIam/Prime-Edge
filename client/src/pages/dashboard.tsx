@@ -319,26 +319,47 @@ export default function Dashboard() {
 
   const handleTransfer = async (amount?: string, recipient?: string, type?: string) => {
     try {
-      const transferData = {
-        amount: amount || transferAmount,
-        recipientInfo: recipient || recipientInfo,
-        transferType: type || transferType,
-        bankName: (type || transferType) === 'external_bank' ? bankName : undefined
-      };
+      // Create completely clean transfer data with no circular references
+      const transferData = Object.create(null);
+      transferData.amount = Number(amount || transferAmount) || 0;
+      transferData.recipientInfo = String(recipient || recipientInfo || '');
+      transferData.transferType = String(type || transferType || '');
+      
+      const finalType = type || transferType;
+      if (finalType === 'external_bank' && bankName) {
+        transferData.bankName = String(bankName);
+      }
+
+      // Create completely clean headers
+      const headers = Object.create(null);
+      headers['Content-Type'] = 'application/json';
+      
+      const authHeader = authManager.getAuthHeader();
+      if (authHeader && authHeader.Authorization) {
+        headers.Authorization = String(authHeader.Authorization);
+      }
+
+      // Safe stringify with error handling
+      let requestBody: string;
+      try {
+        requestBody = JSON.stringify(transferData);
+      } catch (stringifyError) {
+        console.error('Dashboard JSON.stringify error:', stringifyError);
+        // Create fallback clean object
+        const fallbackData = Object.create(null);
+        fallbackData.amount = Number(amount || transferAmount) || 0;
+        fallbackData.recipientInfo = String(recipient || recipientInfo || '');
+        fallbackData.transferType = String(type || transferType || '');
+        if ((type || transferType) === 'external_bank' && bankName) {
+          fallbackData.bankName = String(bankName);
+        }
+        requestBody = JSON.stringify(fallbackData);
+      }
 
       const response = await fetch('/api/user/transfer', {
         method: 'POST',
-        headers: (() => {
-          const authHeader = authManager.getAuthHeader();
-          const headers: any = {
-            'Content-Type': 'application/json'
-          };
-          if (authHeader.Authorization) {
-            headers.Authorization = authHeader.Authorization;
-          }
-          return headers;
-        })(),
-        body: JSON.stringify(transferData)
+        headers: headers,
+        body: requestBody
       });
 
       if (!response.ok) {
