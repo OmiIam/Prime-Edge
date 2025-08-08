@@ -34,8 +34,19 @@ interface Transaction {
   amount: number;
   description: string;
   createdAt: string;
+  status?: string; // Added for TransactionStatus enum
   metadata?: {
     status?: string;
+    transferType?: string;
+    bankName?: string;
+    recipientInfo?: string;
+    approvedAt?: string;
+    rejectedAt?: string;
+    approvedBy?: string;
+    rejectedBy?: string;
+    reason?: string;
+    adminNotes?: string;
+    requiresApproval?: boolean;
     category?: string;
     merchant?: string;
     location?: string;
@@ -90,13 +101,21 @@ export default function TransactionList({
     return { icon: Briefcase, color: 'from-gray-500 to-gray-600' };
   };
 
-  const getStatusIcon = (status?: string) => {
+  const getStatusIcon = (transaction: Transaction) => {
+    // Check both transaction.status and metadata.status for comprehensive status handling
+    const status = transaction.status || transaction.metadata?.status;
+    
     switch (status) {
+      case 'COMPLETED':
       case 'completed':
+      case 'approved':
         return <CheckCircle2 className="h-3 w-3 text-green-400" />;
+      case 'PENDING':
       case 'pending':
         return <Clock className="h-3 w-3 text-yellow-400" />;
+      case 'FAILED':
       case 'failed':
+      case 'rejected':
         return <XCircle className="h-3 w-3 text-red-400" />;
       case 'processing':
         return <AlertCircle className="h-3 w-3 text-blue-400" />;
@@ -107,10 +126,13 @@ export default function TransactionList({
 
   const getStatusBadge = (status?: string) => {
     switch (status) {
+      case 'PENDING':
       case 'pending':
         return 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30';
+      case 'COMPLETED':
       case 'approved':
         return 'bg-green-500/20 text-green-300 border-green-400/30';
+      case 'FAILED':
       case 'rejected':
         return 'bg-red-500/20 text-red-300 border-red-400/30';
       case 'processing':
@@ -118,6 +140,29 @@ export default function TransactionList({
       default:
         return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
     }
+  };
+
+  const getStatusDisplayText = (transaction: Transaction) => {
+    const status = transaction.status || transaction.metadata?.status;
+    const requiresApproval = transaction.metadata?.requiresApproval;
+    
+    if (status === 'PENDING' || status === 'pending') {
+      return requiresApproval ? 'Awaiting Approval' : 'Pending';
+    }
+    if (status === 'COMPLETED' || status === 'approved') {
+      return 'Completed';
+    }
+    if (status === 'FAILED' || status === 'rejected') {
+      return 'Rejected';
+    }
+    return status || 'Completed';
+  };
+
+  const getTransferTypeDisplay = (transaction: Transaction) => {
+    if (transaction.metadata?.transferType === 'external_bank') {
+      return `External Transfer to ${transaction.metadata?.bankName || 'Bank'}`;
+    }
+    return transaction.description;
   };
 
   const filteredTransactions = transactions.filter(transaction => {
@@ -183,7 +228,10 @@ export default function TransactionList({
                 transaction.metadata?.category
               );
               const formattedAmount = formatTransactionAmount(transaction.amount, transaction.type as 'CREDIT' | 'DEBIT');
-              const statusIcon = getStatusIcon(transaction.metadata?.status);
+              const statusIcon = getStatusIcon(transaction);
+              const displayDescription = getTransferTypeDisplay(transaction);
+              const statusText = getStatusDisplayText(transaction);
+              const currentStatus = transaction.status || transaction.metadata?.status;
               
               return (
                 <div 
@@ -211,7 +259,7 @@ export default function TransactionList({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-1">
                           <h3 className="font-semibold text-white truncate pr-2 group-hover:text-blue-200 transition-colors">
-                            {transaction.description}
+                            {displayDescription}
                           </h3>
                           <div className="text-right flex-shrink-0">
                             <div className={`text-lg font-bold text-currency ${formattedAmount.colorClass}`}>
@@ -236,12 +284,9 @@ export default function TransactionList({
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            {transaction.metadata?.status && transaction.metadata.status !== 'completed' && (
-                              <Badge className={`text-xs px-2 py-1 ${getStatusBadge(transaction.metadata.status)}`}>
-                                {transaction.metadata.status === 'pending' ? 'Pending' :
-                                 transaction.metadata.status === 'approved' ? 'Approved' :
-                                 transaction.metadata.status === 'rejected' ? 'Rejected' :
-                                 transaction.metadata.status}
+                            {currentStatus && currentStatus !== 'COMPLETED' && currentStatus !== 'completed' && (
+                              <Badge className={`text-xs px-2 py-1 ${getStatusBadge(currentStatus)}`}>
+                                {statusText}
                               </Badge>
                             )}
                             
@@ -266,6 +311,32 @@ export default function TransactionList({
                         {transaction.metadata?.merchant && (
                           <div className="text-xs text-white/50 mt-1">
                             <span>Merchant: {transaction.metadata.merchant}</span>
+                          </div>
+                        )}
+                        
+                        {/* External Transfer Additional Info */}
+                        {transaction.metadata?.transferType === 'external_bank' && (
+                          <div className="text-xs text-white/50 mt-1 space-y-1">
+                            {transaction.metadata.recipientInfo && (
+                              <div>Account: {transaction.metadata.recipientInfo}</div>
+                            )}
+                            {(transaction.metadata.approvedAt || transaction.metadata.rejectedAt) && (
+                              <div className="flex items-center gap-2">
+                                {transaction.metadata.approvedAt && (
+                                  <span className="text-green-400">
+                                    ✓ Approved {new Date(transaction.metadata.approvedAt).toLocaleDateString()}
+                                  </span>
+                                )}
+                                {transaction.metadata.rejectedAt && (
+                                  <span className="text-red-400">
+                                    ✗ Rejected {new Date(transaction.metadata.rejectedAt).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {transaction.metadata.reason && currentStatus === 'rejected' && (
+                              <div className="text-red-300">Reason: {transaction.metadata.reason}</div>
+                            )}
                           </div>
                         )}
                       </div>

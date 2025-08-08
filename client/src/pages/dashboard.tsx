@@ -13,6 +13,7 @@ import BalanceCard from "@/components/dashboard/BalanceCard";
 import TransactionList from "@/components/dashboard/TransactionList";
 import SpendingChart from "@/components/dashboard/SpendingChart";
 import AccountOverviewWidget from "@/components/dashboard/AccountOverviewWidget";
+import { useTransferUpdates } from "@/hooks/useTransferUpdates";
 import { lazy, Suspense } from "react";
 import { LoadingSpinner } from "@/components/ui/loading";
 
@@ -76,7 +77,7 @@ export default function Dashboard() {
   const authState = authManager.getState();
   const [transferAmount, setTransferAmount] = useState("");
   const [recipientInfo, setRecipientInfo] = useState("");
-  const [transferType, setTransferType] = useState("email");
+  const [transferType, setTransferType] = useState("checking");
   const [bankName, setBankName] = useState("");
   const [bankValidation, setBankValidation] = useState({ isValid: false, isChecking: false });
   const [transferOpen, setTransferOpen] = useState(false);
@@ -85,6 +86,16 @@ export default function Dashboard() {
   const [depositAmount, setDepositAmount] = useState("");
   const [depositMethod, setDepositMethod] = useState("bank_transfer");
   const [payeeSelection, setPayeeSelection] = useState("");
+
+  // Initialize real-time transfer updates
+  useTransferUpdates({
+    userId: authState?.user?.id,
+    enableNotifications: true,
+    onTransferUpdate: (update) => {
+      console.log('Transfer status updated:', update);
+      // Additional custom handling can go here
+    }
+  });
 
   // List of valid banks for validation - Global including comprehensive African banks
   const validBanks = [

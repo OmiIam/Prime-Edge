@@ -16,6 +16,7 @@ import NotificationCenter from "@/components/admin/NotificationCenter";
 import SystemStatus from "@/components/admin/SystemStatus";
 import TimeRangeFilter, { type TimeRange } from "@/components/admin/TimeRangeFilter";
 import VerificationQueue from "@/components/admin/VerificationQueue";
+import TransferReview from "@/components/admin/TransferReview";
 import {
   Users,
   DollarSign,
@@ -1074,6 +1075,11 @@ export default function AdminNew() {
 
           {/* Pending Transfers Tab */}
           <TabsContent value="pending-transfers" className="space-y-6">
+            <TransferReview />
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
             <Card className="bg-white border border-gray-200 shadow-sm">
               <CardHeader className="border-b border-gray-100 pb-4">
                 <div className="flex items-center justify-between">

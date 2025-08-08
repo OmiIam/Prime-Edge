@@ -39,7 +39,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
   const [depositMethod, setDepositMethod] = useState("bank_transfer");
   const [transferAmount, setTransferAmount] = useState("");
   const [recipientInfo, setRecipientInfo] = useState("");
-  const [transferType, setTransferType] = useState("email");
+  const [transferType, setTransferType] = useState("checking");
   const [bankName, setBankName] = useState("");
   const [bankValidation, setBankValidation] = useState({ isValid: false, isChecking: false });
   const [billAmount, setBillAmount] = useState("");
@@ -235,10 +235,6 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
       setTransferError("Amount is required");
       return false;
     }
-    if (transferType === "email" && !recipientInfo) {
-      setTransferError("Recipient email is required");
-      return false;
-    }
     if (transferType === "external_bank" && !recipientInfo) {
       setTransferError("Recipient account details are required");
       return false;
@@ -257,10 +253,6 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     }
     if (amount > 5000) {
       setTransferError("Daily transfer limit is $5,000");
-      return false;
-    }
-    if (transferType === "email" && !/\S+@\S+\.\S+/.test(recipientInfo)) {
-      setTransferError("Please enter a valid email address");
       return false;
     }
     return true;
@@ -355,7 +347,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
       setRecipientInfo("");
       setBankName("");
       setBankValidation({ isValid: false, isChecking: false });
-      setTransferType("email");
+      setTransferType("checking");
       setTransferError("");
       
       // Refresh page to show updated data
@@ -687,7 +679,6 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                 <SelectContent>
                   <SelectItem value="checking">Checking Account</SelectItem>
                   <SelectItem value="savings">Savings Account</SelectItem>
-                  <SelectItem value="email">Send to Others</SelectItem>
                   <SelectItem value="external_bank">External Bank</SelectItem>
                 </SelectContent>
               </Select>
@@ -732,16 +723,14 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
 
             <div>
               <Label htmlFor="recipient-info-qa" className="text-gray-700">
-                {transferType === "email" ? "Recipient Email *" : 
-                 transferType === "external_bank" ? "Account Number/Routing Number *" :
+                {transferType === "external_bank" ? "Account Number/Routing Number *" :
                  transferType === "checking" ? "Checking Account" :
                  "Savings Account"}
               </Label>
               <Input
                 id="recipient-info-qa"
-                type={transferType === "email" ? "email" : "text"}
+                type="text"
                 placeholder={
-                  transferType === "email" ? "Enter recipient's email" :
                   transferType === "external_bank" ? "Account: 1234567890, Routing: 021000021" :
                   transferType === "checking" ? "Checking account (••••4721)" :
                   "Savings account (••••8932)"
@@ -752,10 +741,10 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                   if (transferError) setTransferError("");
                 }}
                 className="mt-1 focus-ring"
-                disabled={(transferType !== "email" && transferType !== "external_bank") || isTransferLoading}
-                aria-describedby={(transferType !== "email" && transferType !== "external_bank") ? "account-info-qa" : undefined}
+                disabled={transferType !== "external_bank" || isTransferLoading}
+                aria-describedby={transferType !== "external_bank" ? "account-info-qa" : undefined}
               />
-              {(transferType !== "email" && transferType !== "external_bank") && (
+              {transferType !== "external_bank" && (
                 <p id="account-info-qa" className="text-sm text-gray-500 mt-1">
                   Transfer between your own accounts
                 </p>
@@ -773,7 +762,6 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                 onClick={handleTransfer} 
                 className="btn-prime-primary flex-1 focus-ring shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isTransferLoading || !transferAmount || 
-                  (transferType === "email" && !recipientInfo) ||
                   (transferType === "external_bank" && (!recipientInfo || !bankName || !bankValidation.isValid))}
               >
                 {isTransferLoading ? (
@@ -797,7 +785,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
                   setRecipientInfo("");
                   setBankName("");
                   setBankValidation({ isValid: false, isChecking: false });
-                  setTransferType("email");
+                  setTransferType("checking");
                 }}
                 disabled={isTransferLoading}
                 className="focus-ring"

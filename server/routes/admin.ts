@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { AdminService } from '../services/adminService'
 import { adminUpdateUserSchema, adminUpdateBalanceSchema } from '../../shared/validation'
 import { requireAuth, requireAdmin } from '../middleware/auth'
+import { adminActionRateLimit, validateAdminReview } from '../middleware/transferValidation'
 import adminKycRouter from './admin/kyc'
 
 export const adminRouter = Router()
@@ -179,19 +180,27 @@ adminRouter.get('/pending-transfers', async (req, res) => {
   }
 })
 
-// POST /api/admin/approve-transfer/:id - Approve a pending external transfer
-adminRouter.post('/approve-transfer/:id', async (req, res) => {
+// POST /api/admin/transfers/:id/review - Review a pending external transfer
+adminRouter.post('/transfers/:id/review', [
+  adminActionRateLimit,
+  validateAdminReview
+], async (req, res) => {
   try {
     const { prisma } = require('../prisma')
     const transferId = req.params.id
-    const { action } = req.body // 'approve' or 'reject'
+    const { action, reason } = req.body // 'approve' or 'reject'
 
-    // Get the transaction
+    // Validate action
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ message: 'Invalid action. Use "approve" or "reject"' })
+    }
+
+    // Get the transaction with user info
     const transaction = await prisma.transaction.findUnique({
       where: { id: transferId },
       include: {
         user: {
-          select: { id: true, name: true, balance: true }
+          select: { id: true, name: true, email: true, balance: true }
         }
       }
     })
@@ -201,83 +210,209 @@ adminRouter.post('/approve-transfer/:id', async (req, res) => {
     }
 
     if (transaction.metadata?.status !== 'pending') {
-      return res.status(400).json({ message: 'Transfer is not pending' })
+      return res.status(400).json({ message: 'Transfer is not pending approval' })
     }
 
+    const currentTimestamp = new Date().toISOString()
+    const adminId = req.user!.id
+    const ipAddress = req.ip
+    const userAgent = req.get('User-Agent')
+
     if (action === 'approve') {
-      // Check if user still has sufficient balance
+      // Validate user still has sufficient balance
       if (transaction.user.balance < transaction.amount) {
         return res.status(400).json({ 
           message: 'User has insufficient balance to complete transfer' 
         })
       }
 
-      // Update transaction status and deduct balance
-      await prisma.$transaction([
-        prisma.transaction.update({
+      // Process the approval in a database transaction
+      const result = await prisma.$transaction(async (tx) => {
+        // Update transaction status to approved and completed
+        const updatedTransaction = await tx.transaction.update({
           where: { id: transferId },
           data: {
+            status: 'COMPLETED',
             metadata: {
               ...transaction.metadata,
               status: 'approved',
-              approvedAt: new Date().toISOString(),
-              approvedBy: req.user!.id,
-              reason: 'External bank transfer approved and processed'
+              approvedAt: currentTimestamp,
+              approvedBy: adminId,
+              processedAt: currentTimestamp,
+              reason: reason || 'External bank transfer approved and processed by admin',
+              adminNotes: reason
             }
           }
-        }),
-        prisma.user.update({
+        })
+
+        // Deduct funds from user balance
+        const updatedUser = await tx.user.update({
           where: { id: transaction.userId },
           data: {
             balance: { decrement: transaction.amount }
           }
         })
-      ])
 
-      // Log admin action
-      await AdminService.logAdminAction(
-        req.user!.id,
-        'APPROVE_TRANSFER',
-        `Approved external transfer of $${transaction.amount} for user ${transaction.user.name}`,
-        { transferId, amount: transaction.amount, userId: transaction.userId }
-      )
-
-      res.json({
-        success: true,
-        message: 'Transfer approved and processed successfully'
-      })
-    } else if (action === 'reject') {
-      // Update transaction status to rejected
-      await prisma.transaction.update({
-        where: { id: transferId },
-        data: {
-          metadata: {
-            ...transaction.metadata,
-            status: 'rejected',
-            rejectedAt: new Date().toISOString(),
-            rejectedBy: req.user!.id,
-            reason: req.body.reason || 'External bank transfer rejected by admin'
+        // Log admin action for audit trail
+        await tx.adminLog.create({
+          data: {
+            adminId,
+            action: 'APPROVE_TRANSFER',
+            targetUserId: transaction.userId,
+            amount: transaction.amount,
+            description: `Approved external bank transfer of $${transaction.amount.toFixed(2)} to ${transaction.metadata?.bankName}`,
           }
-        }
+        })
+
+        // Create security event for the user
+        await tx.securityEvent.create({
+          data: {
+            userId: transaction.userId,
+            eventType: 'SUSPICIOUS_ACTIVITY', // Using existing enum
+            description: `External transfer of $${transaction.amount.toFixed(2)} approved and processed`,
+            ipAddress,
+            userAgent,
+            riskLevel: 'LOW',
+            metadata: {
+              transferId,
+              adminId,
+              bankName: transaction.metadata?.bankName,
+              approvedAt: currentTimestamp
+            }
+          }
+        })
+
+        return { updatedTransaction, updatedUser }
       })
 
-      // Log admin action
-      await AdminService.logAdminAction(
-        req.user!.id,
-        'REJECT_TRANSFER',
-        `Rejected external transfer of $${transaction.amount} for user ${transaction.user.name}`,
-        { transferId, amount: transaction.amount, userId: transaction.userId, reason: req.body.reason }
-      )
+      // TODO: In production, integrate with actual bank transfer API here
+      // await externalBankTransferService.processTransfer({
+      //   amount: transaction.amount,
+      //   bankName: transaction.metadata?.bankName,
+      //   accountInfo: transaction.metadata?.fullAccountInfo,
+      //   transactionId: transferId
+      // })
 
       res.json({
         success: true,
-        message: 'Transfer rejected successfully'
+        message: 'Transfer approved and funds processed successfully',
+        transaction: result.updatedTransaction
       })
-    } else {
-      res.status(400).json({ message: 'Invalid action. Use "approve" or "reject"' })
+
+    } else if (action === 'reject') {
+      // Process the rejection
+      const result = await prisma.$transaction(async (tx) => {
+        // Update transaction status to rejected/failed
+        const updatedTransaction = await tx.transaction.update({
+          where: { id: transferId },
+          data: {
+            status: 'FAILED',
+            metadata: {
+              ...transaction.metadata,
+              status: 'rejected',
+              rejectedAt: currentTimestamp,
+              rejectedBy: adminId,
+              reason: reason || 'External bank transfer rejected by admin review',
+              adminNotes: reason
+            }
+          }
+        })
+
+        // Log admin action for audit trail
+        await tx.adminLog.create({
+          data: {
+            adminId,
+            action: 'REJECT_TRANSFER',
+            targetUserId: transaction.userId,
+            amount: transaction.amount,
+            description: `Rejected external bank transfer of $${transaction.amount.toFixed(2)} to ${transaction.metadata?.bankName}. Reason: ${reason || 'No reason provided'}`,
+          }
+        })
+
+        // Create security event for the user
+        await tx.securityEvent.create({
+          data: {
+            userId: transaction.userId,
+            eventType: 'SUSPICIOUS_ACTIVITY',
+            description: `External transfer of $${transaction.amount.toFixed(2)} rejected`,
+            ipAddress,
+            userAgent,
+            riskLevel: 'MEDIUM',
+            metadata: {
+              transferId,
+              adminId,
+              bankName: transaction.metadata?.bankName,
+              rejectedAt: currentTimestamp,
+              rejectionReason: reason
+            }
+          }
+        })
+
+        return { updatedTransaction }
+      })
+
+      res.json({
+        success: true,
+        message: 'Transfer rejected successfully',
+        transaction: result.updatedTransaction
+      })
     }
   } catch (error) {
-    console.error('Approve transfer error:', error)
+    console.error('Transfer review error:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// GET /api/admin/transfers/stats - Get transfer statistics
+adminRouter.get('/transfers/stats', async (req, res) => {
+  try {
+    const { prisma } = require('../prisma')
+    
+    const stats = await Promise.all([
+      // Total pending transfers
+      prisma.transaction.count({
+        where: {
+          type: 'DEBIT',
+          metadata: { path: ['status'], equals: 'pending' }
+        }
+      }),
+      
+      // Total pending amount
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: {
+          type: 'DEBIT',
+          metadata: { path: ['status'], equals: 'pending' }
+        }
+      }),
+      
+      // Approved transfers today
+      prisma.transaction.count({
+        where: {
+          type: 'DEBIT',
+          metadata: { path: ['status'], equals: 'approved' },
+          createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+        }
+      }),
+      
+      // Rejected transfers today
+      prisma.transaction.count({
+        where: {
+          type: 'DEBIT',
+          metadata: { path: ['status'], equals: 'rejected' },
+          createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+        }
+      })
+    ])
+
+    res.json({
+      pendingCount: stats[0],
+      pendingAmount: stats[1]._sum.amount || 0,
+      approvedToday: stats[2],
+      rejectedToday: stats[3]
+    })
+  } catch (error) {
+    console.error('Transfer stats error:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 })

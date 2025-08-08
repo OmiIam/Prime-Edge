@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { prisma } from '../prisma'
 import { requireAuth, requireOwnershipOrAdmin } from '../middleware/auth'
+import { transferRateLimit, validateTransferRequest, fraudDetection } from '../middleware/transferValidation'
+import { TransferService } from '../services/transferService'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
@@ -127,108 +129,105 @@ userRouter.get('/dashboard', async (req, res) => {
   }
 })
 
-// POST /api/user/transfer - Create a transfer
-userRouter.post('/transfer', async (req, res) => {
+// POST /api/user/transfer - Create a transfer with enhanced security
+userRouter.post('/transfer', [
+  transferRateLimit,
+  validateTransferRequest,
+  fraudDetection
+], async (req, res) => {
   try {
-    const { amount, recipientInfo, transferType, bankName } = req.body
+    const { amount, recipientInfo, transferType, bankName } = req.validatedTransfer!;
+    const riskAssessment = req.riskAssessment!;
+    const userId = req.user!.id;
 
-    // Validate required fields
-    if (!amount || !recipientInfo || !transferType) {
-      return res.status(400).json({ message: 'Amount, recipient info, and transfer type are required' })
-    }
-
-    // Additional validation for external bank transfers
-    if (transferType === 'external_bank' && !bankName) {
-      return res.status(400).json({ message: 'Bank name is required for external bank transfers' })
-    }
-
-    // Validate amount
-    const transferAmount = parseFloat(amount)
-    if (isNaN(transferAmount) || transferAmount <= 0) {
-      return res.status(400).json({ message: 'Invalid transfer amount' })
-    }
-
-    // Check user balance
-    const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
-      select: { balance: true }
-    })
-
-    if (!user || user.balance < transferAmount) {
-      return res.status(400).json({ message: 'Insufficient funds' })
-    }
-
-    // For external bank transfers, we need to hold the funds but not deduct them until approved
-    let balanceUpdate = {};
+    // Use the enhanced TransferService for external bank transfers
     if (transferType === 'external_bank') {
-      // Check if user has sufficient balance including any pending external transfers
-      const pendingExternalTransfers = await prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: {
-          userId: req.user!.id,
-          type: 'DEBIT',
+      const transaction = await TransferService.createExternalTransfer(userId, {
+        amount,
+        recipientInfo,
+        bankName: bankName!,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+
+      // Update transaction with risk assessment
+      await prisma.transaction.update({
+        where: { id: transaction.id },
+        data: {
           metadata: {
-            path: ['status'],
-            equals: 'pending'
+            ...transaction.metadata,
+            riskScore: riskAssessment.riskScore,
+            riskLevel: riskAssessment.riskLevel,
+            riskFactors: riskAssessment.riskFactors,
+            requiresManualReview: riskAssessment.requiresManualReview
           }
         }
       });
-      
-      const totalPending = pendingExternalTransfers._sum.amount || 0;
-      if (user.balance - totalPending < transferAmount) {
-        return res.status(400).json({ 
-          message: 'Insufficient funds including pending transfers' 
-        });
-      }
-    } else {
-      // For internal transfers, deduct immediately
-      balanceUpdate = { balance: { decrement: transferAmount } };
+
+      return res.json({
+        success: true,
+        transaction,
+        message: riskAssessment.requiresManualReview 
+          ? 'External bank transfer submitted for manual review due to risk factors. You will receive notification once processed.'
+          : 'External bank transfer submitted for approval. You will receive notification once processed.',
+        riskLevel: riskAssessment.riskLevel,
+        estimatedProcessingTime: riskAssessment.requiresManualReview ? '1-3 business days' : '24 hours'
+      });
     }
 
-    // Create transaction record with enhanced metadata
-    const transaction = await prisma.transaction.create({
-      data: {
-        userId: req.user!.id,
-        type: 'DEBIT',
-        amount: transferAmount,
-        description: transferType === 'external_bank' 
-          ? `External bank transfer to ${bankName}`
-          : transferType === 'email'
-          ? `Transfer to ${recipientInfo}`
-          : `Internal transfer to ${transferType} account`,
-        metadata: {
-          transferType,
-          recipientInfo: transferType === 'external_bank' 
-            ? `Account ending in ${recipientInfo.slice(-4)}` 
-            : recipientInfo,
-          bankName: transferType === 'external_bank' ? bankName : undefined,
-          fullAccountInfo: transferType === 'external_bank' ? recipientInfo : undefined,
-          status: transferType === 'external_bank' ? 'pending' : 'completed',
-          reason: transferType === 'external_bank' ? 'External bank transfer awaiting approval' : 'Internal transfer',
-          submittedAt: new Date().toISOString(),
-          requiresApproval: transferType === 'external_bank'
+    // Handle internal transfers (checking/savings)
+    const transaction = await prisma.$transaction(async (tx) => {
+      // Create transaction record
+      const newTransaction = await tx.transaction.create({
+        data: {
+          userId,
+          type: 'DEBIT',
+          amount,
+          description: `Internal transfer to ${transferType} account`,
+          status: 'COMPLETED',
+          metadata: {
+            transferType,
+            recipientInfo,
+            status: 'completed',
+            reason: 'Internal transfer completed immediately',
+            submittedAt: new Date().toISOString(),
+            processedAt: new Date().toISOString(),
+            requiresApproval: false,
+            riskScore: riskAssessment.riskScore,
+            riskLevel: riskAssessment.riskLevel
+          }
         }
-      }
-    })
+      });
 
-    // Update user balance for internal transfers only
-    if (transferType !== 'external_bank') {
-      await prisma.user.update({
-        where: { id: req.user!.id },
-        data: balanceUpdate
-      })
-    }
+      // Update user balance immediately for internal transfers
+      await tx.user.update({
+        where: { id: userId },
+        data: { balance: { decrement: amount } }
+      });
+
+      return newTransaction;
+    });
 
     res.json({
       success: true,
       transaction,
-      message: transferType === 'external_bank' 
-        ? 'External bank transfer submitted for approval. You will receive a notification once processed.'
-        : 'Transfer completed successfully'
-    })
+      message: 'Internal transfer completed successfully'
+    });
+
   } catch (error) {
-    console.error('Transfer error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('Enhanced transfer error:', error);
+    
+    if (error instanceof Error) {
+      return res.status(400).json({ 
+        message: error.message,
+        code: 'TRANSFER_ERROR'
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Internal server error',
+      code: 'INTERNAL_ERROR' 
+    });
   }
 })
 
