@@ -304,12 +304,14 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     
     setIsTransferLoading(true);
     try {
-      const transferData = {
-        amount: transferAmount,
-        recipientInfo,
-        transferType,
-        bankName: transferType === 'external_bank' ? bankName : undefined
-      };
+      // Create a clean transfer data object with only primitive values
+      const transferData = {};
+      transferData.amount = parseFloat(transferAmount);
+      transferData.recipientInfo = String(recipientInfo);
+      transferData.transferType = String(transferType);
+      if (transferType === 'external_bank') {
+        transferData.bankName = String(bankName);
+      }
 
       const response = await fetch('/api/user/transfer', {
         method: 'POST',
