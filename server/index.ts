@@ -1,7 +1,9 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { createServer } from "http";
 import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
 import { disconnectDatabase } from "./prisma";
+import { initializeSocketService } from "./services/socketService";
 
 const app = express();
 
@@ -69,7 +71,20 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  // Create HTTP server for both Express and Socket.IO
+  const httpServer = createServer(app);
+  
+  // Initialize Socket.IO service with HTTP server
+  let socketService: any = null;
+  try {
+    socketService = initializeSocketService(httpServer);
+    log('✅ Socket.IO service initialized successfully');
+  } catch (error) {
+    log('❌ Failed to initialize Socket.IO service:', error.message);
+  }
+
+  // Register API routes (this sets up the express routes but returns the server)
+  await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -83,7 +98,7 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    await setupVite(app, httpServer);
   } else {
     serveStatic(app);
   }
@@ -95,28 +110,50 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || '5173', 10);
   const host = process.env.NODE_ENV === 'development' ? 'localhost' : '0.0.0.0';
   
-  server.listen(port, host, () => {
+  httpServer.listen(port, host, () => {
     log(`🚀 Server running at http://${host}:${port}`);
     log(`📱 Frontend: http://${host}:${port}`);
     log(`🔧 Admin: http://${host}:${port}/admin`);
+    if (socketService) {
+      log(`🔌 WebSocket server ready for real-time updates`);
+    }
   });
 
   // Graceful shutdown
-  process.on('SIGINT', async () => {
-    log('Shutting down gracefully...');
-    await disconnectDatabase();
-    server.close(() => {
-      log('Server closed');
+  const gracefulShutdown = async (signal: string) => {
+    log(`Received ${signal}, shutting down gracefully...`);
+    
+    // Shutdown Socket.IO service first
+    if (socketService) {
+      try {
+        await socketService.shutdown();
+        log('✅ Socket.IO service shut down');
+      } catch (error) {
+        log('❌ Error shutting down Socket.IO service:', error.message);
+      }
+    }
+    
+    // Disconnect database
+    try {
+      await disconnectDatabase();
+      log('✅ Database disconnected');
+    } catch (error) {
+      log('❌ Error disconnecting database:', error.message);
+    }
+    
+    // Close HTTP server
+    httpServer.close(() => {
+      log('✅ HTTP server closed');
       process.exit(0);
     });
-  });
 
-  process.on('SIGTERM', async () => {
-    log('Shutting down gracefully...');
-    await disconnectDatabase();
-    server.close(() => {
-      log('Server closed');
-      process.exit(0);
-    });
-  });
+    // Force exit if graceful shutdown takes too long
+    setTimeout(() => {
+      log('❌ Forced shutdown due to timeout');
+      process.exit(1);
+    }, 10000); // 10 second timeout
+  };
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 })();

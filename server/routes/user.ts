@@ -4,6 +4,7 @@ import { requireAuth, requireOwnershipOrAdmin } from '../middleware/auth'
 import { transferRateLimit, validateTransferRequest, fraudDetection } from '../middleware/transferValidation'
 import { TransferService } from '../services/transferService'
 import { sanitizeTransactionData, createPlainObject, createSafeJsonResponse, createErrorResponse, createSuccessResponse } from '../utils/responseUtils'
+import { getSocketService } from '../services/socketService'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
@@ -235,6 +236,15 @@ userRouter.post('/transfer', async (req, res) => {
       const cleanTransaction = sanitizeTransactionData(transaction);
       console.log('✅ External transfer created successfully:', cleanTransaction.id);
 
+      // Emit WebSocket event for real-time updates
+      try {
+        const socketService = getSocketService();
+        socketService.emitTransferPending(req.user!.id, transaction);
+        console.log('🚀 Transfer pending event emitted via WebSocket');
+      } catch (socketError) {
+        console.warn('⚠️  WebSocket not available, falling back to polling:', socketError.message);
+      }
+
       const successResponse = createSuccessResponse(
         {
           transaction: cleanTransaction
@@ -311,10 +321,95 @@ userRouter.get('/pending-transfers', async (req, res) => {
       orderBy: { createdAt: 'desc' }
     })
 
-    res.json(pendingTransfers)
+    // Sanitize pending transfers to prevent circular references
+    const cleanPendingTransfers = pendingTransfers.map(transaction => sanitizeTransactionData(transaction));
+    
+    const responseData = createPlainObject({
+      pendingTransfers: cleanPendingTransfers
+    });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(responseData);
   } catch (error) {
-    console.error('Get pending transfers error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('❌ Get pending transfers error:', error);
+    const errorResponse = createErrorResponse('Failed to fetch pending transfers', 500);
+    res.status(500).json(errorResponse.body);
+  }
+})
+
+// GET /api/user/transfer/updates - Get latest transfer status updates (polling fallback)
+userRouter.get('/transfer/updates', async (req, res) => {
+  try {
+    console.log('📡 Transfer updates requested by user:', req.user!.id);
+
+    // Get query parameters for pagination and filtering
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100); // Cap at 100
+    const sinceTimestamp = req.query.since as string;
+
+    // Build query conditions
+    const whereCondition: any = {
+      userId: req.user!.id,
+      type: 'DEBIT' // Focus on outgoing transfers
+    };
+
+    // If a timestamp is provided, only get transactions since then
+    if (sinceTimestamp) {
+      try {
+        const sinceDate = new Date(sinceTimestamp);
+        if (!isNaN(sinceDate.getTime())) {
+          whereCondition.updatedAt = {
+            gt: sinceDate
+          };
+        }
+      } catch (dateError) {
+        console.warn('Invalid since timestamp provided:', sinceTimestamp);
+      }
+    }
+
+    // Fetch recent transactions with focus on external transfers
+    const recentTransactions = await prisma.transaction.findMany({
+      where: whereCondition,
+      take: limit,
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    console.log(`📊 Found ${recentTransactions.length} transaction updates for user ${req.user!.id}`);
+
+    // Sanitize all transaction data to prevent circular references
+    const cleanTransactions = recentTransactions.map(transaction => sanitizeTransactionData(transaction));
+
+    // Filter for transactions that have meaningful status updates
+    const transferUpdates = cleanTransactions.filter(transaction => {
+      // Include transactions that are external transfers or have status changes
+      const metadata = transaction.metadata || {};
+      return metadata.transferType === 'external_bank' || 
+             metadata.requiresApproval === true ||
+             transaction.status === 'COMPLETED' ||
+             transaction.status === 'REJECTED' ||
+             transaction.status === 'APPROVED';
+    });
+
+    const responseData = createPlainObject({
+      updates: transferUpdates,
+      timestamp: new Date().toISOString(),
+      hasMore: recentTransactions.length >= limit,
+      count: transferUpdates.length
+    });
+
+    console.log(`✅ Returning ${transferUpdates.length} transfer updates`);
+
+    // Ensure proper JSON response
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.status(200).json(responseData);
+
+  } catch (error) {
+    console.error('❌ Transfer updates error:', error);
+    const errorResponse = createErrorResponse('Failed to fetch transfer updates', 500);
+    
+    // Ensure JSON response even on error
+    res.setHeader('Content-Type', 'application/json');
+    res.status(500).json(errorResponse.body);
   }
 })
 

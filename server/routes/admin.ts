@@ -3,6 +3,8 @@ import { AdminService } from '../services/adminService'
 import { adminUpdateUserSchema, adminUpdateBalanceSchema } from '../../shared/validation'
 import { requireAuth, requireAdmin } from '../middleware/auth'
 import { adminActionRateLimit, validateAdminReview } from '../middleware/transferValidation'
+import { sanitizeTransactionData, createSuccessResponse, createErrorResponse } from '../utils/responseUtils'
+import { getSocketService } from '../services/socketService'
 import adminKycRouter from './admin/kyc'
 
 export const adminRouter = Router()
@@ -285,6 +287,20 @@ adminRouter.post('/transfers/:id/review', [
         return { updatedTransaction, updatedUser }
       })
 
+      // Emit real-time WebSocket event to user about approval
+      try {
+        const socketService = getSocketService();
+        socketService.emitTransferUpdate(
+          transaction.userId, 
+          result.updatedTransaction, 
+          'approved',
+          reason || 'Transfer approved and processed by admin'
+        );
+        console.log(`🎉 Transfer approval event emitted to user ${transaction.userId}`);
+      } catch (socketError) {
+        console.warn('⚠️  WebSocket not available for transfer approval notification:', socketError.message);
+      }
+
       // TODO: In production, integrate with actual bank transfer API here
       // await externalBankTransferService.processTransfer({
       //   amount: transaction.amount,
@@ -293,11 +309,13 @@ adminRouter.post('/transfers/:id/review', [
       //   transactionId: transferId
       // })
 
-      res.json({
-        success: true,
-        message: 'Transfer approved and funds processed successfully',
-        transaction: result.updatedTransaction
-      })
+      const sanitizedTransaction = sanitizeTransactionData(result.updatedTransaction);
+      const successResponse = createSuccessResponse(
+        { transaction: sanitizedTransaction },
+        'Transfer approved and funds processed successfully'
+      );
+
+      res.status(200).json(successResponse.body);
 
     } else if (action === 'reject') {
       // Process the rejection
@@ -351,11 +369,27 @@ adminRouter.post('/transfers/:id/review', [
         return { updatedTransaction }
       })
 
-      res.json({
-        success: true,
-        message: 'Transfer rejected successfully',
-        transaction: result.updatedTransaction
-      })
+      // Emit real-time WebSocket event to user about rejection
+      try {
+        const socketService = getSocketService();
+        socketService.emitTransferUpdate(
+          transaction.userId, 
+          result.updatedTransaction, 
+          'rejected',
+          reason || 'Transfer rejected by admin review'
+        );
+        console.log(`❌ Transfer rejection event emitted to user ${transaction.userId}`);
+      } catch (socketError) {
+        console.warn('⚠️  WebSocket not available for transfer rejection notification:', socketError.message);
+      }
+
+      const sanitizedTransaction = sanitizeTransactionData(result.updatedTransaction);
+      const successResponse = createSuccessResponse(
+        { transaction: sanitizedTransaction },
+        'Transfer rejected successfully'
+      );
+
+      res.status(200).json(successResponse.body);
     }
   } catch (error) {
     console.error('Transfer review error:', error)
