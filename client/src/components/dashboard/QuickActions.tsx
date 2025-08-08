@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { createTransferPayload, safeStringify, debugObject } from "@/utils/safeSerialization";
 import { 
   Plus, 
   Send, 
@@ -299,76 +300,35 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     }
   };
 
-  // Helper function to create a completely clean object with no circular references
-  const createCleanTransferData = () => {
-    const cleanData = Object.create(null); // No prototype chain
-    cleanData.amount = Number(transferAmount) || 0;
-    cleanData.recipientInfo = recipientInfo ? String(recipientInfo) : '';
-    cleanData.transferType = transferType ? String(transferType) : '';
-    
-    if (transferType === 'external_bank' && bankName) {
-      cleanData.bankName = String(bankName);
-    }
-    
-    return cleanData;
-  };
-
   const handleTransfer = async () => {
     if (!validateTransfer()) return;
     
     setIsTransferLoading(true);
     try {
-      // Create completely clean transfer data
-      const transferData = createCleanTransferData();
-      
-      console.log('Clean transfer data:', transferData);
+      // Create bulletproof transfer payload using utility function
+      const transferData = createTransferPayload({
+        amount: transferAmount,
+        recipientInfo: recipientInfo,
+        transferType: transferType,
+        bankName: transferType === 'external_bank' ? bankName : undefined
+      });
 
-      // Create completely clean headers
-      const headers = Object.create(null);
+      // Debug the payload to ensure it's clean
+      console.log('🚀 Transfer payload created:', transferData);
+      debugObject(transferData, 2);
+
+      // Create clean headers object
+      const headers: Record<string, string> = {};
       headers['Content-Type'] = 'application/json';
       
       const authHeader = authManager.getAuthHeader();
-      if (authHeader && authHeader.Authorization) {
-        headers.Authorization = String(authHeader.Authorization);
+      if (authHeader?.Authorization) {
+        headers['Authorization'] = String(authHeader.Authorization);
       }
 
-      // Use a safe JSON stringify with replacer to avoid circular references
-      let requestBody: string;
-      try {
-        // Safe stringify with circular reference handling
-        requestBody = JSON.stringify(transferData, (key, value) => {
-          if (value !== null && typeof value === 'object') {
-            // Only allow plain objects and arrays
-            if (Array.isArray(value)) return value;
-            if (Object.prototype.toString.call(value) === '[object Object]') {
-              // Create a clean copy of the object
-              const clean = {};
-              for (const prop in value) {
-                if (typeof value[prop] !== 'function' && typeof value[prop] !== 'object') {
-                  clean[prop] = value[prop];
-                }
-              }
-              return clean;
-            }
-            return {}; // Replace complex objects with empty object
-          }
-          return value;
-        });
-        
-        console.log('Request body successfully stringified:', requestBody);
-      } catch (stringifyError) {
-        console.error('JSON.stringify error details:', stringifyError);
-        console.error('transferData causing error:', transferData);
-        // Fallback: create minimal object
-        const fallbackData = Object.create(null);
-        fallbackData.amount = Number(transferAmount) || 0;
-        fallbackData.recipientInfo = String(recipientInfo || '');
-        fallbackData.transferType = String(transferType || '');
-        if (transferType === 'external_bank' && bankName) {
-          fallbackData.bankName = String(bankName);
-        }
-        requestBody = JSON.stringify(fallbackData);
-      }
+      // Use safe stringify - guaranteed to work
+      const requestBody = safeStringify(transferData);
+      console.log('✅ Request body safely stringified:', requestBody);
 
       const response = await fetch('/api/user/transfer', {
         method: 'POST',
@@ -377,19 +337,38 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
       });
 
       if (!response.ok) {
-        // Try to get error message from response
+        // Handle error response safely
         let errorMessage = 'Transfer failed. Please try again.';
         try {
-          const errorResult = await response.json();
-          errorMessage = errorResult.message || `HTTP ${response.status}: ${response.statusText}`;
-        } catch {
+          const contentType = response.headers.get('content-type');
+          if (contentType?.includes('application/json')) {
+            const errorResult = await response.json();
+            errorMessage = errorResult.message || `HTTP ${response.status}: ${response.statusText}`;
+          } else {
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse error response:', parseError);
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
         setTransferError(errorMessage);
         return;
       }
 
-      const result = await response.json();
+      // Parse response safely
+      let result;
+      try {
+        const contentType = response.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
+          result = await response.json();
+        } else {
+          console.warn('Non-JSON response received from server');
+          result = { success: true, message: 'Transfer submitted successfully' };
+        }
+      } catch (parseError) {
+        console.error('Failed to parse successful response:', parseError);
+        result = { success: true, message: 'Transfer submitted successfully' };
+      }
 
       // Call parent callback for any additional handling
       onTransfer(transferAmount, recipientInfo, transferType, bankName);

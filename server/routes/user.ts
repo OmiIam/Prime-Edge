@@ -3,6 +3,7 @@ import { prisma } from '../prisma'
 import { requireAuth, requireOwnershipOrAdmin } from '../middleware/auth'
 import { transferRateLimit, validateTransferRequest, fraudDetection } from '../middleware/transferValidation'
 import { TransferService } from '../services/transferService'
+import { sanitizeTransactionData, createPlainObject, createSafeJsonResponse, createErrorResponse, createSuccessResponse } from '../utils/responseUtils'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
@@ -44,8 +45,10 @@ userRouter.get('/profile', async (req, res) => {
 userRouter.get('/transactions', async (req, res) => {
   try {
     const page = parseInt(req.query.page as string) || 1
-    const limit = parseInt(req.query.limit as string) || 10
+    const limit = Math.min(parseInt(req.query.limit as string) || 10, 100) // Cap at 100
     const skip = (page - 1) * limit
+
+    console.log('📄 Fetching transactions:', { page, limit, userId: req.user!.id });
 
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
@@ -59,18 +62,28 @@ userRouter.get('/transactions', async (req, res) => {
       }),
     ])
 
-    res.json({
-      transactions,
+    // Sanitize all transaction data
+    const cleanTransactions = transactions.map(transaction => sanitizeTransactionData(transaction));
+
+    const responseData = createPlainObject({
+      transactions: cleanTransactions,
       pagination: {
         page,
         limit,
         total,
         totalPages: Math.ceil(total / limit),
       },
-    })
+    });
+
+    console.log('✅ Transactions fetched successfully:', cleanTransactions.length);
+
+    // Ensure response is properly formatted JSON
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(responseData);
   } catch (error) {
-    console.error('Get transactions error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('❌ Get transactions error:', error);
+    const errorResponse = createErrorResponse('Failed to fetch transactions', 500);
+    res.status(500).json(errorResponse.body);
   }
 })
 
@@ -132,22 +145,36 @@ userRouter.get('/dashboard', async (req, res) => {
 // POST /api/user/transfer - Create a transfer
 userRouter.post('/transfer', async (req, res) => {
   try {
+    console.log('📥 Transfer request received:', {
+      body: req.body,
+      headers: req.headers['content-type']
+    });
+
+    // Validate request body and content type
+    if (!req.body || typeof req.body !== 'object') {
+      const errorResponse = createErrorResponse('Invalid request body', 400);
+      return res.status(400).json(errorResponse.body);
+    }
+
     const { amount, recipientInfo, transferType, bankName } = req.body
 
     // Validate required fields
     if (!amount || !recipientInfo || !transferType) {
-      return res.status(400).json({ message: 'Amount, recipient info, and transfer type are required' })
+      const errorResponse = createErrorResponse('Amount, recipient info, and transfer type are required', 400);
+      return res.status(400).json(errorResponse.body);
     }
 
     // Additional validation for external bank transfers
     if (transferType === 'external_bank' && !bankName) {
-      return res.status(400).json({ message: 'Bank name is required for external bank transfers' })
+      const errorResponse = createErrorResponse('Bank name is required for external bank transfers', 400);
+      return res.status(400).json(errorResponse.body);
     }
 
     // Validate amount
     const transferAmount = parseFloat(amount)
     if (isNaN(transferAmount) || transferAmount <= 0) {
-      return res.status(400).json({ message: 'Invalid transfer amount' })
+      const errorResponse = createErrorResponse('Invalid transfer amount', 400);
+      return res.status(400).json(errorResponse.body);
     }
 
     // Check user balance
@@ -157,7 +184,8 @@ userRouter.post('/transfer', async (req, res) => {
     })
 
     if (!user || user.balance < transferAmount) {
-      return res.status(400).json({ message: 'Insufficient funds' })
+      const errorResponse = createErrorResponse('Insufficient funds', 400);
+      return res.status(400).json(errorResponse.body);
     }
 
     // For external bank transfers, we need to hold the funds but not deduct them until approved
@@ -177,9 +205,8 @@ userRouter.post('/transfer', async (req, res) => {
       
       const totalPending = pendingExternalTransfers._sum.amount || 0;
       if (user.balance - totalPending < transferAmount) {
-        return res.status(400).json({ 
-          message: 'Insufficient funds including pending transfers' 
-        });
+        const errorResponse = createErrorResponse('Insufficient funds including pending transfers', 400);
+        return res.status(400).json(errorResponse.body);
       }
 
       // Create transaction record with enhanced metadata
@@ -204,18 +231,18 @@ userRouter.post('/transfer', async (req, res) => {
         }
       })
 
-      return res.json({
-        success: true,
-        transaction: {
-          id: transaction.id,
-          amount: transaction.amount,
-          description: transaction.description,
-          status: transaction.status,
-          createdAt: transaction.createdAt,
-          metadata: transaction.metadata
+      // Sanitize transaction data to prevent circular references
+      const cleanTransaction = sanitizeTransactionData(transaction);
+      console.log('✅ External transfer created successfully:', cleanTransaction.id);
+
+      const successResponse = createSuccessResponse(
+        {
+          transaction: cleanTransaction
         },
-        message: 'External bank transfer submitted for approval. You will receive a notification once processed.'
-      })
+        'External bank transfer submitted for approval. You will receive a notification once processed.'
+      );
+
+      return res.status(200).json(successResponse.body);
     } else {
       // Handle internal transfers - deduct immediately
       const transaction = await prisma.$transaction(async (tx) => {
@@ -245,23 +272,27 @@ userRouter.post('/transfer', async (req, res) => {
         return newTransaction
       })
 
-      return res.json({
-        success: true,
-        transaction: {
-          id: transaction.id,
-          amount: transaction.amount,
-          description: transaction.description,
-          status: transaction.status,
-          createdAt: transaction.createdAt,
-          metadata: transaction.metadata
+      // Sanitize transaction data to prevent circular references
+      const cleanTransaction = sanitizeTransactionData(transaction);
+      console.log('✅ Internal transfer completed successfully:', cleanTransaction.id);
+
+      const successResponse = createSuccessResponse(
+        {
+          transaction: cleanTransaction
         },
-        message: 'Transfer completed successfully'
-      })
+        'Transfer completed successfully'
+      );
+
+      return res.status(200).json(successResponse.body);
     }
 
   } catch (error) {
-    console.error('Transfer error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('❌ Transfer error:', error);
+    const errorResponse = createErrorResponse('Internal server error', 500, {
+      timestamp: new Date().toISOString(),
+      path: req.path
+    });
+    return res.status(500).json(errorResponse.body);
   }
 })
 
