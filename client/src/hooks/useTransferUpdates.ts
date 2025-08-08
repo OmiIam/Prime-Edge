@@ -38,7 +38,7 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         return;
       }
       
-      const response = await fetch(`/api/user/transactions?limit=50&page=1`, {
+      const response = await fetch(`/api/user/transfer-updates?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -75,23 +75,27 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         return;
       }
 
-      const transactions = Array.isArray(data.transactions) ? data.transactions : [];
+      const updates = Array.isArray(data.updates) ? data.updates : [];
 
-      // Look for external transfer status updates with better type checking
-      const updatedTransfers = transactions.filter((transaction: any) => {
+      console.log(`📊 Received ${updates.length} transfer updates from API`);
+
+      // All updates from the new endpoint are already filtered for relevant transfers
+      const updatedTransfers = updates.filter((transaction: any) => {
         // Validate transaction structure
         if (!transaction || typeof transaction !== 'object') {
+          console.warn('Invalid transaction object:', transaction);
           return false;
         }
 
         // Check required fields exist
         if (!transaction.id) {
+          console.warn('Transaction missing ID:', transaction);
           return false;
         }
 
         // Check if this is a recent transaction (since last check)
         try {
-          const transactionTime = new Date(transaction.createdAt);
+          const transactionTime = new Date(transaction.updatedAt || transaction.createdAt);
           if (transactionTime <= lastCheckTime.current) {
             return false; // Skip old transactions
           }
@@ -100,26 +104,24 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
           return false;
         }
 
-        // Check if it has metadata and is an external bank transfer
-        if (!transaction.metadata) {
+        // The new API already filters for external bank transfers and status changes
+        // Just validate that we have the necessary data
+        const metadata = transaction.metadata || {};
+        
+        // Check for status changes (approved/rejected)
+        const hasStatusChange = (
+          metadata.approvedAt || 
+          metadata.rejectedAt || 
+          transaction.status === 'COMPLETED' || 
+          transaction.status === 'REJECTED' ||
+          transaction.status === 'APPROVED'
+        );
+
+        if (!hasStatusChange) {
           return false;
         }
 
-        const metadata = transaction.metadata;
-        if (metadata.transferType !== 'external_bank') {
-          return false;
-        }
-
-        // Check if it requires approval and has a status change
-        if (!metadata.requiresApproval) {
-          return false;
-        }
-
-        // Check for approval or rejection timestamps
-        if (!metadata.approvedAt && !metadata.rejectedAt) {
-          return false;
-        }
-
+        console.log(`✅ Valid transfer update: ${transaction.id} - ${metadata.status || transaction.status}`);
         return true;
       });
 
@@ -128,6 +130,7 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         queryClient.invalidateQueries({ queryKey: ['/api/user/transactions'] });
         queryClient.invalidateQueries({ queryKey: ['/api/user/dashboard'] });
         queryClient.invalidateQueries({ queryKey: ['/api/user/pending-transfers'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/user/transfer-updates'] });
 
         // Process each update with validation
         updatedTransfers.forEach((transaction: any) => {
@@ -202,6 +205,7 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
     checkForUpdates();
     queryClient.invalidateQueries({ queryKey: ['/api/user/transactions'] });
     queryClient.invalidateQueries({ queryKey: ['/api/user/pending-transfers'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/user/transfer-updates'] });
   };
 
   return {

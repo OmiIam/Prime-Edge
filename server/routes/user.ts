@@ -337,8 +337,8 @@ userRouter.get('/pending-transfers', async (req, res) => {
   }
 })
 
-// GET /api/user/transfer/updates - Get latest transfer status updates (polling fallback)
-userRouter.get('/transfer/updates', async (req, res) => {
+// GET /api/user/transfer-updates - Get latest transfer status updates (polling fallback)
+userRouter.get('/transfer-updates', async (req, res) => {
   try {
     console.log('📡 Transfer updates requested by user:', req.user!.id);
 
