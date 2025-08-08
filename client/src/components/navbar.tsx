@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { authManager } from "@/lib/auth";
 import { useLocation } from "wouter";
 import Logo from "@/components/logo";
-import { LogOut, User, Settings, Shield, Menu, X, FileText, Upload } from "lucide-react";
+import { LogOut, User, Settings, Shield, Menu, X, FileText, Upload, UserCheck } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -151,6 +151,19 @@ export default function Navbar({ user }: NavbarProps) {
                     </DropdownMenuItem>
                   )}
                   
+                  <DropdownMenuItem 
+                    className="text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-indigo-200"
+                    onClick={() => setLocation('/kyc/submit')}
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
+                      <UserCheck className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-base">Identity Verification</span>
+                      <span className="text-xs text-gray-600 font-medium">Complete your KYC verification</span>
+                    </div>
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem 
                     className="text-gray-800 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-green-200"
                     onClick={() => setLocation('/statements')}

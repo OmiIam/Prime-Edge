@@ -328,10 +328,16 @@ export default function Dashboard() {
 
       const response = await fetch('/api/user/transfer', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authManager.getAuthHeader()
-        },
+        headers: (() => {
+          const authHeader = authManager.getAuthHeader();
+          const headers: any = {
+            'Content-Type': 'application/json'
+          };
+          if (authHeader.Authorization) {
+            headers.Authorization = authHeader.Authorization;
+          }
+          return headers;
+        })(),
         body: JSON.stringify(transferData)
       });
 

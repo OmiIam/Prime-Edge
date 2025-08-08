@@ -440,3 +440,14 @@ export const useKycStatistics = () => {
     fetchStatistics
   };
 };
+
+// Main export combining all hooks for convenience
+export const useAdminKyc = () => {
+  return {
+    useAdminKycRequests,
+    useKycRequestDetails,
+    useKycReview,
+    useBulkKycOperations,
+    useKycStatistics
+  };
+};

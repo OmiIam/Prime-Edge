@@ -32,4 +32,15 @@ export async function disconnectDatabase() {
 }
 
 // Export types for use in other files
-export type { User, Transaction, AdminLog, Role, AccountType, TransactionType, TransactionStatus } from '@prisma/client'
+export type { 
+  User, 
+  Transaction, 
+  AdminLog, 
+  Role, 
+  AccountType, 
+  TransactionType, 
+  TransactionStatus,
+  KycRequest,
+  KycRequestStatus,
+  KycStatus
+} from '@prisma/client'

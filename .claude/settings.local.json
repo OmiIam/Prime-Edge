@@ -6,7 +6,8 @@
       "Bash(railway up:*)",
       "Bash(grep:*)",
       "Bash(npx tsc:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": []
   }

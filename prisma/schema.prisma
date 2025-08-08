@@ -89,6 +89,8 @@ model User {
   verificationRequests VerificationRequest[]
   adminVerifications AdminVerification[] @relation("VerifiedUser")
   verificationActions AdminVerification[] @relation("VerifyingAdmin")
+  kycRequests         KycRequest[]
+  reviewedKycRequests KycRequest[]        @relation("KycReviewer")
 
   @@map("users")
 }
@@ -488,4 +490,52 @@ enum VerificationAction {
   ESCALATE
   RESET
   OVERRIDE
+}
+
+// KYC Requests Model - Dedicated table for KYC submissions
+model KycRequest {
+  id                  String         @id @default(uuid())
+  userId              String
+  status              KycRequestStatus @default(PENDING)
+  
+  // Document file paths
+  documents           String[]       @default([]) // Up to 3 identity documents
+  selfiePath          String?
+  
+  // Personal Information
+  fullName            String
+  dateOfBirth         DateTime
+  countryOfResidence  String
+  residentialAddress  String
+  
+  // Additional verification data
+  documentTypes       String[]       @default([]) // ['PASSPORT', 'DRIVERS_LICENSE', 'NATIONAL_ID']
+  submissionIp        String?
+  deviceFingerprint   String?
+  
+  // Review tracking
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  rejectionReason     String?
+  adminNotes          String?
+  riskScore           Int            @default(0)
+  complianceFlags     Json           @default("{}")
+  
+  // Timestamps
+  submittedAt         DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  
+  // Relations
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer            User?          @relation("KycReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@map("kyc_requests")
+}
+
+enum KycRequestStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  REQUIRES_ADDITIONAL_INFO
 }
