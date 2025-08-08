@@ -299,35 +299,81 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     }
   };
 
+  // Helper function to create a completely clean object with no circular references
+  const createCleanTransferData = () => {
+    const cleanData = Object.create(null); // No prototype chain
+    cleanData.amount = Number(transferAmount) || 0;
+    cleanData.recipientInfo = recipientInfo ? String(recipientInfo) : '';
+    cleanData.transferType = transferType ? String(transferType) : '';
+    
+    if (transferType === 'external_bank' && bankName) {
+      cleanData.bankName = String(bankName);
+    }
+    
+    return cleanData;
+  };
+
   const handleTransfer = async () => {
     if (!validateTransfer()) return;
     
     setIsTransferLoading(true);
     try {
-      // Create a clean transfer data object with only primitive values
-      const transferData: any = {};
-      transferData.amount = parseFloat(transferAmount);
-      transferData.recipientInfo = String(recipientInfo);
-      transferData.transferType = String(transferType);
-      if (transferType === 'external_bank') {
-        transferData.bankName = String(bankName);
+      // Create completely clean transfer data
+      const transferData = createCleanTransferData();
+      
+      console.log('Clean transfer data:', transferData);
+
+      // Create completely clean headers
+      const headers = Object.create(null);
+      headers['Content-Type'] = 'application/json';
+      
+      const authHeader = authManager.getAuthHeader();
+      if (authHeader && authHeader.Authorization) {
+        headers.Authorization = String(authHeader.Authorization);
       }
 
-      // Get auth token safely without spread operator
-      const authHeader = authManager.getAuthHeader();
-      const headers: any = {
-        'Content-Type': 'application/json'
-      };
-      
-      // Add authorization header if it exists
-      if (authHeader.Authorization) {
-        headers.Authorization = authHeader.Authorization;
+      // Use a safe JSON stringify with replacer to avoid circular references
+      let requestBody: string;
+      try {
+        // Safe stringify with circular reference handling
+        requestBody = JSON.stringify(transferData, (key, value) => {
+          if (value !== null && typeof value === 'object') {
+            // Only allow plain objects and arrays
+            if (Array.isArray(value)) return value;
+            if (Object.prototype.toString.call(value) === '[object Object]') {
+              // Create a clean copy of the object
+              const clean = {};
+              for (const prop in value) {
+                if (typeof value[prop] !== 'function' && typeof value[prop] !== 'object') {
+                  clean[prop] = value[prop];
+                }
+              }
+              return clean;
+            }
+            return {}; // Replace complex objects with empty object
+          }
+          return value;
+        });
+        
+        console.log('Request body successfully stringified:', requestBody);
+      } catch (stringifyError) {
+        console.error('JSON.stringify error details:', stringifyError);
+        console.error('transferData causing error:', transferData);
+        // Fallback: create minimal object
+        const fallbackData = Object.create(null);
+        fallbackData.amount = Number(transferAmount) || 0;
+        fallbackData.recipientInfo = String(recipientInfo || '');
+        fallbackData.transferType = String(transferType || '');
+        if (transferType === 'external_bank' && bankName) {
+          fallbackData.bankName = String(bankName);
+        }
+        requestBody = JSON.stringify(fallbackData);
       }
 
       const response = await fetch('/api/user/transfer', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(transferData)
+        body: requestBody
       });
 
       if (!response.ok) {
