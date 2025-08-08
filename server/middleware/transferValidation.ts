@@ -281,9 +281,15 @@ export const validateAdminReview = async (req: Request, res: Response, next: Nex
       }
     });
 
-    // Attach validated data and transfer to request
+    // Attach only the necessary data to avoid circular references
     req.validatedReview = validatedData;
-    req.transferToReview = transfer;
+    req.transferToReview = {
+      id: transfer.id,
+      userId: transfer.userId,
+      amount: transfer.amount,
+      metadata: transfer.metadata,
+      user: transfer.user
+    };
     next();
 
   } catch (error) {
