@@ -305,7 +305,7 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
     setIsTransferLoading(true);
     try {
       // Create a clean transfer data object with only primitive values
-      const transferData = {};
+      const transferData: any = {};
       transferData.amount = parseFloat(transferAmount);
       transferData.recipientInfo = String(recipientInfo);
       transferData.transferType = String(transferType);
@@ -313,12 +313,20 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
         transferData.bankName = String(bankName);
       }
 
+      // Get auth token safely without spread operator
+      const authHeader = authManager.getAuthHeader();
+      const headers: any = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Add authorization header if it exists
+      if (authHeader.Authorization) {
+        headers.Authorization = authHeader.Authorization;
+      }
+
       const response = await fetch('/api/user/transfer', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authManager.getAuthHeader()
-        },
+        headers: headers,
         body: JSON.stringify(transferData)
       });
 
@@ -356,7 +364,8 @@ export default function QuickActions({ onDeposit, onTransfer, onBillPay }: Quick
       window.location.reload();
     } catch (error) {
       console.error('Transfer error:', error);
-      setTransferError(`Network error: ${error.message}. Please check your connection and try again.`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setTransferError(`Network error: ${errorMessage}. Please check your connection and try again.`);
     } finally {
       setIsTransferLoading(false);
     }

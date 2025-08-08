@@ -32,25 +32,88 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
 
     try {
       // Fetch recent transactions to check for status changes
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No authentication token found for transfer updates');
+        return;
+      }
+      
       const response = await fetch(`/api/user/transactions?limit=50&since=${lastCheckTime.current.toISOString()}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      if (!response.ok) return;
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.warn('Authentication failed for transfer updates');
+        } else {
+          console.warn(`Transfer updates API error: ${response.status} ${response.statusText}`);
+        }
+        return;
+      }
 
-      const data = await response.json();
-      const transactions = data.transactions || [];
+      // Validate response content type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Transfer updates API returned non-JSON response');
+        return;
+      }
 
-      // Look for external transfer status updates
-      const updatedTransfers = transactions.filter((transaction: any) => 
-        transaction.metadata?.transferType === 'external_bank' &&
-        transaction.metadata?.requiresApproval &&
-        (transaction.metadata?.approvedAt || transaction.metadata?.rejectedAt) &&
-        new Date(transaction.updatedAt || transaction.createdAt) > lastCheckTime.current
-      );
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse transfer updates response:', parseError);
+        return;
+      }
+
+      // Validate response structure
+      if (!data || typeof data !== 'object') {
+        console.warn('Invalid response structure from transfer updates API');
+        return;
+      }
+
+      const transactions = Array.isArray(data.transactions) ? data.transactions : [];
+
+      // Look for external transfer status updates with better type checking
+      const updatedTransfers = transactions.filter((transaction: any) => {
+        // Validate transaction structure
+        if (!transaction || typeof transaction !== 'object') {
+          return false;
+        }
+
+        // Check required fields exist
+        if (!transaction.id || !transaction.metadata) {
+          return false;
+        }
+
+        // Check if it's an external bank transfer
+        const metadata = transaction.metadata;
+        if (metadata.transferType !== 'external_bank') {
+          return false;
+        }
+
+        // Check if it requires approval and has a status change
+        if (!metadata.requiresApproval) {
+          return false;
+        }
+
+        // Check for approval or rejection timestamps
+        if (!metadata.approvedAt && !metadata.rejectedAt) {
+          return false;
+        }
+
+        // Check if this is a new update
+        try {
+          const updateTime = new Date(transaction.updatedAt || transaction.createdAt);
+          return updateTime > lastCheckTime.current;
+        } catch (dateError) {
+          console.warn('Invalid date in transaction:', transaction.id);
+          return false;
+        }
+      });
 
       if (updatedTransfers.length > 0) {
         // Invalidate relevant queries to refresh UI
@@ -58,34 +121,46 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         queryClient.invalidateQueries({ queryKey: ['/api/user/dashboard'] });
         queryClient.invalidateQueries({ queryKey: ['/api/user/pending-transfers'] });
 
-        // Process each update
+        // Process each update with validation
         updatedTransfers.forEach((transaction: any) => {
-          const update: TransferUpdate = {
-            transferId: transaction.id,
-            userId: transaction.userId,
-            status: transaction.metadata?.approvedAt ? 'approved' : 'rejected',
-            amount: transaction.amount,
-            bankName: transaction.metadata?.bankName || 'External Bank',
-            reason: transaction.metadata?.reason,
-            timestamp: transaction.metadata?.approvedAt || transaction.metadata?.rejectedAt
-          };
+          try {
+            // Validate required fields before creating update
+            if (!transaction.id || !transaction.userId || typeof transaction.amount !== 'number') {
+              console.warn('Skipping invalid transaction update:', transaction.id);
+              return;
+            }
 
-          // Call custom callback if provided
-          if (onTransferUpdate) {
-            onTransferUpdate(update);
-          }
+            const metadata = transaction.metadata;
+            const isApproved = !!metadata.approvedAt;
+            
+            const update: TransferUpdate = {
+              transferId: transaction.id,
+              userId: transaction.userId,
+              status: isApproved ? 'approved' : 'rejected',
+              amount: transaction.amount,
+              bankName: metadata.bankName || 'External Bank',
+              reason: metadata.reason || undefined,
+              timestamp: metadata.approvedAt || metadata.rejectedAt || new Date().toISOString()
+            };
 
-          // Show toast notification
-          if (enableNotifications) {
-            const isApproved = update.status === 'approved';
-            toast({
-              title: isApproved ? "Transfer Approved! 🎉" : "Transfer Rejected",
-              description: isApproved 
-                ? `Your $${update.amount.toFixed(2)} transfer to ${update.bankName} has been approved and processed.`
-                : `Your $${update.amount.toFixed(2)} transfer to ${update.bankName} was rejected. ${update.reason ? `Reason: ${update.reason}` : ''}`,
-              variant: isApproved ? "default" : "destructive",
-              duration: 8000, // Longer duration for important updates
-            });
+            // Call custom callback if provided
+            if (onTransferUpdate) {
+              onTransferUpdate(update);
+            }
+
+            // Show toast notification
+            if (enableNotifications) {
+              toast({
+                title: isApproved ? "Transfer Approved! 🎉" : "Transfer Rejected",
+                description: isApproved 
+                  ? `Your $${update.amount.toFixed(2)} transfer to ${update.bankName} has been approved and processed.`
+                  : `Your $${update.amount.toFixed(2)} transfer to ${update.bankName} was rejected. ${update.reason ? `Reason: ${update.reason}` : ''}`,
+                variant: isApproved ? "default" : "destructive",
+                duration: 8000, // Longer duration for important updates
+              });
+            }
+          } catch (updateError) {
+            console.error('Error processing transfer update:', updateError);
           }
         });
 
