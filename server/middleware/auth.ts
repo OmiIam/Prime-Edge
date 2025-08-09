@@ -1,63 +1,125 @@
-import { Request, Response, NextFunction } from 'express'
-import { AuthService } from '../services/authService'
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { prisma } from '../index';
 
-// Extend Express Request interface to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string
-        name: string
-        email: string
-        role: 'USER' | 'ADMIN'
-        balance: number
-      }
-    }
-  }
+// Extend Express Request to include authenticated user
+export interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+    email: string;
+    role: string;
+    name?: string;
+  };
 }
 
-// Middleware to require authentication
-export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+interface JwtPayload {
+  userId: string;
+  email: string;
+  role: string;
+  name?: string;
+}
+
+/**
+ * JWT Authentication middleware
+ * Verifies JWT token and attaches user to request
+ */
+export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization
-    const token = authHeader && authHeader.split(' ')[1] // Bearer TOKEN
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
-      return res.status(401).json({ message: 'Access token required' })
+      return res.status(401).json({
+        success: false,
+        message: 'Access token required',
+        data: null
+      });
     }
 
-    const user = await AuthService.verifyToken(token)
-    req.user = user
-    next()
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error('[Auth] JWT_SECRET environment variable not set');
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error',
+        data: null
+      });
+    }
+
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
+    
+    // Verify user still exists in database
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        name: true,
+        isActive: true
+      }
+    });
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired token',
+        data: null
+      });
+    }
+
+    // Attach user to request
+    (req as AuthenticatedRequest).user = {
+      id: user.id,
+      email: user.email,
+      role: user.role as string,
+      name: user.name
+    };
+
+    next();
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid or expired token' })
+    console.error('[Auth] Token verification failed:', error);
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid or expired token',
+      data: null
+    });
   }
 }
 
-// Middleware to require admin role
+/**
+ * Admin authorization middleware
+ * Must be used after authenticateToken middleware
+ */
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.user) {
-    return res.status(401).json({ message: 'Authentication required' })
+  const authReq = req as AuthenticatedRequest;
+  
+  if (!authReq.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required',
+      data: null
+    });
   }
 
-  if (req.user.role !== 'ADMIN') {
-    return res.status(403).json({ message: 'Admin access required' })
+  if (authReq.user.role !== 'ADMIN') {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required',
+      data: null
+    });
   }
 
-  next()
+  next();
 }
 
-// Middleware to require user to access their own data or admin
-export function requireOwnershipOrAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.user) {
-    return res.status(401).json({ message: 'Authentication required' })
-  }
-
-  const targetUserId = req.params.userId || req.body.userId
-  
-  if (req.user.role === 'ADMIN' || req.user.id === targetUserId) {
-    next()
-  } else {
-    return res.status(403).json({ message: 'Access denied' })
-  }
+/**
+ * Rate limiting middleware for transfer operations
+ */
+export function transferRateLimit(req: Request, res: Response, next: NextFunction) {
+  // Simple in-memory rate limiting - in production use Redis
+  // For now, just log and continue
+  const authReq = req as AuthenticatedRequest;
+  console.log(`[RateLimit] Transfer operation by user: ${authReq.user?.id || 'unknown'}`);
+  next();
 }

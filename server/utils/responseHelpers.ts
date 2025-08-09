@@ -1,15 +1,17 @@
 /**
- * Consistent API response helpers
+ * Standardized API response helpers
+ * All responses follow the format: { success: boolean, message: string, data?: any }
  */
 
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   data?: T;
-  timestamp?: string;
 }
 
-export interface PaginatedResponse<T = any> extends ApiResponse<T> {
+export interface PaginatedResponse<T = any> {
+  success: boolean;
+  message: string;
   data: {
     items: T[];
     pagination: {
@@ -17,27 +19,28 @@ export interface PaginatedResponse<T = any> extends ApiResponse<T> {
       limit: number;
       total: number;
       totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
     };
   };
 }
 
 /**
- * Creates a successful API response
+ * Create a standardized success response
  */
 export function createSuccessResponse<T>(
-  data: T, 
-  message: string = 'Operation completed successfully'
+  message: string, 
+  data?: T
 ): ApiResponse<T> {
   return {
     success: true,
     message,
-    data,
-    timestamp: new Date().toISOString(),
+    data
   };
 }
 
 /**
- * Creates an error API response
+ * Create a standardized error response
  */
 export function createErrorResponse(
   message: string, 
@@ -46,21 +49,22 @@ export function createErrorResponse(
   return {
     success: false,
     message,
-    data,
-    timestamp: new Date().toISOString(),
+    data
   };
 }
 
 /**
- * Creates a paginated success response
+ * Create a paginated response
  */
 export function createPaginatedResponse<T>(
+  message: string,
   items: T[],
   page: number,
   limit: number,
-  total: number,
-  message: string = 'Data retrieved successfully'
+  total: number
 ): PaginatedResponse<T> {
+  const totalPages = Math.ceil(total / limit);
+  
   return {
     success: true,
     message,
@@ -70,15 +74,16 @@ export function createPaginatedResponse<T>(
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
-      },
-    },
-    timestamp: new Date().toISOString(),
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    }
   };
 }
 
 /**
- * Validates decimal amounts
+ * Input validation helpers
  */
 export function validateAmount(amount: any): { isValid: boolean; value?: number; error?: string } {
   if (amount === undefined || amount === null) {
@@ -88,18 +93,18 @@ export function validateAmount(amount: any): { isValid: boolean; value?: number;
   const numAmount = Number(amount);
   
   if (isNaN(numAmount)) {
-    return { isValid: false, error: 'Invalid amount format' };
+    return { isValid: false, error: 'Amount must be a valid number' };
   }
 
   if (numAmount <= 0) {
     return { isValid: false, error: 'Amount must be greater than 0' };
   }
 
-  if (numAmount > 10000000) { // 10M limit
-    return { isValid: false, error: 'Amount exceeds maximum limit' };
+  if (numAmount > 1000000) { // 1M limit
+    return { isValid: false, error: 'Amount exceeds maximum transfer limit of 1,000,000' };
   }
 
-  // Check for too many decimal places
+  // Check decimal places (max 2)
   const decimalPlaces = (numAmount.toString().split('.')[1] || '').length;
   if (decimalPlaces > 2) {
     return { isValid: false, error: 'Amount cannot have more than 2 decimal places' };
@@ -108,62 +113,88 @@ export function validateAmount(amount: any): { isValid: boolean; value?: number;
   return { isValid: true, value: numAmount };
 }
 
-/**
- * Validates bank code format
- */
-export function validateBankCode(bankCode: string): { isValid: boolean; error?: string } {
-  if (!bankCode || typeof bankCode !== 'string') {
-    return { isValid: false, error: 'Bank code is required' };
+export function validateCurrency(currency: any): { isValid: boolean; value?: string; error?: string } {
+  if (!currency) {
+    return { isValid: true, value: 'USD' }; // Default currency
   }
 
-  // Nigerian bank codes are typically 3-digit numbers
-  const bankCodeRegex = /^\d{3}$/;
-  if (!bankCodeRegex.test(bankCode)) {
-    return { isValid: false, error: 'Invalid bank code format (must be 3 digits)' };
+  if (typeof currency !== 'string') {
+    return { isValid: false, error: 'Currency must be a string' };
   }
 
-  return { isValid: true };
+  const allowedCurrencies = ['USD', 'EUR', 'GBP', 'NGN', 'CAD', 'AUD'];
+  const upperCurrency = currency.toUpperCase();
+  
+  if (!allowedCurrencies.includes(upperCurrency)) {
+    return { isValid: false, error: `Currency must be one of: ${allowedCurrencies.join(', ')}` };
+  }
+
+  return { isValid: true, value: upperCurrency };
 }
 
-/**
- * Validates account number format
- */
-export function validateAccountNumber(accountNumber: string): { isValid: boolean; error?: string } {
+export function validateRecipientInfo(recipientInfo: any): { isValid: boolean; error?: string } {
+  if (!recipientInfo || typeof recipientInfo !== 'object') {
+    return { isValid: false, error: 'Recipient information is required' };
+  }
+
+  const { name, accountNumber, bankCode } = recipientInfo;
+
+  if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    return { isValid: false, error: 'Recipient name must be at least 2 characters' };
+  }
+
   if (!accountNumber || typeof accountNumber !== 'string') {
     return { isValid: false, error: 'Account number is required' };
   }
 
-  // Nigerian account numbers are typically 10 digits
-  const accountNumberRegex = /^\d{10}$/;
-  if (!accountNumberRegex.test(accountNumber)) {
-    return { isValid: false, error: 'Invalid account number format (must be 10 digits)' };
+  // Basic account number validation (adjust for your requirements)
+  if (!/^\d{8,20}$/.test(accountNumber)) {
+    return { isValid: false, error: 'Account number must be 8-20 digits' };
+  }
+
+  if (!bankCode || typeof bankCode !== 'string') {
+    return { isValid: false, error: 'Bank code is required' };
+  }
+
+  // Basic bank code validation (adjust for your requirements)  
+  if (!/^[A-Z0-9]{3,10}$/.test(bankCode.toUpperCase())) {
+    return { isValid: false, error: 'Bank code must be 3-10 alphanumeric characters' };
   }
 
   return { isValid: true };
 }
 
 /**
- * Validates recipient name
+ * Pagination helpers
  */
-export function validateRecipientName(name: string): { isValid: boolean; error?: string } {
-  if (!name || typeof name !== 'string') {
-    return { isValid: false, error: 'Recipient name is required' };
+export function validatePagination(page?: any, limit?: any) {
+  const pageNum = Math.max(parseInt(page) || 1, 1);
+  const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100); // Max 100 items per page
+  
+  return { page: pageNum, limit: limitNum };
+}
+
+/**
+ * Date validation helpers
+ */
+export function validateSinceDate(since?: any): { isValid: boolean; value?: Date; error?: string } {
+  if (!since) {
+    return { isValid: true };
   }
 
-  const trimmedName = name.trim();
-  if (trimmedName.length < 2) {
-    return { isValid: false, error: 'Recipient name must be at least 2 characters' };
+  const date = new Date(since);
+  
+  if (isNaN(date.getTime())) {
+    return { isValid: false, error: 'Invalid date format for "since" parameter' };
   }
 
-  if (trimmedName.length > 100) {
-    return { isValid: false, error: 'Recipient name cannot exceed 100 characters' };
+  // Prevent querying too far in the past (e.g., more than 1 year)
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  
+  if (date < oneYearAgo) {
+    return { isValid: false, error: 'Cannot query data older than 1 year' };
   }
 
-  // Allow letters, spaces, hyphens, and apostrophes
-  const nameRegex = /^[a-zA-Z\s\-'\.]+$/;
-  if (!nameRegex.test(trimmedName)) {
-    return { isValid: false, error: 'Recipient name contains invalid characters' };
-  }
-
-  return { isValid: true };
+  return { isValid: true, value: date };
 }

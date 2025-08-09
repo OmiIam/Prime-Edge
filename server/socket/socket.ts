@@ -1,11 +1,11 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { sanitizeTransactionData } from '../utils/sanitizeTransactionData';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
-  userEmail?: string;
+  email?: string;
+  role?: string;
 }
 
 interface JwtPayload {
@@ -14,23 +14,23 @@ interface JwtPayload {
   role: string;
 }
 
-export class TransferSocketService {
+class SocketService {
   private io: SocketIOServer;
-  private connectedUsers = new Map<string, Set<string>>(); // userId -> Set of socketIds
+  private connectedUsers = new Map<string, Set<string>>(); // userId -> socketIds
 
   constructor(httpServer: HttpServer) {
     this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: [
-          'http://localhost:5173',
           'http://localhost:3000',
+          'http://localhost:5173',
           'https://www.primeedgefinancebank.com',
-          'https://primeedgefinancebank.com',
+          'https://primeedgefinancebank.com'
         ],
         methods: ['GET', 'POST'],
-        credentials: true,
+        credentials: true
       },
-      transports: ['websocket', 'polling'],
+      transports: ['websocket', 'polling']
     });
 
     this.setupAuthentication();
@@ -38,31 +38,31 @@ export class TransferSocketService {
   }
 
   private setupAuthentication() {
-    // Authentication middleware
     this.io.use((socket: AuthenticatedSocket, next) => {
       try {
         const token = socket.handshake.auth.token;
         
         if (!token) {
-          console.log('Socket connection rejected: No token provided');
+          console.log('[Socket] Authentication failed: No token provided');
           return next(new Error('Authentication token required'));
         }
 
         const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) {
-          console.error('JWT_SECRET environment variable is not set');
+          console.error('[Socket] JWT_SECRET not configured');
           return next(new Error('Server configuration error'));
         }
 
         const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
         
         socket.userId = decoded.userId;
-        socket.userEmail = decoded.email;
+        socket.email = decoded.email;
+        socket.role = decoded.role;
         
-        console.log(`Socket authenticated for user: ${decoded.email} (${decoded.userId})`);
+        console.log(`[Socket] User authenticated: ${decoded.email} (${decoded.userId})`);
         next();
       } catch (error) {
-        console.log('Socket authentication failed:', error instanceof Error ? error.message : 'Unknown error');
+        console.log('[Socket] Authentication failed:', error instanceof Error ? error.message : 'Invalid token');
         next(new Error('Invalid authentication token'));
       }
     });
@@ -75,48 +75,45 @@ export class TransferSocketService {
         return;
       }
 
-      console.log(`User connected: ${socket.userEmail} (${socket.userId})`);
-
-      // Join user-specific room
       const userRoom = `user:${socket.userId}`;
+      
+      // Join user-specific room
       socket.join(userRoom);
-
+      
       // Track connection
       if (!this.connectedUsers.has(socket.userId)) {
         this.connectedUsers.set(socket.userId, new Set());
       }
       this.connectedUsers.get(socket.userId)!.add(socket.id);
 
-      // Handle transfer update requests
-      socket.on('request_transfer_updates', async () => {
-        try {
-          console.log(`Transfer updates requested by user: ${socket.userId}`);
-          // Could implement real-time update fetching here if needed
-          // For now, the polling fallback handles this
-          socket.emit('transfer_updates_requested', {
-            message: 'Use polling fallback endpoint /api/user/transfer-updates',
-            timestamp: new Date().toISOString(),
-          });
-        } catch (error) {
-          console.error('Error handling transfer updates request:', error);
-          socket.emit('error', {
-            message: 'Failed to fetch transfer updates',
-            timestamp: new Date().toISOString(),
-          });
+      console.log(`[Socket] User connected: ${socket.email} joined room ${userRoom}`);
+
+      // Send welcome message
+      socket.emit('connected', {
+        success: true,
+        message: 'Connected to transfer notification service',
+        data: {
+          userId: socket.userId,
+          room: userRoom,
+          timestamp: new Date().toISOString()
         }
       });
 
       // Handle ping for connection health
       socket.on('ping', () => {
         socket.emit('pong', {
-          timestamp: new Date().toISOString(),
-          userId: socket.userId,
+          success: true,
+          message: 'Connection healthy',
+          data: {
+            timestamp: new Date().toISOString(),
+            userId: socket.userId
+          }
         });
       });
 
       // Handle disconnection
       socket.on('disconnect', (reason) => {
-        console.log(`User disconnected: ${socket.userEmail} (${socket.userId}) - ${reason}`);
+        console.log(`[Socket] User disconnected: ${socket.email} (${reason})`);
         
         if (socket.userId && this.connectedUsers.has(socket.userId)) {
           const userSockets = this.connectedUsers.get(socket.userId)!;
@@ -124,142 +121,123 @@ export class TransferSocketService {
           
           if (userSockets.size === 0) {
             this.connectedUsers.delete(socket.userId);
-            console.log(`All connections closed for user: ${socket.userId}`);
+            console.log(`[Socket] All connections closed for user: ${socket.userId}`);
           }
         }
-      });
-
-      // Send welcome message
-      socket.emit('connected', {
-        message: 'Connected to transfer updates service',
-        userId: socket.userId,
-        timestamp: new Date().toISOString(),
       });
     });
   }
 
   /**
-   * Emits a transfer_pending event to the user who created the transfer
+   * Emit transfer_pending event to user when transfer is created
    */
-  emitTransferPending(userId: string, transaction: any) {
-    try {
-      const sanitizedTransaction = sanitizeTransactionData(transaction);
-      const userRoom = `user:${userId}`;
-      
-      console.log(`Emitting transfer_pending to user ${userId}:`, sanitizedTransaction?.id);
-      
-      this.io.to(userRoom).emit('transfer_pending', {
-        transaction: sanitizedTransaction,
-        message: 'Your transfer has been submitted and is awaiting approval',
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Error emitting transfer_pending:', error);
-    }
-  }
-
-  /**
-   * Emits a transfer_update event to the user when transfer is approved/rejected
-   */
-  emitTransferUpdate(userId: string, transaction: any) {
-    try {
-      const sanitizedTransaction = sanitizeTransactionData(transaction);
-      const userRoom = `user:${userId}`;
-      
-      console.log(`Emitting transfer_update to user ${userId}:`, sanitizedTransaction?.id, sanitizedTransaction?.status);
-      
-      let message = 'Your transfer has been updated';
-      if (sanitizedTransaction?.status === 'COMPLETED') {
-        message = 'Your transfer has been approved and completed successfully';
-      } else if (sanitizedTransaction?.status === 'REJECTED') {
-        message = 'Your transfer has been rejected';
-      } else if (sanitizedTransaction?.status === 'FAILED') {
-        message = 'Your transfer failed to process';
-      } else if (sanitizedTransaction?.status === 'PROCESSING') {
-        message = 'Your transfer has been approved and is being processed';
+  emitTransferPending(userId: string, transactionData: any) {
+    const userRoom = `user:${userId}`;
+    
+    console.log(`[Socket] Emitting transfer_pending to ${userRoom}:`, transactionData.id);
+    
+    this.io.to(userRoom).emit('transfer_pending', {
+      success: true,
+      message: 'Your transfer has been submitted and is awaiting approval',
+      data: {
+        transaction: transactionData,
+        timestamp: new Date().toISOString()
       }
-
-      this.io.to(userRoom).emit('transfer_update', {
-        transaction: sanitizedTransaction,
-        message,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Error emitting transfer_update:', error);
-    }
+    });
   }
 
   /**
-   * Emits a system-wide notification (for maintenance, etc.)
+   * Emit transfer_update event to user when transfer status changes
+   */
+  emitTransferUpdate(userId: string, transactionData: any) {
+    const userRoom = `user:${userId}`;
+    
+    console.log(`[Socket] Emitting transfer_update to ${userRoom}:`, transactionData.id, transactionData.status);
+    
+    let message = 'Your transfer status has been updated';
+    if (transactionData.status === 'COMPLETED') {
+      message = 'Your transfer has been completed successfully! 🎉';
+    } else if (transactionData.status === 'REJECTED') {
+      message = 'Your transfer has been rejected';
+    } else if (transactionData.status === 'PROCESSING') {
+      message = 'Your transfer is being processed';
+    } else if (transactionData.status === 'FAILED') {
+      message = 'Your transfer failed to process';
+    }
+
+    this.io.to(userRoom).emit('transfer_update', {
+      success: true,
+      message,
+      data: {
+        transaction: transactionData,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+
+  /**
+   * Emit system-wide notification
    */
   emitSystemNotification(message: string, level: 'info' | 'warning' | 'error' = 'info') {
-    try {
-      console.log(`Emitting system notification (${level}):`, message);
-      
-      this.io.emit('system_notification', {
-        message,
+    console.log(`[Socket] Broadcasting system notification (${level}): ${message}`);
+    
+    this.io.emit('system_notification', {
+      success: true,
+      message,
+      data: {
         level,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Error emitting system notification:', error);
-    }
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 
   /**
-   * Gets connection statistics
+   * Get connection statistics
    */
-  getConnectionStats() {
+  getStats() {
     const totalConnections = Array.from(this.connectedUsers.values())
       .reduce((sum, sockets) => sum + sockets.size, 0);
 
     return {
       connectedUsers: this.connectedUsers.size,
       totalConnections,
-      userConnections: Array.from(this.connectedUsers.entries()).map(([userId, sockets]) => ({
-        userId,
-        connections: sockets.size,
-      })),
+      rooms: Array.from(this.connectedUsers.keys()).map(userId => `user:${userId}`)
     };
   }
 
   /**
-   * Gracefully shuts down the socket service
+   * Close all connections
    */
-  async shutdown() {
-    console.log('Shutting down Socket.IO service...');
+  close() {
+    console.log('[Socket] Closing all connections...');
+    this.emitSystemNotification('Server is shutting down. Please reconnect in a moment.', 'warning');
     
-    // Notify all connected clients
-    this.emitSystemNotification('Server maintenance in progress. Please reconnect in a few minutes.', 'warning');
-    
-    // Wait a bit for message delivery
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Close all connections
-    this.io.close();
-    this.connectedUsers.clear();
-    
-    console.log('Socket.IO service shut down complete');
+    // Wait a bit for message delivery then close
+    setTimeout(() => {
+      this.io.close();
+      this.connectedUsers.clear();
+      console.log('[Socket] All connections closed');
+    }, 1000);
   }
 }
 
 // Global socket service instance
-let socketService: TransferSocketService | null = null;
+let socketService: SocketService | null = null;
 
-export function initializeSocketService(httpServer: HttpServer): TransferSocketService {
+export function initializeSocket(httpServer: HttpServer): SocketService {
   if (socketService) {
-    console.log('Socket service already initialized');
+    console.log('[Socket] Service already initialized');
     return socketService;
   }
 
-  socketService = new TransferSocketService(httpServer);
-  console.log('Socket.IO service initialized');
+  socketService = new SocketService(httpServer);
+  console.log('[Socket] Service initialized successfully');
   return socketService;
 }
 
-export function getSocketService(): TransferSocketService {
+export function getSocketService(): SocketService {
   if (!socketService) {
-    throw new Error('Socket service not initialized. Call initializeSocketService first.');
+    throw new Error('Socket service not initialized. Call initializeSocket first.');
   }
   return socketService;
 }

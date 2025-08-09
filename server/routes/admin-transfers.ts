@@ -1,106 +1,72 @@
 import { Router } from 'express';
+import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { adminTransferController } from '../controllers/transferController';
-import { requireAuth, requireAdmin } from '../middleware/auth';
-import { getSocketService } from '../socket/socket';
 
 export const adminTransferRouter = Router();
 
-// Apply authentication middleware to all routes
-adminTransferRouter.use(requireAuth);
+// Apply authentication and admin authorization to all routes
+adminTransferRouter.use(authenticateToken);
 adminTransferRouter.use(requireAdmin);
 
 /**
  * GET /api/admin/pending-transfers
  * List all pending external transfers for admin review
+ * 
+ * Query params:
+ * - page?: number (default 1)
+ * - limit?: number (default 20, max 100)
+ * 
+ * Response: 200 with paginated pending transfers, sanitized, include user id/email
+ * Behavior: paginated pending transfers with user info
  */
-adminTransferRouter.get('/pending-transfers', async (req, res, next) => {
-  try {
-    await adminTransferController.getPendingTransfers(req as any, res);
-  } catch (error) {
-    next(error);
-  }
-});
+adminTransferRouter.get(
+  '/pending-transfers',
+  adminTransferController.getPendingTransfers.bind(adminTransferController)
+);
 
 /**
  * POST /api/admin/transfer/:id/approve
  * Approve a pending transfer
+ * 
+ * Request body:
+ * {
+ *   adminNotes?: string
+ * }
+ * 
+ * Response: 200 with updated transaction
+ * Behavior: verify pending, set processing, call/enqueue bank transfer, 
+ * on success set completed with externalRef + audit adminId, emit 'transfer_update' to user
  */
-adminTransferRouter.post('/transfer/:id/approve', async (req, res, next) => {
-  try {
-    // Store original response json method to capture the response
-    const originalJson = res.json;
-    let responseData: any = null;
-
-    res.json = function(data) {
-      responseData = data;
-      return originalJson.call(this, data);
-    };
-
-    await adminTransferController.approveTransfer(req as any, res);
-
-    // If successful, emit socket event to user
-    if (res.statusCode === 200 && responseData?.success && responseData?.data?.transaction) {
-      try {
-        const socketService = getSocketService();
-        const transaction = responseData.data.transaction;
-        
-        if (transaction.userId) {
-          socketService.emitTransferUpdate(transaction.userId, transaction);
-          console.log(`Transfer approval socket event emitted for user ${transaction.userId}`);
-        }
-      } catch (socketError) {
-        console.warn('Socket service not available for approval notification:', socketError.message);
-      }
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+adminTransferRouter.post(
+  '/transfer/:id/approve',
+  adminTransferController.approveTransfer.bind(adminTransferController)
+);
 
 /**
  * POST /api/admin/transfer/:id/reject
  * Reject a pending transfer
+ * 
+ * Request body:
+ * {
+ *   rejectionReason: string (required)
+ * }
+ * 
+ * Response: 200 with updated transaction
+ * Behavior: verify pending, set rejected + store reason + audit adminId, emit 'transfer_update' to user
  */
-adminTransferRouter.post('/transfer/:id/reject', async (req, res, next) => {
-  try {
-    // Store original response json method to capture the response
-    const originalJson = res.json;
-    let responseData: any = null;
-
-    res.json = function(data) {
-      responseData = data;
-      return originalJson.call(this, data);
-    };
-
-    await adminTransferController.rejectTransfer(req as any, res);
-
-    // If successful, emit socket event to user
-    if (res.statusCode === 200 && responseData?.success && responseData?.data?.transaction) {
-      try {
-        const socketService = getSocketService();
-        const transaction = responseData.data.transaction;
-        
-        if (transaction.userId) {
-          socketService.emitTransferUpdate(transaction.userId, transaction);
-          console.log(`Transfer rejection socket event emitted for user ${transaction.userId}`);
-        }
-      } catch (socketError) {
-        console.warn('Socket service not available for rejection notification:', socketError.message);
-      }
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+adminTransferRouter.post(
+  '/transfer/:id/reject',
+  adminTransferController.rejectTransfer.bind(adminTransferController)
+);
 
 /**
  * GET /api/admin/transfer-stats
  * Get transfer statistics for admin dashboard
+ * 
+ * Response: 200 with transfer counts and total volume
+ * Behavior: return statistics for pending, processing, completed, rejected, failed transfers
  */
-adminTransferRouter.get('/transfer-stats', async (req, res, next) => {
-  try {
-    await adminTransferController.getTransferStats(req as any, res);
-  } catch (error) {
-    next(error);
-  }
-});
+adminTransferRouter.get(
+  '/transfer-stats',
+  adminTransferController.getTransferStats.bind(adminTransferController)
+);
