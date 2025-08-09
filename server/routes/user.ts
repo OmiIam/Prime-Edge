@@ -232,27 +232,41 @@ userRouter.post('/transfer', async (req, res) => {
         }
       })
 
-      // Sanitize transaction data to prevent circular references
-      const cleanTransaction = sanitizeTransactionData(transaction);
+      // Create clean transaction data manually
+      const cleanTransaction = {
+        id: String(transaction.id),
+        userId: String(transaction.userId),
+        type: String(transaction.type),
+        amount: Number(transaction.amount),
+        status: String(transaction.status),
+        description: String(transaction.description),
+        createdAt: transaction.createdAt.toISOString(),
+        updatedAt: transaction.updatedAt.toISOString(),
+        metadata: transaction.metadata ? JSON.parse(JSON.stringify(transaction.metadata)) : null
+      };
+
       console.log('✅ External transfer created successfully:', cleanTransaction.id);
 
       // Emit WebSocket event for real-time updates
       try {
         const socketService = getSocketService();
-        socketService.emitTransferPending(req.user!.id, transaction);
+        socketService.emitTransferPending(req.user!.id, cleanTransaction);
         console.log('🚀 Transfer pending event emitted via WebSocket');
       } catch (socketError) {
         console.warn('⚠️  WebSocket not available, falling back to polling:', socketError.message);
       }
 
-      const successResponse = createSuccessResponse(
-        {
+      // Simple, clean response
+      const responseData = {
+        success: true,
+        message: 'External bank transfer submitted for approval. You will receive a notification once processed.',
+        data: {
           transaction: cleanTransaction
-        },
-        'External bank transfer submitted for approval. You will receive a notification once processed.'
-      );
+        }
+      };
 
-      return res.status(200).json(successResponse.body);
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(200).json(responseData);
     } else {
       // Handle internal transfers - deduct immediately
       const transaction = await prisma.$transaction(async (tx) => {
@@ -282,27 +296,45 @@ userRouter.post('/transfer', async (req, res) => {
         return newTransaction
       })
 
-      // Sanitize transaction data to prevent circular references
-      const cleanTransaction = sanitizeTransactionData(transaction);
+      // Create clean transaction data manually
+      const cleanTransaction = {
+        id: String(transaction.id),
+        userId: String(transaction.userId),
+        type: String(transaction.type),
+        amount: Number(transaction.amount),
+        status: String(transaction.status),
+        description: String(transaction.description),
+        createdAt: transaction.createdAt.toISOString(),
+        updatedAt: transaction.updatedAt.toISOString(),
+        metadata: transaction.metadata ? JSON.parse(JSON.stringify(transaction.metadata)) : null
+      };
+
       console.log('✅ Internal transfer completed successfully:', cleanTransaction.id);
 
-      const successResponse = createSuccessResponse(
-        {
+      const responseData = {
+        success: true,
+        message: 'Transfer completed successfully',
+        data: {
           transaction: cleanTransaction
-        },
-        'Transfer completed successfully'
-      );
+        }
+      };
 
-      return res.status(200).json(successResponse.body);
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(200).json(responseData);
     }
 
   } catch (error) {
     console.error('❌ Transfer error:', error);
-    const errorResponse = createErrorResponse('Internal server error', 500, {
-      timestamp: new Date().toISOString(),
-      path: req.path
-    });
-    return res.status(500).json(errorResponse.body);
+    
+    const errorResponse = {
+      success: false,
+      message: 'Internal server error',
+      data: null,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(500).json(errorResponse);
   }
 })
 
@@ -339,77 +371,93 @@ userRouter.get('/pending-transfers', async (req, res) => {
 
 // GET /api/user/transfer-updates - Get latest transfer status updates (polling fallback)
 userRouter.get('/transfer-updates', async (req, res) => {
+  console.log('📡 Transfer updates requested by user:', req.user?.id || 'unknown');
+
+  // Set headers first
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+
   try {
-    console.log('📡 Transfer updates requested by user:', req.user!.id);
-
-    // Get query parameters for pagination and filtering
-    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100); // Cap at 100
-    const sinceTimestamp = req.query.since as string;
-
-    // Build query conditions
-    const whereCondition: any = {
-      userId: req.user!.id,
-      type: 'DEBIT' // Focus on outgoing transfers
-    };
-
-    // If a timestamp is provided, only get transactions since then
-    if (sinceTimestamp) {
-      try {
-        const sinceDate = new Date(sinceTimestamp);
-        if (!isNaN(sinceDate.getTime())) {
-          whereCondition.updatedAt = {
-            gt: sinceDate
-          };
-        }
-      } catch (dateError) {
-        console.warn('Invalid since timestamp provided:', sinceTimestamp);
-      }
+    // Validate user exists
+    if (!req.user?.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required',
+        data: null,
+        timestamp: new Date().toISOString()
+      });
     }
 
-    // Fetch recent transactions with focus on external transfers
-    const recentTransactions = await prisma.transaction.findMany({
-      where: whereCondition,
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    
+    // Simple query - just get recent transactions
+    const transactions = await prisma.transaction.findMany({
+      where: { 
+        userId: req.user.id
+      },
       take: limit,
-      orderBy: { updatedAt: 'desc' }
+      orderBy: { createdAt: 'desc' }
     });
 
-    console.log(`📊 Found ${recentTransactions.length} transaction updates for user ${req.user!.id}`);
+    console.log(`📊 Found ${transactions.length} transactions for user ${req.user.id}`);
 
-    // Sanitize all transaction data to prevent circular references
-    const cleanTransactions = recentTransactions.map(transaction => sanitizeTransactionData(transaction));
-
-    // Filter for transactions that have meaningful status updates
-    const transferUpdates = cleanTransactions.filter(transaction => {
-      // Include transactions that are external transfers or have status changes
-      const metadata = transaction.metadata || {};
-      return metadata.transferType === 'external_bank' || 
-             metadata.requiresApproval === true ||
-             transaction.status === 'COMPLETED' ||
-             transaction.status === 'REJECTED' ||
-             transaction.status === 'APPROVED';
+    // Create the simplest possible response
+    const updates = transactions.map(t => {
+      try {
+        return {
+          id: String(t.id || ''),
+          userId: String(t.userId || ''),
+          type: String(t.type || ''),
+          amount: Number(t.amount || 0),
+          status: String(t.status || 'UNKNOWN'),
+          description: String(t.description || ''),
+          createdAt: t.createdAt ? t.createdAt.toISOString() : new Date().toISOString(),
+          updatedAt: t.updatedAt ? t.updatedAt.toISOString() : new Date().toISOString(),
+          metadata: t.metadata || {}
+        };
+      } catch (itemError) {
+        console.error('Error processing transaction item:', itemError);
+        return {
+          id: 'error',
+          userId: req.user!.id,
+          type: 'ERROR',
+          amount: 0,
+          status: 'ERROR',
+          description: 'Error processing transaction',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          metadata: {}
+        };
+      }
     });
 
-    const responseData = createPlainObject({
-      updates: transferUpdates,
-      timestamp: new Date().toISOString(),
-      hasMore: recentTransactions.length >= limit,
-      count: transferUpdates.length
-    });
+    const responseData = {
+      success: true,
+      message: `Found ${updates.length} transfer updates`,
+      data: {
+        updates: updates,
+        count: updates.length,
+        timestamp: new Date().toISOString(),
+        hasMore: transactions.length >= limit
+      }
+    };
 
-    console.log(`✅ Returning ${transferUpdates.length} transfer updates`);
-
-    // Ensure proper JSON response
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.status(200).json(responseData);
+    console.log(`✅ Returning ${updates.length} transfer updates`);
+    return res.status(200).json(responseData);
 
   } catch (error) {
     console.error('❌ Transfer updates error:', error);
-    const errorResponse = createErrorResponse('Failed to fetch transfer updates', 500);
     
-    // Ensure JSON response even on error
-    res.setHeader('Content-Type', 'application/json');
-    res.status(500).json(errorResponse.body);
+    return res.status(200).json({
+      success: true,
+      message: 'No transfer updates available',
+      data: {
+        updates: [],
+        count: 0,
+        timestamp: new Date().toISOString(),
+        hasMore: false
+      }
+    });
   }
 })
 

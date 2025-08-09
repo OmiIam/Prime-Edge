@@ -75,12 +75,12 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
         return;
       }
 
-      const updates = Array.isArray(data.updates) ? data.updates : [];
+      const updates = data.data?.updates || data.updates || [];
 
       console.log(`📊 Received ${updates.length} transfer updates from API`);
 
       // All updates from the new endpoint are already filtered for relevant transfers
-      const updatedTransfers = updates.filter((transaction: any) => {
+      const updatedTransfers = Array.isArray(updates) ? updates.filter((transaction: any) => {
         // Validate transaction structure
         if (!transaction || typeof transaction !== 'object') {
           console.warn('Invalid transaction object:', transaction);
@@ -123,7 +123,7 @@ export function useTransferUpdates(options: UseTransferUpdatesOptions = {}) {
 
         console.log(`✅ Valid transfer update: ${transaction.id} - ${metadata.status || transaction.status}`);
         return true;
-      });
+      }) : [];
 
       if (updatedTransfers.length > 0) {
         // Invalidate relevant queries to refresh UI
