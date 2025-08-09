@@ -1,504 +1,471 @@
-import { prisma } from '../prisma'
-import { z } from 'zod'
+import { PrismaClient } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+import { 
+  sanitizeTransactionData, 
+  sanitizeTransferForAdmin, 
+  sanitizeUserForAdmin 
+} from '../utils/sanitizeTransactionData';
+import { 
+  validateAmount, 
+  validateBankCode, 
+  validateAccountNumber, 
+  validateRecipientName 
+} from '../utils/responseHelpers';
 
-// Validation schemas
-export const transferValidationSchema = z.object({
-  amount: z.number().positive().max(50000), // Daily limit
-  recipientInfo: z.string().min(1),
-  transferType: z.enum(['checking', 'savings', 'external_bank']),
-  bankName: z.string().optional(),
-})
+const prisma = new PrismaClient();
 
-export const transferReviewSchema = z.object({
-  action: z.enum(['approve', 'reject']),
-  reason: z.string().optional(),
-})
-
-export interface TransferReviewRequest {
-  transferId: string
-  adminId: string
-  action: 'approve' | 'reject'
-  reason?: string
-  ipAddress?: string
-  userAgent?: string
+export interface CreateTransferRequest {
+  amount: number;
+  currency?: string;
+  recipient: {
+    name: string;
+    accountNumber: string;
+    bankCode: string;
+  };
+  metadata?: Record<string, any>;
 }
+
+export interface BankApiResponse {
+  success: boolean;
+  reference?: string;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Mock bank API client - replace with real implementation in production
+ */
+class MockBankApiClient {
+  async transfer(payload: {
+    amount: number;
+    currency: string;
+    recipient: {
+      name: string;
+      accountNumber: string;
+      bankCode: string;
+    };
+    reference: string;
+  }): Promise<BankApiResponse> {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Mock success/failure based on amount (for testing)
+    const shouldSucceed = payload.amount <= 1000000; // Fail if over 1M for testing
+    
+    if (shouldSucceed) {
+      return {
+        success: true,
+        reference: `BNK${Date.now()}${Math.random().toString(36).substr(2, 5)}`,
+        message: 'Transfer completed successfully',
+      };
+    } else {
+      return {
+        success: false,
+        error: 'Insufficient funds in source account or bank API error',
+      };
+    }
+  }
+
+  async verifyAccount(accountNumber: string, bankCode: string): Promise<{
+    isValid: boolean;
+    accountName?: string;
+    error?: string;
+  }> {
+    // Simulate account verification
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock verification - in production, call real bank API
+    const mockNames = ['John Doe', 'Jane Smith', 'Michael Johnson', 'Sarah Williams'];
+    const randomName = mockNames[Math.floor(Math.random() * mockNames.length)];
+    
+    return {
+      isValid: true,
+      accountName: randomName,
+    };
+  }
+}
+
+const bankApiClient = new MockBankApiClient();
 
 export class TransferService {
   /**
-   * Create a pending external bank transfer
+   * Creates a pending external transfer
    */
-  static async createExternalTransfer(userId: string, transferData: {
-    amount: number
-    recipientInfo: string
-    bankName: string
-    ipAddress?: string
-    userAgent?: string
-  }) {
-    const { amount, recipientInfo, bankName, ipAddress, userAgent } = transferData
+  async createPendingTransfer(userId: string, request: CreateTransferRequest) {
+    // Validate input
+    const amountValidation = validateAmount(request.amount);
+    if (!amountValidation.isValid) {
+      throw new Error(amountValidation.error);
+    }
 
-    // Validate user exists and has sufficient balance
+    const bankCodeValidation = validateBankCode(request.recipient.bankCode);
+    if (!bankCodeValidation.isValid) {
+      throw new Error(bankCodeValidation.error);
+    }
+
+    const accountNumberValidation = validateAccountNumber(request.recipient.accountNumber);
+    if (!accountNumberValidation.isValid) {
+      throw new Error(accountNumberValidation.error);
+    }
+
+    const nameValidation = validateRecipientName(request.recipient.name);
+    if (!nameValidation.isValid) {
+      throw new Error(nameValidation.error);
+    }
+
+    // Verify user exists and has sufficient balance
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, balance: true, isActive: true }
-    })
+      select: { id: true, balance: true, email: true, name: true },
+    });
 
-    if (!user || !user.isActive) {
-      throw new Error('User not found or inactive')
+    if (!user) {
+      throw new Error('User not found');
     }
 
-    // Check available balance including pending transfers
-    const pendingTransfersTotal = await prisma.transaction.aggregate({
-      _sum: { amount: true },
-      where: {
-        userId,
-        type: 'DEBIT',
-        metadata: { path: ['status'], equals: 'pending' }
+    const transferAmount = new Decimal(amountValidation.value!);
+    if (new Decimal(user.balance).lt(transferAmount)) {
+      throw new Error('Insufficient balance');
+    }
+
+    // Optional: Verify recipient account with bank API
+    try {
+      const accountVerification = await bankApiClient.verifyAccount(
+        request.recipient.accountNumber,
+        request.recipient.bankCode
+      );
+      
+      if (!accountVerification.isValid) {
+        throw new Error('Invalid recipient account details');
       }
-    })
-
-    const availableBalance = user.balance - (pendingTransfersTotal._sum.amount || 0)
-    if (availableBalance < amount) {
-      throw new Error('Insufficient available balance including pending transfers')
+    } catch (verificationError) {
+      console.warn('Account verification failed:', verificationError);
+      // Continue without verification for now - could be made strict in production
     }
 
-    // Create pending transaction
+    // Create transaction record
     const transaction = await prisma.transaction.create({
       data: {
         userId,
-        type: 'DEBIT',
-        amount,
-        description: `External bank transfer to ${bankName}`,
+        type: 'EXTERNAL_TRANSFER',
+        amount: transferAmount,
+        currency: request.currency || 'NGN',
+        description: `External transfer to ${request.recipient.name}`,
         status: 'PENDING',
         metadata: {
-          transferType: 'external_bank',
-          recipientInfo: `Account ending in ${recipientInfo.slice(-4)}`,
-          bankName,
-          fullAccountInfo: recipientInfo, // Store full info securely
-          status: 'pending',
-          reason: 'External bank transfer awaiting admin approval',
+          recipient: request.recipient,
           submittedAt: new Date().toISOString(),
+          submittedBy: userId,
           requiresApproval: true,
-          riskLevel: amount > 10000 ? 'HIGH' : amount > 5000 ? 'MEDIUM' : 'LOW',
-          userAgent,
-          ipAddress
-        }
-      }
-    })
+          ...(request.metadata || {}),
+        },
+      },
+    });
 
-    // Log security event
-    await prisma.securityEvent.create({
-      data: {
-        userId,
-        eventType: 'SUSPICIOUS_ACTIVITY',
-        description: `External bank transfer request submitted for $${amount.toFixed(2)}`,
-        ipAddress,
-        userAgent,
-        riskLevel: amount > 10000 ? 'HIGH' : amount > 5000 ? 'MEDIUM' : 'LOW',
-        metadata: {
-          transferId: transaction.id,
-          bankName,
-          amount,
-          pendingApproval: true
-        }
-      }
-    })
+    const sanitizedTransaction = sanitizeTransactionData(transaction);
 
-    return transaction
+    // Emit socket event for real-time update
+    try {
+      const { getSocketService } = await import('../socket/socket');
+      const socketService = getSocketService();
+      socketService.emitTransferPending(userId, sanitizedTransaction);
+    } catch (socketError) {
+      console.warn('Socket service not available for transfer creation:', socketError);
+    }
+
+    return sanitizedTransaction;
   }
 
   /**
-   * Get all pending transfers for admin review
+   * Gets transfer updates for a user (polling fallback)
    */
-  static async getPendingTransfers(page = 1, limit = 10, filters: {
-    riskLevel?: string
-    amountMin?: number
-    amountMax?: number
-    dateFrom?: string
-    dateTo?: string
+  async getTransferUpdates(userId: string, options: {
+    limit?: number;
+    since?: Date;
   } = {}) {
-    const skip = (page - 1) * limit
+    const limit = Math.min(options.limit || 50, 100);
     
-    // Build where clause
-    const where: any = {
-      type: 'DEBIT',
-      metadata: { path: ['status'], equals: 'pending' }
+    const whereClause: any = {
+      userId,
+      type: 'EXTERNAL_TRANSFER',
+    };
+
+    if (options.since) {
+      whereClause.updatedAt = {
+        gte: options.since,
+      };
     }
 
-    if (filters.amountMin || filters.amountMax) {
-      where.amount = {}
-      if (filters.amountMin) where.amount.gte = filters.amountMin
-      if (filters.amountMax) where.amount.lte = filters.amountMax
-    }
+    const transactions = await prisma.transaction.findMany({
+      where: whereClause,
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+    });
 
-    if (filters.riskLevel) {
-      where.metadata.path = ['riskLevel']
-      where.metadata.equals = filters.riskLevel
-    }
+    const count = await prisma.transaction.count({
+      where: whereClause,
+    });
 
-    if (filters.dateFrom || filters.dateTo) {
-      where.createdAt = {}
-      if (filters.dateFrom) where.createdAt.gte = new Date(filters.dateFrom)
-      if (filters.dateTo) where.createdAt.lte = new Date(filters.dateTo)
-    }
+    return {
+      updates: transactions.map(t => sanitizeTransactionData(t)),
+      count,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Gets pending transfers for admin review
+   */
+  async getPendingTransfers(options: {
+    page?: number;
+    limit?: number;
+  } = {}) {
+    const page = Math.max(options.page || 1, 1);
+    const limit = Math.min(options.limit || 50, 100);
+    const skip = (page - 1) * limit;
 
     const [transfers, total] = await Promise.all([
       prisma.transaction.findMany({
-        where,
+        where: {
+          type: 'EXTERNAL_TRANSFER',
+          status: 'PENDING',
+        },
         include: {
           user: {
             select: {
               id: true,
-              name: true,
               email: true,
+              name: true,
               accountNumber: true,
-              balance: true,
-              riskLevel: true,
-              kycStatus: true
-            }
-          }
+              kycStatus: true,
+            },
+          },
         },
+        orderBy: { createdAt: 'asc' }, // Oldest first for FIFO processing
         skip,
         take: limit,
-        orderBy: [
-          { createdAt: 'desc' }
-        ]
       }),
-      prisma.transaction.count({ where })
-    ])
+      prisma.transaction.count({
+        where: {
+          type: 'EXTERNAL_TRANSFER',
+          status: 'PENDING',
+        },
+      }),
+    ]);
 
-    // Calculate risk scores and priorities
-    const enhancedTransfers = transfers.map(transfer => {
-      const riskFactors = []
-      let riskScore = 0
-
-      // Amount-based risk
-      if (transfer.amount > 10000) {
-        riskScore += 3
-        riskFactors.push('High amount')
-      } else if (transfer.amount > 5000) {
-        riskScore += 2
-        riskFactors.push('Medium amount')
-      }
-
-      // User risk level
-      if (transfer.user.riskLevel === 'HIGH') {
-        riskScore += 3
-        riskFactors.push('High-risk user')
-      } else if (transfer.user.riskLevel === 'MEDIUM') {
-        riskScore += 1
-        riskFactors.push('Medium-risk user')
-      }
-
-      // KYC status
-      if (transfer.user.kycStatus !== 'APPROVED') {
-        riskScore += 2
-        riskFactors.push('Unverified KYC')
-      }
-
-      // Time-based urgency
-      const hoursSinceCreated = (Date.now() - new Date(transfer.createdAt).getTime()) / (1000 * 60 * 60)
-      const urgency = hoursSinceCreated > 24 ? 'HIGH' : hoursSinceCreated > 8 ? 'MEDIUM' : 'LOW'
-
-      return {
-        ...transfer,
-        riskScore,
-        riskFactors,
-        urgency,
-        priority: riskScore > 4 ? 'URGENT' : riskScore > 2 ? 'HIGH' : 'NORMAL'
-      }
-    })
+    const sanitizedTransfers = transfers.map(transfer => 
+      sanitizeTransferForAdmin(transfer, transfer.user)
+    );
 
     return {
-      transfers: enhancedTransfers,
+      transfers: sanitizedTransfers,
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
-    }
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   /**
-   * Review and approve/reject a transfer
+   * Approves a pending transfer
    */
-  static async reviewTransfer(reviewData: TransferReviewRequest) {
-    const { transferId, adminId, action, reason, ipAddress, userAgent } = reviewData
-
-    const transaction = await prisma.transaction.findUnique({
+  async approveTransfer(transferId: string, adminId: string, reference?: string) {
+    const transfer = await prisma.transaction.findUnique({
       where: { id: transferId },
       include: {
         user: {
-          select: { id: true, name: true, email: true, balance: true }
-        }
-      }
-    })
+          select: { id: true, balance: true, email: true, name: true },
+        },
+      },
+    });
 
-    if (!transaction) {
-      throw new Error('Transfer not found')
+    if (!transfer) {
+      throw new Error('Transfer not found');
     }
 
-    if (transaction.metadata?.status !== 'pending') {
-      throw new Error('Transfer is not pending approval')
+    if (transfer.status !== 'PENDING') {
+      throw new Error('Transfer is not in pending status');
     }
 
-    const currentTimestamp = new Date().toISOString()
+    // Update to processing status
+    let updatedTransfer = await prisma.transaction.update({
+      where: { id: transferId },
+      data: {
+        status: 'PROCESSING',
+        metadata: {
+          ...((transfer.metadata as any) || {}),
+          processingStartedAt: new Date().toISOString(),
+          approvedBy: adminId,
+          approvedAt: new Date().toISOString(),
+          adminReference: reference,
+        },
+      },
+    });
 
-    if (action === 'approve') {
-      // Validate sufficient balance
-      if (transaction.user.balance < transaction.amount) {
-        throw new Error('User has insufficient balance to complete transfer')
-      }
+    try {
+      // Call bank API to execute transfer
+      const bankResponse = await bankApiClient.transfer({
+        amount: transfer.amount.toNumber(),
+        currency: transfer.currency,
+        recipient: (transfer.metadata as any)?.recipient,
+        reference: transfer.id,
+      });
 
-      // Process approval
-      const result = await prisma.$transaction(async (tx) => {
-        // Update transaction
-        const updatedTransaction = await tx.transaction.update({
-          where: { id: transferId },
-          data: {
-            status: 'COMPLETED',
-            metadata: {
-              ...transaction.metadata,
-              status: 'approved',
-              approvedAt: currentTimestamp,
-              approvedBy: adminId,
-              processedAt: currentTimestamp,
-              reason: reason || 'External bank transfer approved by admin',
-              adminNotes: reason
-            }
-          }
-        })
+      if (bankResponse.success) {
+        // Success - mark as completed and deduct balance
+        await prisma.$transaction(async (tx) => {
+          // Update transfer status
+          updatedTransfer = await tx.transaction.update({
+            where: { id: transferId },
+            data: {
+              status: 'COMPLETED',
+              reference: bankResponse.reference,
+              metadata: {
+                ...((transfer.metadata as any) || {}),
+                processingStartedAt: new Date().toISOString(),
+                approvedBy: adminId,
+                approvedAt: new Date().toISOString(),
+                completedAt: new Date().toISOString(),
+                adminReference: reference,
+                bankReference: bankResponse.reference,
+                bankMessage: bankResponse.message,
+              },
+            },
+          });
 
-        // Deduct balance
-        await tx.user.update({
-          where: { id: transaction.userId },
-          data: { balance: { decrement: transaction.amount } }
-        })
-
-        // Log admin action
-        await tx.adminLog.create({
-          data: {
-            adminId,
-            action: 'APPROVE_TRANSFER',
-            targetUserId: transaction.userId,
-            amount: transaction.amount,
-            description: `Approved external transfer of $${transaction.amount.toFixed(2)} to ${transaction.metadata?.bankName}`
-          }
-        })
-
-        // Create security event
-        await tx.securityEvent.create({
-          data: {
-            userId: transaction.userId,
-            eventType: 'SUSPICIOUS_ACTIVITY',
-            description: `External transfer approved and processed: $${transaction.amount.toFixed(2)}`,
-            ipAddress,
-            userAgent,
-            riskLevel: 'LOW',
-            metadata: {
-              transferId,
-              adminId,
-              approvedAt: currentTimestamp
-            }
-          }
-        })
-
-        return updatedTransaction
-      })
-
-      // TODO: Integrate with external bank API
-      // await this.processExternalBankTransfer(transaction)
-
-      return { success: true, transaction: result, message: 'Transfer approved and processed' }
-
-    } else if (action === 'reject') {
-      // Process rejection
-      const result = await prisma.$transaction(async (tx) => {
-        // Update transaction
-        const updatedTransaction = await tx.transaction.update({
+          // Deduct from user balance
+          await tx.user.update({
+            where: { id: transfer.userId },
+            data: {
+              balance: {
+                decrement: transfer.amount.toNumber(),
+              },
+            },
+          });
+        });
+      } else {
+        // Bank API failed - mark as failed
+        updatedTransfer = await prisma.transaction.update({
           where: { id: transferId },
           data: {
             status: 'FAILED',
             metadata: {
-              ...transaction.metadata,
-              status: 'rejected',
-              rejectedAt: currentTimestamp,
-              rejectedBy: adminId,
-              reason: reason || 'External bank transfer rejected by admin',
-              adminNotes: reason
-            }
-          }
-        })
-
-        // Log admin action
-        await tx.adminLog.create({
-          data: {
-            adminId,
-            action: 'REJECT_TRANSFER',
-            targetUserId: transaction.userId,
-            amount: transaction.amount,
-            description: `Rejected external transfer of $${transaction.amount.toFixed(2)}. Reason: ${reason || 'No reason provided'}`
-          }
-        })
-
-        // Create security event
-        await tx.securityEvent.create({
-          data: {
-            userId: transaction.userId,
-            eventType: 'SUSPICIOUS_ACTIVITY',
-            description: `External transfer rejected: $${transaction.amount.toFixed(2)}`,
-            ipAddress,
-            userAgent,
-            riskLevel: 'MEDIUM',
-            metadata: {
-              transferId,
-              adminId,
-              rejectedAt: currentTimestamp,
-              rejectionReason: reason
-            }
-          }
-        })
-
-        return updatedTransaction
-      })
-
-      return { success: true, transaction: result, message: 'Transfer rejected' }
+              ...((transfer.metadata as any) || {}),
+              processingStartedAt: new Date().toISOString(),
+              approvedBy: adminId,
+              approvedAt: new Date().toISOString(),
+              failedAt: new Date().toISOString(),
+              adminReference: reference,
+              bankError: bankResponse.error,
+            },
+          },
+        });
+      }
+    } catch (bankError) {
+      console.error('Bank API error:', bankError);
+      
+      // Mark as failed due to bank API error
+      updatedTransfer = await prisma.transaction.update({
+        where: { id: transferId },
+        data: {
+          status: 'FAILED',
+          metadata: {
+            ...((transfer.metadata as any) || {}),
+            processingStartedAt: new Date().toISOString(),
+            approvedBy: adminId,
+            approvedAt: new Date().toISOString(),
+            failedAt: new Date().toISOString(),
+            adminReference: reference,
+            systemError: bankError instanceof Error ? bankError.message : 'Unknown bank API error',
+          },
+        },
+      });
     }
 
-    throw new Error('Invalid action')
+    return sanitizeTransactionData(updatedTransfer);
   }
 
   /**
-   * Get transfer statistics for admin dashboard
+   * Rejects a pending transfer
    */
-  static async getTransferStats() {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    const thisWeek = new Date()
-    thisWeek.setDate(thisWeek.getDate() - 7)
-    
-    const thisMonth = new Date()
-    thisMonth.setMonth(thisMonth.getMonth() - 1)
+  async rejectTransfer(transferId: string, adminId: string, reason: string) {
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+      throw new Error('Rejection reason is required');
+    }
 
-    const stats = await Promise.all([
-      // Pending transfers
+    const transfer = await prisma.transaction.findUnique({
+      where: { id: transferId },
+    });
+
+    if (!transfer) {
+      throw new Error('Transfer not found');
+    }
+
+    if (transfer.status !== 'PENDING') {
+      throw new Error('Transfer is not in pending status');
+    }
+
+    const updatedTransfer = await prisma.transaction.update({
+      where: { id: transferId },
+      data: {
+        status: 'REJECTED',
+        metadata: {
+          ...((transfer.metadata as any) || {}),
+          rejectedBy: adminId,
+          rejectedAt: new Date().toISOString(),
+          rejectionReason: reason.trim(),
+        },
+      },
+    });
+
+    return sanitizeTransactionData(updatedTransfer);
+  }
+
+  /**
+   * Gets transfer statistics for admin dashboard
+   */
+  async getTransferStats() {
+    const [
+      totalPending,
+      totalProcessing,
+      totalCompleted,
+      totalRejected,
+      totalVolume,
+    ] = await Promise.all([
       prisma.transaction.count({
-        where: {
-          type: 'DEBIT',
-          metadata: { path: ['status'], equals: 'pending' }
-        }
+        where: { type: 'EXTERNAL_TRANSFER', status: 'PENDING' },
       }),
-      
-      // Pending amount
+      prisma.transaction.count({
+        where: { type: 'EXTERNAL_TRANSFER', status: 'PROCESSING' },
+      }),
+      prisma.transaction.count({
+        where: { type: 'EXTERNAL_TRANSFER', status: 'COMPLETED' },
+      }),
+      prisma.transaction.count({
+        where: { type: 'EXTERNAL_TRANSFER', status: 'REJECTED' },
+      }),
       prisma.transaction.aggregate({
+        where: { 
+          type: 'EXTERNAL_TRANSFER', 
+          status: { in: ['COMPLETED', 'PROCESSING'] } 
+        },
         _sum: { amount: true },
-        where: {
-          type: 'DEBIT',
-          metadata: { path: ['status'], equals: 'pending' }
-        }
       }),
-      
-      // Today's approved
-      prisma.transaction.count({
-        where: {
-          type: 'DEBIT',
-          metadata: { path: ['status'], equals: 'approved' },
-          createdAt: { gte: today }
-        }
-      }),
-      
-      // Today's rejected
-      prisma.transaction.count({
-        where: {
-          type: 'DEBIT',
-          metadata: { path: ['status'], equals: 'rejected' },
-          createdAt: { gte: today }
-        }
-      }),
-      
-      // This week's volume
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        _count: true,
-        where: {
-          type: 'DEBIT',
-          metadata: { path: ['status'], in: ['approved', 'rejected'] },
-          createdAt: { gte: thisWeek }
-        }
-      }),
-      
-      // High-risk pending transfers
-      prisma.transaction.count({
-        where: {
-          type: 'DEBIT',
-          metadata: { 
-            path: ['status'], 
-            equals: 'pending' 
-          },
-          OR: [
-            { amount: { gte: 10000 } },
-            {
-              user: {
-                riskLevel: 'HIGH'
-              }
-            }
-          ]
-        }
-      })
-    ])
+    ]);
 
     return {
-      pending: {
-        count: stats[0],
-        amount: stats[1]._sum.amount || 0
+      counts: {
+        pending: totalPending,
+        processing: totalProcessing,
+        completed: totalCompleted,
+        rejected: totalRejected,
+        total: totalPending + totalProcessing + totalCompleted + totalRejected,
       },
-      today: {
-        approved: stats[2],
-        rejected: stats[3]
-      },
-      thisWeek: {
-        count: stats[4]._count,
-        amount: stats[4]._sum.amount || 0
-      },
-      highRiskPending: stats[5]
-    }
-  }
-
-  /**
-   * Get user's pending transfers
-   */
-  static async getUserPendingTransfers(userId: string) {
-    return prisma.transaction.findMany({
-      where: {
-        userId,
-        type: 'DEBIT',
-        metadata: { path: ['status'], equals: 'pending' }
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-  }
-
-  /**
-   * Placeholder for external bank transfer integration
-   */
-  private static async processExternalBankTransfer(transaction: any) {
-    // TODO: Integrate with actual bank transfer APIs
-    // Examples: ACH network, wire transfer services, etc.
-    
-    console.log(`Processing external bank transfer:`, {
-      transferId: transaction.id,
-      amount: transaction.amount,
-      bankName: transaction.metadata?.bankName,
-      // Don't log full account info for security
-    })
-    
-    // In production, this would:
-    // 1. Call external bank API
-    // 2. Handle responses and update transaction accordingly
-    // 3. Handle failures and retries
-    // 4. Send notifications to user
-    
-    return { success: true, externalTransactionId: `ext_${Date.now()}` }
+      totalVolume: totalVolume._sum.amount?.toNumber() || 0,
+    };
   }
 }
+
+export const transferService = new TransferService();

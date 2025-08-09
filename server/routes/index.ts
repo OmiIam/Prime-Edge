@@ -3,6 +3,8 @@ import { createServer, Server } from 'http'
 import { authRouter } from './auth'
 import { adminRouter } from './admin'
 import { userRouter } from './user'
+import { userTransferRouter } from './user-transfers'
+import { adminTransferRouter } from './admin-transfers'
 import settingsRouter from './settings'
 import documentsRouter from './documents'
 import statementsRouter from './statements'
@@ -29,7 +31,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Mount route modules
   app.use('/api/auth', authRouter)
   app.use('/api/admin', adminRouter)
+  app.use('/api/admin', adminTransferRouter) // New clean transfer admin routes
   app.use('/api/user', userRouter)
+  app.use('/api/user', userTransferRouter) // New clean transfer user routes
   app.use('/api/settings', settingsRouter)
   app.use('/api/documents', documentsRouter)
   app.use('/api/statements', statementsRouter)

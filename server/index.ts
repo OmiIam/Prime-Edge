@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
 import { disconnectDatabase } from "./prisma";
-import { initializeSocketService } from "./services/socketService";
+import { initializeSocketService } from "./socket/socket";
 
 const app = express();
 

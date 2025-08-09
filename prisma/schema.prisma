@@ -99,16 +99,21 @@ model Transaction {
   id          String            @id @default(uuid())
   userId      String
   type        TransactionType
-  amount      Float
-  description String
-  reference   String?
-  status      TransactionStatus @default(COMPLETED)
-  metadata    Json?             // Additional transaction data (bank info, transfer details, etc.)
+  amount      Decimal
+  currency    String            @default("NGN")
+  description String?
+  reference   String?           // External bank reference or internal ref
+  status      TransactionStatus @default(PENDING)
+  metadata    Json?             // Recipient info, bank details, admin actions, etc.
   createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
   
   // Relations
   user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([status])
+  @@index([type])
   @@map("transactions")
 }
 
@@ -142,11 +147,14 @@ enum AccountType {
 enum TransactionType {
   CREDIT
   DEBIT
+  EXTERNAL_TRANSFER
 }
 
 enum TransactionStatus {
   PENDING
+  PROCESSING
   COMPLETED
+  REJECTED
   FAILED
 }
 
