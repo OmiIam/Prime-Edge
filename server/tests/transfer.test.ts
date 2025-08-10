@@ -43,7 +43,7 @@ jest.mock('../index', () => ({
 }));
 
 jest.mock('../socket/socket', () => ({
-  getSocketService: () => mockSocketService
+  getSocketService: jest.fn(() => mockSocketService)
 }));
 
 describe('TransferService Unit Tests', () => {
