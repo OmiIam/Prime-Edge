@@ -6,6 +6,7 @@ import { userTransferRouter } from './routes/user-transfers';
 import { adminTransferRouter } from './routes/admin-transfers';
 import { authRouter } from './routes/auth';
 import { PrismaClient } from '@prisma/client';
+import { maintenanceMode, getMaintenanceStatus } from './middleware/maintenance';
 
 const app = express();
 const httpServer = createServer(app);
@@ -42,6 +43,45 @@ app.use((req, res, next) => {
   next();
 });
 
+// Maintenance mode middleware (must be before auth middleware)
+app.use(maintenanceMode);
+
+// Maintenance status endpoint
+app.get('/api/maintenance/status', getMaintenanceStatus);
+
+// Maintenance page route
+app.get('/maintenance', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>System Maintenance - PrimeEdge</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 40px; background: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; text-align: center; background: white; padding: 60px 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #1f2937; font-size: 2.5rem; margin-bottom: 20px; }
+        p { color: #6b7280; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; }
+        .icon { font-size: 4rem; margin-bottom: 30px; }
+        .back-link { color: #3b82f6; text-decoration: none; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="icon">🚧</div>
+        <h1>System Upgrade in Progress</h1>
+        <p>We're currently performing system maintenance to improve your experience. During this time, login and account access are temporarily unavailable.</p>
+        <p>We apologize for any inconvenience and appreciate your patience. Please check back shortly.</p>
+        <br>
+        <a href="/" class="back-link">← Return to homepage</a>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
@@ -49,7 +89,8 @@ app.get('/health', (req, res) => {
     message: 'Server is healthy',
     data: {
       timestamp: new Date().toISOString(),
-      uptime: process.uptime()
+      uptime: process.uptime(),
+      maintenance: process.env.MAINTENANCE_MODE === 'true'
     }
   });
 });

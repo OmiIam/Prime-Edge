@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../index';
+import { prisma } from '../prisma';
 
 // Extend Express Request to include authenticated user
 export interface AuthenticatedRequest extends Request {
@@ -123,3 +123,8 @@ export function transferRateLimit(req: Request, res: Response, next: NextFunctio
   console.log(`[RateLimit] Transfer operation by user: ${authReq.user?.id || 'unknown'}`);
   next();
 }
+
+/**
+ * Alias for authenticateToken for backwards compatibility
+ */
+export const requireAuth = authenticateToken;

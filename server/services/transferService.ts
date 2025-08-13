@@ -1,5 +1,5 @@
 import { Decimal } from '@prisma/client/runtime/library';
-import { prisma } from '../index';
+import { prisma } from '../prisma';
 import { getSocketService } from '../socket/socket';
 import { sanitizeTransaction, sanitizeTransactions, sanitizeTransactionWithUser } from '../utils/sanitizeTransactionData';
 import { validateAmount, validateCurrency, validateRecipientInfo, validatePagination, validateSinceDate } from '../utils/responseHelpers';

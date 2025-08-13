@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LoadingProvider } from "@/contexts/LoadingContext";
+import { MaintenanceProvider } from "@/contexts/MaintenanceContext";
 import { RouteLoader } from "@/components/RouteLoader";
 import { useEffect, useState } from "react";
 import { authManager } from "./lib/auth";
@@ -13,6 +14,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
+import MaintenancePage from "@/pages/maintenance";
 
 // Service Pages
 import PersonalBanking from "@/pages/services/personal-banking";
@@ -62,6 +64,7 @@ function Router() {
         <Route path="/" component={Landing} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
+        <Route path="/maintenance" component={MaintenancePage} />
         
         {/* Service Pages */}
         <Route path="/services/personal-banking" component={PersonalBanking} />
@@ -109,6 +112,7 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/admin" component={Admin} />
         <Route path="/admin/users/:id" component={UserDetail} />
+        <Route path="/maintenance" component={MaintenancePage} />
         
         {/* User Pages */}
         <Route path="/kyc/submit" component={KycSubmit} />
@@ -150,6 +154,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/maintenance" component={MaintenancePage} />
       
       {/* User Pages */}
       <Route path="/kyc/submit" component={KycSubmit} />
@@ -190,15 +195,17 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LoadingProvider>
-        <TooltipProvider>
-          <div className="dark">
-            <Toaster />
-            <RouteLoader />
-            <Router />
+      <MaintenanceProvider>
+        <LoadingProvider>
+          <TooltipProvider>
+            <div className="dark">
+              <Toaster />
+              <RouteLoader />
+              <Router />
           </div>
         </TooltipProvider>
       </LoadingProvider>
+      </MaintenanceProvider>
     </QueryClientProvider>
   );
 }

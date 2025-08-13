@@ -25,6 +25,7 @@
     "test:database": "jest --testPathPattern=\"(database-migration|migration-script|schema-validation|schema-offline-validation).test.ts\"",
     "test:migration": "jest --testPathPattern=migration-script.test.ts",
     "test:schema-offline": "jest --testPathPattern=\"(migration-script|schema-offline-validation).test.ts\"",
+    "test:maintenance": "jest --testPathPattern=maintenance-mode.test.ts",
     "test:debug": "DEBUG_TESTS=true jest --verbose --runInBand"
   },
   "prisma": {

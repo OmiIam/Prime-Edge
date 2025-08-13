@@ -2,11 +2,12 @@ import { Router } from 'express'
 import { AuthService } from '../services/authService'
 import { createUserSchema, loginSchema } from '../../shared/validation'
 import { requireAuth } from '../middleware/auth'
+import { blockLoginDuringMaintenance } from '../middleware/maintenance'
 
 export const authRouter = Router()
 
 // POST /api/auth/login
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', blockLoginDuringMaintenance, async (req, res) => {
   try {
     const validatedData = loginSchema.parse(req.body)
     const result = await AuthService.login(validatedData)
@@ -28,7 +29,7 @@ authRouter.post('/login', async (req, res) => {
 })
 
 // POST /api/auth/register
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', blockLoginDuringMaintenance, async (req, res) => {
   try {
     const validatedData = createUserSchema.parse(req.body)
     const { confirmPassword, ...userData } = validatedData

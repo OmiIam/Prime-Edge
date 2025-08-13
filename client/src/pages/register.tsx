@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,7 @@ import { authManager } from "@/lib/auth";
 import { createUserSchema, type CreateUserInput } from "@shared/validation";
 import Logo from "@/components/logo";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { useIsMaintenanceMode } from "@/hooks/useMaintenance";
 
 export default function Register() {
   const [, setLocation] = useLocation();
@@ -21,6 +22,13 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const isMaintenanceMode = useIsMaintenanceMode();
+
+  useEffect(() => {
+    if (isMaintenanceMode) {
+      setLocation("/maintenance");
+    }
+  }, [isMaintenanceMode, setLocation]);
 
   const form = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),

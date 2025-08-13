@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,17 +7,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
 import { loginSchema, type LoginUser } from "@shared/schema";
 import Logo from "@/components/logo";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, AlertTriangle } from "lucide-react";
+import { useIsMaintenanceMode } from "@/hooks/useMaintenance";
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const isMaintenanceMode = useIsMaintenanceMode();
+
+  useEffect(() => {
+    if (isMaintenanceMode) {
+      setLocation("/maintenance");
+    }
+  }, [isMaintenanceMode, setLocation]);
 
   const form = useForm<LoginUser>({
     resolver: zodResolver(loginSchema),
@@ -76,6 +85,16 @@ export default function Login() {
             <p className="text-gray-300">Sign in to your Prime Edge Banking account</p>
           </CardHeader>
           <CardContent>
+            {isMaintenanceMode ? (
+              <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
+                <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                <AlertDescription className="text-yellow-200">
+                  System maintenance is in progress. Login is temporarily unavailable. 
+                  Please check back shortly.
+                </AlertDescription>
+              </Alert>
+            ) : null}
+
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <Label htmlFor="email" className="text-white">Email Address</Label>
@@ -123,9 +142,13 @@ export default function Login() {
               <Button
                 type="submit"
                 className="w-full bg-prime-accent hover:bg-blue-600 text-white font-semibold py-3"
-                disabled={loginMutation.isPending}
+                disabled={loginMutation.isPending || isMaintenanceMode}
               >
-                {loginMutation.isPending ? "Signing In..." : "Sign In"}
+                {isMaintenanceMode 
+                  ? "Login Disabled - Maintenance Mode" 
+                  : loginMutation.isPending 
+                    ? "Signing In..." 
+                    : "Sign In"}
               </Button>
             </form>
 
