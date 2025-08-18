@@ -2,8 +2,25 @@ import { Button } from "@/components/ui/button";
 import { authManager } from "@/lib/auth";
 import { useLocation } from "wouter";
 import Logo from "@/components/logo";
-import { LogOut, User, Settings, Shield, Menu, X, FileText, Upload, UserCheck } from "lucide-react";
-import { useState } from "react";
+import { 
+  LogOut, 
+  User, 
+  Settings, 
+  Shield, 
+  Menu, 
+  X, 
+  FileText, 
+  Upload, 
+  UserCheck,
+  ArrowLeftRight,
+  CreditCard,
+  Wallet,
+  Bell,
+  Search,
+  Home,
+  ChevronDown
+} from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,307 +40,360 @@ interface NavbarProps {
 export default function Navbar({ user }: NavbarProps) {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Accessibility: Close mobile menu on escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (searchOpen) {
+          setSearchOpen(false);
+        }
+        if (mobileMenuOpen) {
+          setMobileMenuOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen, searchOpen]);
 
   const handleLogout = () => {
     authManager.logout();
     // Note: authManager.logout() now handles the redirect automatically
   };
 
+  const navItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: Home },
+    { path: '/transfers', label: 'Transfers', icon: ArrowLeftRight },
+    { path: '/payments', label: 'Payments', icon: CreditCard },
+    { path: '/accounts', label: 'Accounts', icon: Wallet },
+  ];
+
+  const isActivePath = (path: string) => {
+    return location === path || location.startsWith(path + '/');
+  };
+
   return (
-    <nav className="fixed w-full top-0 z-50 bg-prime-navy/95 backdrop-blur-sm border-b border-prime-slate/20">
+    <nav className="fixed w-full top-0 z-50 bg-prime-navy/95 backdrop-blur-md border-b border-prime-slate/10 shadow-lg" role="navigation" aria-label="Main navigation">
+      {/* Skip to content link for accessibility */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-prime-accent text-white px-4 py-2 rounded-lg z-50 transition-all duration-200"
+      >
+        Skip to main content
+      </a>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <div className="flex items-center">
-            <div className="cursor-pointer" onClick={() => setLocation("/dashboard")}>
+            <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => setLocation("/dashboard")}>
               <Logo size="md" showText={true} />
             </div>
           </div>
           
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Primary Navigation - Desktop */}
+          <div className="hidden lg:flex items-center space-x-1" role="menubar" aria-label="Primary navigation">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActivePath(item.path);
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className={`relative px-4 py-2.5 h-10 font-medium text-sm transition-all duration-200 ${
+                    active
+                      ? 'text-white bg-prime-accent/20 hover:bg-prime-accent/30' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                  }`}
+                  onClick={() => setLocation(item.path)}
+                  role="menuitem"
+                  aria-current={active ? 'page' : undefined}
+                  aria-label={`Navigate to ${item.label}`}
+                >
+                  <Icon className="h-4 w-4 mr-2" aria-hidden="true" />
+                  {item.label}
+                  {active && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-prime-accent rounded-full" aria-hidden="true" />
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+          
+          {/* Right Side Actions - Desktop */}
+          <div className="hidden md:flex items-center space-x-3">
+            {/* Search Button */}
+            <Button
+              variant="ghost"
+              className="text-gray-300 hover:text-white hover:bg-white/10 p-2 h-10 w-10 transition-all duration-200"
+              onClick={() => setSearchOpen(!searchOpen)}
+              aria-label="Search"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+
+            {/* Notifications */}
+            <Button
+              variant="ghost"
+              className="relative text-gray-300 hover:text-white hover:bg-white/10 p-2 h-10 w-10 transition-all duration-200"
+              onClick={() => setLocation("/notifications")}
+              aria-label="Notifications"
+            >
+              <Bell className="h-4 w-4" aria-hidden="true" />
+              {/* Notification Badge */}
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-prime-navy animate-pulse" aria-hidden="true" />
+              <span className="sr-only">You have new notifications</span>
+            </Button>
+
+            {/* Admin Button - Simplified */}
             {user.role === 'ADMIN' && (
               <Button
-                variant={location === '/admin' ? 'default' : 'ghost'}
-                className={location === '/admin' 
-                  ? 'bg-prime-accent hover:bg-blue-600' 
-                  : 'text-gray-300 hover:text-white'
-                }
+                variant="ghost"
+                className={`text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 h-10 font-medium text-sm transition-all duration-200 ${
+                  location === '/admin' ? 'bg-purple-600/20 text-purple-300' : ''
+                }`}
                 onClick={() => setLocation("/admin")}
               >
                 <Shield className="h-4 w-4 mr-2" />
-                Admin Panel
+                Admin
               </Button>
             )}
-            
-            <Button
-              variant={location === '/dashboard' ? 'default' : 'ghost'}
-              className={location === '/dashboard' 
-                ? 'bg-prime-accent hover:bg-blue-600' 
-                : 'text-gray-300 hover:text-white'
-              }
-              onClick={() => setLocation("/dashboard")}
-            >
-              Dashboard
-            </Button>
 
+            {/* User Menu Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="text-gray-200 hover:text-white hover:bg-white/10 transition-all duration-200 px-4 py-2 rounded-lg border border-transparent hover:border-white/20 shadow-sm hover:shadow-md"
+                  className="text-gray-200 hover:text-white hover:bg-white/10 transition-all duration-200 px-3 py-2 rounded-lg group"
+                  aria-label="User menu"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white font-bold text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-sm">
+                      <span className="text-white font-semibold text-sm">
                         {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </span>
                     </div>
-                    <div className="flex flex-col items-start">
-                      <span className="font-semibold text-sm">{user.name}</span>
-                      <span className="text-xs text-gray-400 uppercase tracking-wide">{user.role}</span>
-                    </div>
+                    <span className="font-medium text-sm hidden lg:block">{user.name.split(' ')[0]}</span>
+                    <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
                   </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="end" 
                 sideOffset={8}
-                className="w-80 bg-white/98 backdrop-blur-xl border-2 border-gray-100 shadow-2xl rounded-2xl p-3 mt-2 z-50"
-                style={{
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)'
-                }}
+                className="w-64 bg-white/98 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-xl p-2 mt-2 z-50"
               >
-                {/* User Profile Header */}
-                <div className="px-6 py-5 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl mb-3 border-2 border-slate-100 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="w-14 h-14 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-xl">
-                        <span className="text-white font-bold text-xl">
-                          {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      </div>
+                {/* Simplified User Profile Header */}
+                <div className="px-3 py-3 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-sm">
+                      <span className="text-white font-semibold text-sm">
+                        {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-gray-900 text-lg mb-1">{user.name}</div>
-                      <div className="text-sm text-gray-700 font-medium mb-3">{user.email}</div>
-                      <div className="inline-flex items-center px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-md uppercase tracking-wider">
-                        <Shield className="h-3 w-3 mr-1.5" />
-                        {user.role}
-                      </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-gray-900 text-sm truncate">{user.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{user.email}</div>
                     </div>
                   </div>
                 </div>
                 
-                <DropdownMenuSeparator className="bg-gray-300 my-3 h-px" />
-                
-                {/* Action Items */}
-                <div className="space-y-2">
+                {/* Simplified Menu Items */}
+                <div className="py-1">
                   <DropdownMenuItem 
-                    className="text-gray-800 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-blue-200"
-                    onClick={() => setLocation('/dashboard')}
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-base">Dashboard</span>
-                      <span className="text-xs text-gray-600 font-medium">View your account overview</span>
-                    </div>
-                  </DropdownMenuItem>
-                  
-                  {user.role === 'ADMIN' && (
-                    <DropdownMenuItem 
-                      className="text-gray-800 hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 hover:text-purple-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-purple-200"
-                      onClick={() => setLocation('/admin')}
-                    >
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                        <Shield className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-base">Admin Panel</span>
-                        <span className="text-xs text-gray-600 font-medium">System management</span>
-                      </div>
-                    </DropdownMenuItem>
-                  )}
-                  
-                  <DropdownMenuItem 
-                    className="text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-indigo-200"
-                    onClick={() => setLocation('/kyc/submit')}
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                      <UserCheck className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-base">Identity Verification</span>
-                      <span className="text-xs text-gray-600 font-medium">Complete your KYC verification</span>
-                    </div>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem 
-                    className="text-gray-800 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-green-200"
-                    onClick={() => setLocation('/statements')}
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                      <FileText className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-base">Statements</span>
-                      <span className="text-xs text-gray-600 font-medium">Account statements & reports</span>
-                    </div>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem 
-                    className="text-gray-800 hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 hover:text-orange-800 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-orange-200"
-                    onClick={() => setLocation('/documents')}
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                      <Upload className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-base">Documents</span>
-                      <span className="text-xs text-gray-600 font-medium">Upload & manage files</span>
-                    </div>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem 
-                    className="text-gray-800 hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-100 hover:text-gray-900 cursor-pointer rounded-xl px-5 py-4 font-semibold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-gray-200"
+                    className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg cursor-pointer transition-colors"
                     onClick={() => setLocation('/settings')}
                   >
-                    <div className="w-10 h-10 bg-gradient-to-r from-gray-500 to-gray-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                      <Settings className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-base">Settings</span>
-                      <span className="text-xs text-gray-600 font-medium">Account preferences</span>
-                    </div>
+                    <Settings className="h-4 w-4 mr-3 text-gray-400" />
+                    Account Settings
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem 
+                    className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => setLocation('/statements')}
+                  >
+                    <FileText className="h-4 w-4 mr-3 text-gray-400" />
+                    Statements
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem 
+                    className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => setLocation('/kyc/submit')}
+                  >
+                    <UserCheck className="h-4 w-4 mr-3 text-gray-400" />
+                    ID Verification
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem 
+                    className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => setLocation('/documents')}
+                  >
+                    <Upload className="h-4 w-4 mr-3 text-gray-400" />
+                    Documents
                   </DropdownMenuItem>
                 </div>
                 
-                <DropdownMenuSeparator className="bg-gray-300 my-3 h-px" />
+                <DropdownMenuSeparator className="my-1" />
                 
                 {/* Sign Out */}
-                <DropdownMenuItem 
-                  className="text-red-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-800 cursor-pointer rounded-xl px-5 py-4 font-bold transition-all duration-300 hover:shadow-md hover:scale-[1.02] border-2 border-red-200 hover:border-red-300"
-                  onClick={handleLogout}
-                >
-                  <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center mr-4 shadow-md">
-                    <LogOut className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-base">Sign Out</span>
-                    <span className="text-xs text-red-600 font-medium">End your current session</span>
-                  </div>
-                </DropdownMenuItem>
+                <div className="py-1">
+                  <DropdownMenuItem 
+                    className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg cursor-pointer transition-colors font-medium"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4 mr-3" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-2">
+            {/* Mobile Notification Button */}
             <Button
               variant="ghost"
-              className="text-gray-300 hover:text-white hover:bg-prime-slate/20 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all duration-200"
+              className="relative text-gray-300 hover:text-white hover:bg-white/10 p-2 h-10 w-10 transition-all duration-200 md:hidden"
+              onClick={() => setLocation("/notifications")}
+              aria-label="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-prime-navy animate-pulse" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="text-gray-300 hover:text-white hover:bg-white/10 p-2 h-10 w-10 rounded-lg transition-all duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               )}
             </Button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Enhanced Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-prime-slate/20 bg-prime-navy/98 backdrop-blur-md shadow-xl">
-            <div className="px-4 pt-4 pb-6 space-y-2">
+          <div className="md:hidden border-t border-prime-slate/10 bg-prime-navy/98 backdrop-blur-md shadow-xl animate-in slide-in-from-top-2 duration-200">
+            <div className="px-4 pt-4 pb-6">
               {/* User Info */}
-              <div className="px-4 py-4 border-b border-prime-slate/20 mb-4 bg-prime-charcoal/30 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-base">
+              <div className="px-4 py-3 mb-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white font-semibold text-sm">
                       {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-white font-semibold text-base truncate">{user.name}</div>
-                    <div className="text-sm text-gray-300 truncate">{user.email}</div>
-                    <div className="inline-flex items-center px-2 py-1 mt-1 text-xs font-medium text-prime-accent bg-prime-accent/10 rounded-full border border-prime-accent/20">
-                      {user.role}
-                    </div>
+                    <div className="text-white font-semibold text-sm truncate">{user.name}</div>
+                    <div className="text-xs text-gray-300 truncate">{user.email}</div>
                   </div>
                 </div>
               </div>
 
               {/* Navigation Links */}
-              <div className="space-y-2">
-                <Button
-                  variant="ghost"
-                  className={`w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 ${location === '/dashboard' 
-                    ? 'bg-prime-accent text-white shadow-lg scale-[1.02]' 
-                    : 'text-gray-300 hover:text-white hover:bg-prime-slate/30 hover:scale-[1.01]'
-                  }`}
-                  onClick={() => {
-                    setLocation("/dashboard");
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  <User className="h-5 w-5 mr-4" />
-                  Dashboard
-                </Button>
+              <div className="space-y-1 mb-4">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActivePath(item.path);
+                  return (
+                    <Button
+                      key={item.path}
+                      variant="ghost"
+                      className={`w-full justify-start h-12 px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+                        active
+                          ? 'bg-prime-accent text-white shadow-lg' 
+                          : 'text-gray-300 hover:text-white hover:bg-white/10'
+                      }`}
+                      onClick={() => {
+                        setLocation(item.path);
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <Icon className="h-4 w-4 mr-3" />
+                      {item.label}
+                    </Button>
+                  );
+                })}
 
                 {user.role === 'ADMIN' && (
                   <Button
                     variant="ghost"
-                    className={`w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 ${location === '/admin' 
-                      ? 'bg-prime-accent text-white shadow-lg scale-[1.02]' 
-                      : 'text-gray-300 hover:text-white hover:bg-prime-slate/30 hover:scale-[1.01]'
+                    className={`w-full justify-start h-12 px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+                      location === '/admin' 
+                        ? 'bg-purple-600/20 text-purple-300 shadow-lg' 
+                        : 'text-gray-300 hover:text-white hover:bg-white/10'
                     }`}
                     onClick={() => {
                       setLocation("/admin");
                       setMobileMenuOpen(false);
                     }}
                   >
-                    <Shield className="h-5 w-5 mr-4" />
-                    Admin Panel
+                    <Shield className="h-4 w-4 mr-3" />
+                    Admin
                   </Button>
                 )}
 
                 <Button
                   variant="ghost"
-                  className={`w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base transition-all duration-200 ${location.startsWith('/settings') 
-                    ? 'bg-prime-accent text-white shadow-lg scale-[1.02]' 
-                    : 'text-gray-300 hover:text-white hover:bg-prime-slate/30 hover:scale-[1.01]'
+                  className={`w-full justify-start h-12 px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+                    location.startsWith('/settings') 
+                      ? 'bg-prime-accent text-white shadow-lg' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                   onClick={() => {
                     setLocation("/settings");
                     setMobileMenuOpen(false);
                   }}
                 >
-                  <Settings className="h-5 w-5 mr-4" />
+                  <Settings className="h-4 w-4 mr-3" />
                   Settings
                 </Button>
               </div>
 
               {/* Sign Out Button */}
-              <div className="pt-4 border-t border-prime-slate/20 mt-4">
+              <div className="pt-3 border-t border-white/10">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start min-h-[48px] px-4 py-3 rounded-xl font-medium text-base text-red-400 hover:text-red-300 hover:bg-red-500/15 transition-all duration-200 hover:scale-[1.01]"
+                  className="w-full justify-start h-12 px-4 py-3 rounded-lg font-medium text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200"
                   onClick={() => {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
                 >
-                  <LogOut className="h-5 w-5 mr-4" />
+                  <LogOut className="h-4 w-4 mr-3" />
                   Sign Out
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search Overlay */}
+        {searchOpen && (
+          <div className="absolute top-16 left-0 right-0 bg-prime-navy/95 backdrop-blur-md border-b border-prime-slate/20 p-4 animate-in slide-in-from-top-2 duration-200">
+            <div className="max-w-md mx-auto">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search transactions, accounts..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-prime-accent focus:border-transparent"
+                  autoFocus
+                />
+                <Button
+                  variant="ghost"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1 h-auto"
+                  onClick={() => setSearchOpen(false)}
+                >
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
