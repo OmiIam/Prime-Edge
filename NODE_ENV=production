@@ -1,0 +1,9 @@
+🚀 Socket.IO service initialized
+11:31:55 PM [express] ✅ Socket.IO service initialized successfully
+⚠️  Continuing without database - UI will be available but functionality limited
+⚠️  Running in demo mode - database unavailable
+11:31:56 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+11:31:56 PM [express] 🚀 Server running at http://localhost:5173
+11:31:56 PM [express] 📱 Frontend: http://localhost:5173
+11:31:56 PM [express] 🔧 Admin: http://localhost:5173/admin
+11:31:56 PM [express] 🔌 WebSocket server ready for real-time updates

@@ -46,6 +46,7 @@ import StatementsSettings from "@/pages/settings/statements";
 import HelpSettings from "@/pages/settings/help";
 import Settings from "@/pages/settings/index";
 import TransactionHistory from "@/pages/transactions/history";
+import Transfer from "@/pages/transfer";
 
 // Admin Pages
 import UserDetail from "@/pages/admin/users/[id]";
@@ -98,6 +99,7 @@ function Router() {
         <Route path="/settings/statements" component={Landing} />
         <Route path="/settings/help" component={Landing} />
         <Route path="/transactions/history" component={Landing} />
+        <Route path="/transfer" component={Landing} />
         <Route path="/admin/users/:id" component={Landing} />
         
         <Route component={NotFound} />
@@ -126,6 +128,7 @@ function Router() {
         <Route path="/settings/statements" component={StatementsSettings} />
         <Route path="/settings/help" component={HelpSettings} />
         <Route path="/transactions/history" component={TransactionHistory} />
+        <Route path="/transfer" component={Transfer} />
         
         {/* Service Pages (available to all users) */}
         <Route path="/services/personal-banking" component={PersonalBanking} />
@@ -168,6 +171,7 @@ function Router() {
       <Route path="/settings/statements" component={StatementsSettings} />
       <Route path="/settings/help" component={HelpSettings} />
       <Route path="/transactions/history" component={TransactionHistory} />
+      <Route path="/transfer" component={Transfer} />
       
       {/* Service Pages (available to all users) */}
       <Route path="/services/personal-banking" component={PersonalBanking} />

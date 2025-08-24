@@ -7,6 +7,7 @@ import { adminTransferRouter } from './routes/admin-transfers';
 import { authRouter } from './routes/auth';
 import { PrismaClient } from '@prisma/client';
 import { maintenanceMode, getMaintenanceStatus } from './middleware/maintenance';
+import { setupVite, serveStatic } from './vite';
 
 const app = express();
 const httpServer = createServer(app);
@@ -100,9 +101,20 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', userTransferRouter);
 app.use('/api/admin', adminTransferRouter);
 
-// Global error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Global error handler:', err);
+// Setup Vite in development or serve static files in production
+async function setupFrontend() {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔧 Setting up Vite development server...');
+    await setupVite(app, httpServer);
+  } else {
+    console.log('📦 Serving static files...');
+    serveStatic(app);
+  }
+}
+
+// Global error handler (only for API routes)
+app.use('/api/*', (err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('API error handler:', err);
   
   res.status(500).json({
     success: false,
@@ -113,11 +125,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// API 404 handler
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: 'API route not found',
     data: null
   });
 });
@@ -127,11 +139,22 @@ const socketService = initializeSocket(httpServer);
 
 const PORT = process.env.PORT || 5173;
 
-// Start server
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`🔌 Socket.IO server ready for real-time updates`);
-});
+// Setup frontend and start server
+async function startServer() {
+  try {
+    await setupFrontend();
+    
+    httpServer.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`🔌 Socket.IO server ready for real-time updates`);
+    });
+  } catch (error) {
+    console.error('Failed to setup frontend:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

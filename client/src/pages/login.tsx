@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { authManager } from "@/lib/auth";
 import { loginSchema, type LoginUser } from "@shared/schema";
 import Logo from "@/components/logo";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ArrowLeft, Eye, EyeOff, AlertTriangle } from "lucide-react";
 import { useIsMaintenanceMode } from "@/hooks/useMaintenance";
 
@@ -74,7 +75,7 @@ export default function Login() {
           Back to Home
         </Button>
 
-        <Card className="gradient-card border-prime-slate/30 shadow-2xl">
+        <Card className="card-glass glass-enhanced border-white/20 shadow-2xl">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Logo size="lg" showText={false} />
@@ -141,13 +142,18 @@ export default function Login() {
 
               <Button
                 type="submit"
-                className="w-full bg-prime-accent hover:bg-blue-600 text-white font-semibold py-3"
+                className="w-full bg-prime-accent hover:bg-blue-600 text-white font-semibold py-3 transition-all duration-200"
                 disabled={loginMutation.isPending || isMaintenanceMode}
               >
                 {isMaintenanceMode 
                   ? "Login Disabled - Maintenance Mode" 
                   : loginMutation.isPending 
-                    ? "Signing In..." 
+                    ? (
+                        <span className="flex items-center justify-center">
+                          <LoadingSpinner className="w-4 h-4 mr-2" />
+                          Signing In...
+                        </span>
+                      )
                     : "Sign In"}
               </Button>
             </form>

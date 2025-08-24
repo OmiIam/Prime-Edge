@@ -1,0 +1,214 @@
+{
+  "timestamp": "2025-08-23T23:05:18.088Z",
+  "summary": {
+    "totalPages": 6,
+    "totalScreenshots": 18,
+    "successfulScreenshots": 18,
+    "accessibilityIssues": 3
+  },
+  "pages": [
+    {
+      "name": "homepage",
+      "description": "Landing page",
+      "url": "/",
+      "screenshots": [
+        {
+          "page": "homepage",
+          "viewport": "desktop",
+          "success": true,
+          "filename": "homepage-desktop.png"
+        },
+        {
+          "page": "homepage",
+          "viewport": "tablet",
+          "success": true,
+          "filename": "homepage-tablet.png"
+        },
+        {
+          "page": "homepage",
+          "viewport": "mobile",
+          "success": true,
+          "filename": "homepage-mobile.png"
+        }
+      ],
+      "accessibility": {
+        "page": "homepage",
+        "totalImages": 4,
+        "totalHeadings": 21,
+        "totalInputs": 0,
+        "issues": [
+          "Heading hierarchy issue: H4 follows h2"
+        ]
+      }
+    },
+    {
+      "name": "login",
+      "description": "Login form",
+      "url": "/login",
+      "screenshots": [
+        {
+          "page": "login",
+          "viewport": "desktop",
+          "success": true,
+          "filename": "login-desktop.png"
+        },
+        {
+          "page": "login",
+          "viewport": "tablet",
+          "success": true,
+          "filename": "login-tablet.png"
+        },
+        {
+          "page": "login",
+          "viewport": "mobile",
+          "success": true,
+          "filename": "login-mobile.png"
+        }
+      ],
+      "accessibility": {
+        "page": "login",
+        "totalImages": 0,
+        "totalHeadings": 0,
+        "totalInputs": 2,
+        "issues": []
+      }
+    },
+    {
+      "name": "register",
+      "description": "Registration form",
+      "url": "/register",
+      "screenshots": [
+        {
+          "page": "register",
+          "viewport": "desktop",
+          "success": true,
+          "filename": "register-desktop.png"
+        },
+        {
+          "page": "register",
+          "viewport": "tablet",
+          "success": true,
+          "filename": "register-tablet.png"
+        },
+        {
+          "page": "register",
+          "viewport": "mobile",
+          "success": true,
+          "filename": "register-mobile.png"
+        }
+      ],
+      "accessibility": {
+        "page": "register",
+        "totalImages": 0,
+        "totalHeadings": 0,
+        "totalInputs": 4,
+        "issues": []
+      }
+    },
+    {
+      "name": "dashboard",
+      "description": "User dashboard",
+      "url": "/dashboard",
+      "screenshots": [
+        {
+          "page": "dashboard",
+          "viewport": "desktop",
+          "success": true,
+          "filename": "dashboard-desktop.png"
+        },
+        {
+          "page": "dashboard",
+          "viewport": "tablet",
+          "success": true,
+          "filename": "dashboard-tablet.png"
+        },
+        {
+          "page": "dashboard",
+          "viewport": "mobile",
+          "success": true,
+          "filename": "dashboard-mobile.png"
+        }
+      ],
+      "accessibility": {
+        "page": "dashboard",
+        "totalImages": 4,
+        "totalHeadings": 21,
+        "totalInputs": 0,
+        "issues": [
+          "Heading hierarchy issue: H4 follows h2"
+        ]
+      }
+    },
+    {
+      "name": "transfer",
+      "description": "Money transfer interface",
+      "url": "/transfer",
+      "screenshots": [
+        {
+          "page": "transfer",
+          "viewport": "desktop",
+          "success": true,
+          "filename": "transfer-desktop.png"
+        },
+        {
+          "page": "transfer",
+          "viewport": "tablet",
+          "success": true,
+          "filename": "transfer-tablet.png"
+        },
+        {
+          "page": "transfer",
+          "viewport": "mobile",
+          "success": true,
+          "filename": "transfer-mobile.png"
+        }
+      ],
+      "accessibility": {
+        "page": "transfer",
+        "totalImages": 0,
+        "totalHeadings": 1,
+        "totalInputs": 0,
+        "issues": []
+      }
+    },
+    {
+      "name": "admin",
+      "description": "Admin panel",
+      "url": "/admin",
+      "screenshots": [
+        {
+          "page": "admin",
+          "viewport": "desktop",
+          "success": true,
+          "filename": "admin-desktop.png"
+        },
+        {
+          "page": "admin",
+          "viewport": "tablet",
+          "success": true,
+          "filename": "admin-tablet.png"
+        },
+        {
+          "page": "admin",
+          "viewport": "mobile",
+          "success": true,
+          "filename": "admin-mobile.png"
+        }
+      ],
+      "accessibility": {
+        "page": "admin",
+        "totalImages": 4,
+        "totalHeadings": 21,
+        "totalInputs": 0,
+        "issues": [
+          "Heading hierarchy issue: H4 follows h2"
+        ]
+      }
+    }
+  ],
+  "recommendations": {
+    "criticalIssues": [],
+    "improvements": [],
+    "quickWins": []
+  }
+}

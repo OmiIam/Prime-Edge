@@ -1,0 +1,50 @@
+[
+  {
+    "page": "homepage",
+    "totalImages": 4,
+    "totalHeadings": 21,
+    "totalInputs": 0,
+    "issues": [
+      "Heading hierarchy issue: H4 follows h2"
+    ]
+  },
+  {
+    "page": "login",
+    "totalImages": 0,
+    "totalHeadings": 0,
+    "totalInputs": 2,
+    "issues": []
+  },
+  {
+    "page": "register",
+    "totalImages": 0,
+    "totalHeadings": 0,
+    "totalInputs": 4,
+    "issues": []
+  },
+  {
+    "page": "dashboard",
+    "totalImages": 4,
+    "totalHeadings": 21,
+    "totalInputs": 0,
+    "issues": [
+      "Heading hierarchy issue: H4 follows h2"
+    ]
+  },
+  {
+    "page": "transfer",
+    "totalImages": 0,
+    "totalHeadings": 1,
+    "totalInputs": 0,
+    "issues": []
+  },
+  {
+    "page": "admin",
+    "totalImages": 4,
+    "totalHeadings": 21,
+    "totalInputs": 0,
+    "issues": [
+      "Heading hierarchy issue: H4 follows h2"
+    ]
+  }
+]

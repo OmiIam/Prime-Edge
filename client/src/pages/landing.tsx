@@ -265,10 +265,10 @@ export default function Landing() {
             </div>
             
             {/* Call to Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center max-w-lg mx-auto px-4 sm:px-0">
               <Button 
                 size="lg" 
-                className="bg-prime-accent hover:bg-blue-600 text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto border-0"
+                className="bg-gradient-to-r from-prime-accent to-blue-600 hover:from-blue-600 hover:to-prime-accent text-white px-8 sm:px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:glow-pulse w-full sm:w-auto border-0 focus-visible:focus-visible touch-target-lg mobile-button btn-micro-primary relative overflow-hidden"
                 onClick={() => setLocation("/register")}
               >
                 Open a Free Account Today
@@ -276,7 +276,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+                className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm px-8 sm:px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto focus-visible:focus-visible touch-target-lg mobile-button btn-micro-primary relative overflow-hidden hover:text-prime-accent"
                 onClick={() => setLocation("/login")}
               >
                 Sign In
@@ -347,9 +347,9 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-            <Card className="group bg-gradient-to-br from-green-500/5 to-emerald-600/10 backdrop-blur-sm border border-green-400/10 hover:border-green-400/30 p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 text-center">
-              <div className="w-16 h-16 bg-green-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-400/20 group-hover:scale-110 transition-all duration-300 mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 px-4 sm:px-0 stagger-animation">
+            <Card className="group card-glass glass-enhanced border border-green-400/20 hover:border-green-400/40 p-6 md:p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 text-center hover-lift mobile-card touch-target">
+              <div className="w-16 h-16 bg-green-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-400/20 group-hover:scale-110 transition-all duration-300 mx-auto floating">
                 <Shield className="h-8 w-8 text-green-400" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-green-400 transition-colors">Your Money, Always Protected</h3>
@@ -359,8 +359,8 @@ export default function Landing() {
               </div>
             </Card>
             
-            <Card className="group bg-gradient-to-br from-prime-accent/5 to-blue-600/10 backdrop-blur-sm border border-prime-accent/10 hover:border-prime-accent/30 p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 text-center">
-              <div className="w-16 h-16 bg-prime-accent/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-prime-accent/20 group-hover:scale-110 transition-all duration-300 mx-auto">
+            <Card className="group card-glass glass-enhanced border border-prime-accent/20 hover:border-prime-accent/40 p-6 md:p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 text-center hover-lift mobile-card touch-target">
+              <div className="w-16 h-16 bg-prime-accent/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-prime-accent/20 group-hover:scale-110 transition-all duration-300 mx-auto floating-delayed">
                 <Zap className="h-8 w-8 text-prime-accent" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-prime-accent transition-colors">Move Money in Seconds</h3>
@@ -370,8 +370,8 @@ export default function Landing() {
               </div>
             </Card>
             
-            <Card className="group bg-gradient-to-br from-purple-500/5 to-pink-600/10 backdrop-blur-sm border border-purple-400/10 hover:border-purple-400/30 p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 text-center">
-              <div className="w-16 h-16 bg-purple-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-400/20 group-hover:scale-110 transition-all duration-300 mx-auto">
+            <Card className="group card-glass glass-enhanced border border-purple-400/20 hover:border-purple-400/40 p-6 md:p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 text-center hover-lift mobile-card touch-target">
+              <div className="w-16 h-16 bg-purple-400/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-400/20 group-hover:scale-110 transition-all duration-300 mx-auto floating">
                 <Smartphone className="h-8 w-8 text-purple-400" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-400 transition-colors">Bank Anytime, Anywhere</h3>
@@ -449,7 +449,7 @@ export default function Landing() {
                 
                 {/* Recent Activity */}
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4">
-                  <h4 className="text-white font-semibold mb-3">Recent Activity</h4>
+                  <h3 className="text-white font-semibold mb-3">Recent Activity</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -790,7 +790,7 @@ export default function Landing() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
+              <h3 className="font-semibold mb-4 text-white">Quick Links</h3>
               <ul className="space-y-2 text-sm text-gray-300">
                 <li>
                   <button 
@@ -836,7 +836,7 @@ export default function Landing() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4 text-white">Support</h4>
+              <h3 className="font-semibold mb-4 text-white">Support</h3>
               <ul className="space-y-2 text-sm text-gray-300">
                 <li>
                   <button 
@@ -885,7 +885,7 @@ export default function Landing() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4 text-white">Contact Info</h4>
+              <h3 className="font-semibold mb-4 text-white">Contact Info</h3>
               <ul className="space-y-3 text-sm text-gray-300">
                 <li className="flex items-center gap-2">
                   <span className="text-prime-accent">📞</span>

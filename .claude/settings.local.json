@@ -8,7 +8,8 @@
       "Bash(npx tsc:*)",
       "Bash(find:*)",
       "Bash(npx prisma:*)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(railway service:*)"
     ],
     "deny": []
   }
