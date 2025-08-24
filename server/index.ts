@@ -15,13 +15,29 @@ const httpServer = createServer(app);
 // Initialize Prisma client
 export const prisma = new PrismaClient();
 
+// Database connection test
+async function testDatabaseConnection() {
+  try {
+    await prisma.$connect();
+    console.log('✅ Database connection successful');
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    console.warn('⚠️  Continuing without database - UI will be available but functionality limited');
+    console.log('Please make sure your database server is running.');
+    return false;
+  }
+}
+
 // CORS configuration
 app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
     'https://www.primeedgefinancebank.com',
-    'https://primeedgefinancebank.com'
+    'https://primeedgefinancebank.com',
+    'https://prime-edge.onrender.com',
+    'https://prime-edge.onrender.com/'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -142,14 +158,22 @@ const PORT = process.env.PORT || 5173;
 // Setup frontend and start server
 async function startServer() {
   try {
+    // Test database connection
+    const dbConnected = await testDatabaseConnection();
+    if (!dbConnected) {
+      console.warn('⚠️  Running in demo mode - database unavailable');
+    }
+    
     await setupFrontend();
     
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`🔌 Socket.IO server ready for real-time updates`);
+      console.log(`📱 Frontend: http://localhost:${PORT}`);
+      console.log(`🔧 Admin: http://localhost:${PORT}/admin`);
+      console.log(`🔌 WebSocket server ready for real-time updates`);
     });
   } catch (error) {
-    console.error('Failed to setup frontend:', error);
+    console.error('Failed to setup server:', error);
     process.exit(1);
   }
 }

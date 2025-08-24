@@ -779,6 +779,16 @@ video {
     background: var(--gradient-glass);
     box-shadow: var(--shadow-xl);
 }
+.card-glass {
+  border-radius: 1rem;
+  border-width: 1px;
+  --tw-backdrop-blur: blur(16px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+    background: var(--glass-white);
+    border-color: var(--glass-white-light);
+    box-shadow: var(--shadow-2xl);
+}
 .card-hero {
   position: relative;
   overflow: hidden;
@@ -1559,6 +1569,9 @@ video {
 .max-w-3xl {
   max-width: 48rem;
 }
+.max-w-48 {
+  max-width: 12rem;
+}
 .max-w-4xl {
   max-width: 56rem;
 }
@@ -2061,6 +2074,9 @@ video {
 .border-blue-500\/30 {
   border-color: rgb(59 130 246 / 0.3);
 }
+.border-current {
+  border-color: currentColor;
+}
 .border-destructive {
   border-color: var(--destructive);
 }
@@ -2104,9 +2120,6 @@ video {
 .border-green-300 {
   --tw-border-opacity: 1;
   border-color: rgb(134 239 172 / var(--tw-border-opacity, 1));
-}
-.border-green-400\/10 {
-  border-color: rgb(74 222 128 / 0.1);
 }
 .border-green-400\/20 {
   border-color: rgb(74 222 128 / 0.2);
@@ -2153,9 +2166,6 @@ video {
 .border-purple-200 {
   --tw-border-opacity: 1;
   border-color: rgb(233 213 255 / var(--tw-border-opacity, 1));
-}
-.border-purple-400\/10 {
-  border-color: rgb(192 132 252 / 0.1);
 }
 .border-purple-400\/20 {
   border-color: rgb(192 132 252 / 0.2);
@@ -2214,6 +2224,10 @@ video {
 .border-yellow-200 {
   --tw-border-opacity: 1;
   border-color: rgb(254 240 138 / var(--tw-border-opacity, 1));
+}
+.border-yellow-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(250 204 21 / var(--tw-border-opacity, 1));
 }
 .border-yellow-400\/30 {
   border-color: rgb(250 204 21 / 0.3);
@@ -2624,6 +2638,9 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(234 179 8 / var(--tw-bg-opacity, 1));
 }
+.bg-yellow-500\/10 {
+  background-color: rgb(234 179 8 / 0.1);
+}
 .bg-yellow-500\/20 {
   background-color: rgb(234 179 8 / 0.2);
 }
@@ -2737,11 +2754,6 @@ video {
   --tw-gradient-to: rgb(34 197 94 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
-.from-green-500\/5 {
-  --tw-gradient-from: rgb(34 197 94 / 0.05) var(--tw-gradient-from-position);
-  --tw-gradient-to: rgb(34 197 94 / 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
 .from-indigo-500 {
   --tw-gradient-from: #6366f1 var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(99 102 241 / 0) var(--tw-gradient-to-position);
@@ -2784,11 +2796,6 @@ video {
 }
 .from-purple-500\/20 {
   --tw-gradient-from: rgb(168 85 247 / 0.2) var(--tw-gradient-from-position);
-  --tw-gradient-to: rgb(168 85 247 / 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-.from-purple-500\/5 {
-  --tw-gradient-from: rgb(168 85 247 / 0.05) var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(168 85 247 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
@@ -2966,9 +2973,6 @@ video {
 .to-pink-600 {
   --tw-gradient-to: #db2777 var(--tw-gradient-to-position);
 }
-.to-pink-600\/10 {
-  --tw-gradient-to: rgb(219 39 119 / 0.1) var(--tw-gradient-to-position);
-}
 .to-pink-600\/20 {
   --tw-gradient-to: rgb(219 39 119 / 0.2) var(--tw-gradient-to-position);
 }
@@ -2998,6 +3002,9 @@ video {
 }
 .to-slate-600 {
   --tw-gradient-to: #475569 var(--tw-gradient-to-position);
+}
+.to-slate-900 {
+  --tw-gradient-to: #0f172a var(--tw-gradient-to-position);
 }
 .to-slate-900\/50 {
   --tw-gradient-to: rgb(15 23 42 / 0.5) var(--tw-gradient-to-position);
@@ -3611,6 +3618,10 @@ video {
 .text-white\/90 {
   color: rgb(255 255 255 / 0.9);
 }
+.text-yellow-100 {
+  --tw-text-opacity: 1;
+  color: rgb(254 249 195 / var(--tw-text-opacity, 1));
+}
 .text-yellow-200 {
   --tw-text-opacity: 1;
   color: rgb(254 240 138 / var(--tw-text-opacity, 1));
@@ -3950,6 +3961,10 @@ video {
     min-height: 44px;
     min-width: 44px;
   }
+.touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
 /* Mobile-Optimized Spacing */
 /* Mobile-Friendly Borders */
 /* Accessibility Focus States */
@@ -3990,7 +4005,25 @@ video {
   }
 /* Mobile Shadow Utilities */
 /* Mobile Card Styles */
+.mobile-card {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(229, 231, 235, 0.8);
+  }
 /* Mobile Button Styles */
+.mobile-button {
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+  }
+.mobile-button:active {
+    transform: scale(0.98);
+  }
 /* Professional Banking Animations */
 /* Balance Counter Animation */
 @keyframes countUp {
@@ -4282,6 +4315,10 @@ video {
 .floating {
     animation: float 3s ease-in-out infinite;
   }
+.floating-delayed {
+    animation: float 3s ease-in-out infinite;
+    animation-delay: 1.5s;
+  }
 /* Glow Pulse Animation */
 @keyframes glowPulse {
     0%, 100% { 
@@ -4309,6 +4346,17 @@ video {
   }
 /* Parallax Scroll Effects */
 /* Stagger Animation Utilities */
+.stagger-animation > * {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInUp 0.6s ease-out forwards;
+  }
+.stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-animation > *:nth-child(6) { animation-delay: 0.6s; }
 /* Loading Skeleton Animations */
 @keyframes skeletonLoading {
     0% { background-position: -200px 0; }
@@ -4661,8 +4709,8 @@ video {
   border-color: rgb(74 222 128 / var(--tw-border-opacity, 1));
 }
 
-.hover\:border-green-400\/30:hover {
-  border-color: rgb(74 222 128 / 0.3);
+.hover\:border-green-400\/40:hover {
+  border-color: rgb(74 222 128 / 0.4);
 }
 
 .hover\:border-orange-300:hover {
@@ -4682,6 +4730,10 @@ video {
 
 .hover\:border-purple-400\/30:hover {
   border-color: rgb(192 132 252 / 0.3);
+}
+
+.hover\:border-purple-400\/40:hover {
+  border-color: rgb(192 132 252 / 0.4);
 }
 
 .hover\:border-red-300:hover {
@@ -4978,6 +5030,10 @@ video {
   --tw-gradient-to: #fdf2f8 var(--tw-gradient-to-position);
 }
 
+.hover\:to-prime-accent:hover {
+  --tw-gradient-to: var(--prime-accent) var(--tw-gradient-to-position);
+}
+
 .hover\:to-purple-600\/20:hover {
   --tw-gradient-to: rgb(147 51 234 / 0.2) var(--tw-gradient-to-position);
 }
@@ -5135,6 +5191,10 @@ video {
     color: var(--prime-accent);
   }
 
+.hover\:glow-pulse:hover {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
 .hover\:after\:bg-sidebar-border:hover::after {
   content: var(--tw-content);
   background-color: var(--sidebar-border);
@@ -5277,6 +5337,12 @@ video {
 .focus-visible\:ring-offset-background:focus-visible {
   --tw-ring-offset-color: var(--background);
 }
+
+.focus-visible\:focus-visible:focus-visible:focus-visible {
+    outline: 3px solid var(--prime-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 
 .active\:scale-95:active {
   --tw-scale-x: .95;
@@ -6340,6 +6406,16 @@ video {
     padding: 1.5rem;
   }
 
+  .sm\:px-0 {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
+  .sm\:px-10 {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+
   .sm\:px-3 {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
@@ -6464,6 +6540,14 @@ video {
 
   .md\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .md\:gap-8 {
+    gap: 2rem;
+  }
+
+  .md\:p-8 {
+    padding: 2rem;
   }
 
   .md\:text-2xl {
@@ -6892,8 +6976,8 @@ video {
 }
 </style></head>
   <body>
-    <div id="root"><div class="dark"><div role="region" aria-label="Notifications (F8)" tabindex="-1" style="pointer-events: none;"><ol tabindex="-1" class="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"></ol></div><div class="min-h-screen bg-prime-navy flex items-center justify-center p-4"><div class="w-full max-w-md"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent h-10 px-4 py-2 mb-6 text-gray-300 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left h-4 w-4 mr-2"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Home</button><div class="rounded-lg border bg-card text-card-foreground gradient-card border-prime-slate/30 shadow-2xl"><div class="flex flex-col space-y-1.5 p-6 text-center"><div class="flex justify-center mb-4"><div class="flex items-center gap-2 "><div class="h-12 w-12 flex-shrink-0"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full"><rect x="6" y="6" width="20" height="20" rx="2" fill="currentColor" class="text-white"></rect><rect x="10" y="10" width="12" height="12" rx="1" fill="currentColor" class="text-slate-800"></rect></svg></div></div></div><div class="tracking-tight text-2xl font-bold text-white mb-2">Welcome Back</div><p class="text-gray-300">Sign in to your Prime Edge Banking account</p></div><div class="p-6 pt-0"><form class="space-y-6"><div><label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white" for="email">Email Address</label><input type="email" class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent" id="email" placeholder="Enter your email" name="email"></div><div><label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white" for="password">Password</label><div class="relative"><input type="password" class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent pr-10" id="password" placeholder="Enter your password" name="password"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent rounded-md absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-white" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-4 w-4"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div></div><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 h-10 px-4 w-full bg-prime-accent hover:bg-blue-600 text-white font-semibold py-3" type="submit">Sign In</button></form><div class="mt-6 text-center"><span class="text-gray-400">Don't have an account? </span><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 underline-offset-4 hover:underline h-10 text-prime-accent hover:text-blue-400 p-0 font-medium">Sign up</button></div></div></div></div></div></div></div>
-    <script type="module" src="/src/main.tsx?v=tbmUDe1bl9hbPXX5NYXdE"></script>
+    <div id="root"><div class="dark"><div role="region" aria-label="Notifications (F8)" tabindex="-1" style="pointer-events: none;"><ol tabindex="-1" class="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"></ol></div><div class="min-h-screen bg-prime-navy flex items-center justify-center p-4"><div class="w-full max-w-md"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent h-10 px-4 py-2 mb-6 text-gray-300 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left h-4 w-4 mr-2"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>Back to Home</button><div class="rounded-lg border bg-card text-card-foreground card-glass glass-enhanced border-white/20 shadow-2xl"><div class="flex flex-col space-y-1.5 p-6 text-center"><div class="flex justify-center mb-4"><div class="flex items-center gap-2 "><div class="h-12 w-12 flex-shrink-0"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full"><rect x="6" y="6" width="20" height="20" rx="2" fill="currentColor" class="text-white"></rect><rect x="10" y="10" width="12" height="12" rx="1" fill="currentColor" class="text-slate-800"></rect></svg></div></div></div><div class="tracking-tight text-2xl font-bold text-white mb-2">Welcome Back</div><p class="text-gray-300">Sign in to your Prime Edge Banking account</p></div><div class="p-6 pt-0"><form class="space-y-6"><div><label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white" for="email">Email Address</label><input type="email" class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent" id="email" placeholder="Enter your email" name="email"></div><div><label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white" for="password">Password</label><div class="relative"><input type="password" class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm bg-prime-navy border-prime-slate/30 text-white placeholder:text-gray-400 focus:border-prime-accent pr-10" id="password" placeholder="Enter your password" name="password"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent rounded-md absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-white" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-4 w-4"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div></div><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 h-10 px-4 w-full bg-prime-accent hover:bg-blue-600 text-white font-semibold py-3 transition-all duration-200" type="submit">Sign In</button></form><div class="mt-6 text-center"><span class="text-gray-400">Don't have an account? </span><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 underline-offset-4 hover:underline h-10 text-prime-accent hover:text-blue-400 p-0 font-medium">Sign up</button></div></div></div></div></div></div></div>
+    <script type="module" src="/src/main.tsx?v=zPtoFsMUgmIuRFVTwkuzf"></script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   

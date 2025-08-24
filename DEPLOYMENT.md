@@ -1,26 +1,27 @@
 # 🚀 PrimeEdge Production Deployment Guide
 
 ## Overview
-This guide will help you deploy the PrimeEdge banking platform with:
-- **Frontend**: Vercel (React/Vite)
-- **Backend**: Railway (Node.js/Express)
-- **Database**: Neon PostgreSQL
+This guide will help you deploy the PrimeEdge banking platform as a **full-stack single service** with:
+- **Full-Stack Application**: Render (React/Vite frontend + Node.js/Express backend)
+- **Database**: Railway PostgreSQL
+- **Architecture**: Single service deployment serving both frontend and API
 
 ---
 
-## 🗄️ Step 1: Database Setup (Neon)
+## 🗄️ Step 1: Database Setup (Railway PostgreSQL)
 
-1. **Create Neon Account**: Go to [neon.tech](https://neon.tech)
-2. **Create New Project**: 
-   - Project name: `primeedge-banking`
-   - Region: Choose closest to your users
-3. **Get Connection String**: Copy the DATABASE_URL from your dashboard
-4. **Run Migrations**:
+1. **Create Railway Account**: Go to [railway.app](https://railway.app)
+2. **Add PostgreSQL Database**:
+   - Click "New Project"
+   - Add "PostgreSQL" service
+   - Note the connection details from the "Connect" tab
+3. **Get Connection String**: Copy the external DATABASE_URL from Railway dashboard
+4. **Run Migrations** (locally first):
    ```bash
    # Set your DATABASE_URL
-   export DATABASE_URL="postgresql://username:password@host/database"
+   export DATABASE_URL="your-railway-postgresql-connection-string"
    
-   # Push schema to database
+   # Push schema to database  
    npm run db:push
    
    # Seed with demo data
@@ -29,101 +30,77 @@ This guide will help you deploy the PrimeEdge banking platform with:
 
 ---
 
-## 🖥️ Step 2: Backend Deployment (Railway)
+## 🚀 Step 2: Full-Stack Deployment (Render)
 
-1. **Create Railway Account**: Go to [railway.app](https://railway.app)
-2. **New Project**: 
-   - Click "New Project"
-   - Choose "Deploy from GitHub repo"
-   - Connect your PrimeEdge repository
-3. **Environment Variables**: Set these in Railway dashboard:
-   ```
-   DATABASE_URL=your-neon-connection-string
-   JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+1. **Create Render Account**: Go to [render.com](https://render.com)
+2. **New Web Service**:
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Choose your PrimeEdge repository and branch
+
+3. **Configure Service**:
+   - **Name**: `prime-edge`
+   - **Environment**: `Node`
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
+   - **Instance Type**: Choose based on your needs
+
+4. **Environment Variables**: Add these in Render dashboard:
+   ```bash
    NODE_ENV=production
-   PORT=5000
+   JWT_SECRET=your-super-secret-jwt-key-min-32-chars
+   PORT=10000
+   MAINTENANCE_MODE=false
+   LOG_LEVEL=info
+   MOCK_BANK_DELAY_MS=1000
+   RATE_LIMIT_WINDOW_MS=900000
+   RATE_LIMIT_MAX_REQUESTS=100
+   ALLOWED_ORIGINS=https://prime-edge.onrender.com
+   SOCKET_IO_CORS_ORIGINS=https://prime-edge.onrender.com
+   DATABASE_URL=your-railway-postgresql-connection-string
    ```
-4. **Deploy**: Railway will auto-deploy from your main branch
-5. **Get Backend URL**: Copy your Railway app URL (e.g., `https://primeedge-production.railway.app`)
 
-### Alternative: Render Deployment
-```bash
-# If using Render instead of Railway
-1. Go to render.com
-2. New Web Service
-3. Connect GitHub repo
-4. Build Command: npm run build
-5. Start Command: npm start
-6. Add same environment variables
-```
+5. **Deploy**: Click "Create Web Service" - Render will auto-deploy
+6. **Get App URL**: Your app will be available at `https://prime-edge.onrender.com`
 
 ---
 
-## 🌐 Step 3: Frontend Deployment (Vercel)
-
-1. **Update API URL**: Create `.env.local` in project root:
-   ```bash
-   VITE_API_URL=https://your-railway-app.railway.app
-   ```
-
-2. **Deploy to Vercel**:
-   ```bash
-   # Install Vercel CLI
-   npm install -g vercel
-   
-   # Login to Vercel
-   vercel login
-   
-   # Deploy
-   vercel --prod
-   ```
-
-3. **Set Environment Variables** in Vercel dashboard:
-   - `VITE_API_URL`: Your Railway backend URL
-
-4. **Custom Domain** (Optional):
-   - Add your domain in Vercel dashboard
-   - Update DNS records as instructed
-
----
-
-## 🔧 Step 4: Final Configuration
-
-### Update Backend CORS (if needed)
-Add to `server/index.ts`:
-```typescript
-app.use(cors({
-  origin: ['https://your-vercel-app.vercel.app', 'https://your-domain.com'],
-  credentials: true
-}));
-```
-
-### Update Frontend API URL
-In `client/src/lib/queryClient.ts`, replace the placeholder:
-```typescript
-return import.meta.env.VITE_API_URL || 'https://your-actual-railway-url.railway.app';
-```
-
----
-
-## ✅ Step 5: Testing & Verification
+## ✅ Step 3: Testing & Verification
 
 ### Test the Deployment:
-1. **Visit Frontend URL**: Your Vercel deployment
+1. **Visit App URL**: `https://prime-edge.onrender.com`
 2. **Test Registration**: Create a new account
 3. **Test Login**: 
    - Admin: `admin@primeedge.bank` / `admin123`
    - User: `user@primeedge.bank` / `user123`
 4. **Test Admin Functions**:
-   - User management
+   - User management: `https://prime-edge.onrender.com/admin`
    - Fund operations
    - Transaction creation
    - Activity logs
 
 ### Health Checks:
-- **Backend Health**: `https://your-backend.railway.app/api/health`
-- **Database**: Verify connections in Railway logs
+- **Health Endpoint**: `https://prime-edge.onrender.com/health`
+- **API Endpoints**: `https://prime-edge.onrender.com/api/*`
 - **Frontend**: All pages load without errors
+- **WebSocket**: Real-time updates working
+- **Database**: Verify connections in Render logs
+
+---
+
+## 🔧 Step 4: Custom Domain (Optional)
+
+1. **Add Custom Domain** in Render dashboard:
+   - Go to your service settings
+   - Add your custom domain (e.g., `banking.yourdomain.com`)
+   
+2. **Update Environment Variables** with new domain:
+   ```bash
+   ALLOWED_ORIGINS=https://banking.yourdomain.com
+   SOCKET_IO_CORS_ORIGINS=https://banking.yourdomain.com
+   ```
+
+3. **Update DNS Records** as instructed by Render
 
 ---
 
@@ -155,16 +132,14 @@ return import.meta.env.VITE_API_URL || 'https://your-actual-railway-url.railway.
 ## 🔄 Updates & Maintenance
 
 ### Automatic Deployments:
-- Railway: Auto-deploys on push to main branch
-- Vercel: Auto-deploys on push to main branch
+- Render: Auto-deploys on push to connected branch (usually main)
 
 ### Manual Deployment:
 ```bash
-# Backend (Railway)
+# Trigger deployment
 git push origin main
 
-# Frontend (Vercel) 
-vercel --prod
+# Or redeploy from Render dashboard
 ```
 
 ### Database Migrations:
@@ -179,15 +154,16 @@ npm run db:push
 
 ### Common Issues:
 
-**Frontend can't connect to backend:**
-- Check VITE_API_URL environment variable
-- Verify Railway backend is running
-- Check CORS configuration
+**Frontend can't reach API:**
+- Both frontend and API are served from same domain
+- Check CORS configuration in server/index.ts
+- Verify Render service is running
 
 **Database connection errors:**
-- Verify DATABASE_URL format
-- Check Neon database status
+- Verify DATABASE_URL format in Render environment variables
+- Check Railway PostgreSQL database status
 - Ensure database exists and migrations ran
+- App continues in demo mode if database unavailable
 
 **Authentication not working:**
 - Verify JWT_SECRET is set
@@ -204,9 +180,8 @@ npm run db:push
 
 ## 📞 Support
 
+- **Render**: [render.com/docs](https://render.com/docs)
 - **Railway**: [docs.railway.app](https://docs.railway.app)
-- **Vercel**: [vercel.com/docs](https://vercel.com/docs)
-- **Neon**: [neon.tech/docs](https://neon.tech/docs)
 
 ---
 
@@ -214,10 +189,11 @@ npm run db:push
 
 After deployment, update this section with your actual URLs:
 
-- **Frontend**: `https://your-app.vercel.app`
-- **Backend**: `https://your-app.railway.app`
-- **Database**: Neon PostgreSQL
-- **Admin Panel**: `https://your-app.vercel.app/admin`
+- **Full Application**: `https://prime-edge.onrender.com`
+- **API Endpoints**: `https://prime-edge.onrender.com/api/*`
+- **Admin Panel**: `https://prime-edge.onrender.com/admin`
+- **Health Check**: `https://prime-edge.onrender.com/health`
+- **Database**: Railway PostgreSQL
 
 ---
 

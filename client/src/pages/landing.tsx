@@ -80,48 +80,77 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-prime-navy text-white">
-      {/* Navigation */}
-      <nav className="fixed w-full top-0 z-50 bg-prime-navy/95 backdrop-blur-sm border-b border-prime-slate/20">
+      {/* Professional Banking Navigation */}
+      <nav className="fixed w-full top-0 z-50 bg-white/98 backdrop-blur-xl border-b border-gray-100/80 shadow-lg shadow-gray-900/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
+            {/* Logo Section */}
             <div className="flex items-center">
-              <div className="cursor-pointer" onClick={() => setLocation("/")}>
-                <Logo size="md" showText={true} />
+              <div className="cursor-pointer transition-all duration-300 hover:scale-105" onClick={() => setLocation("/")}>
+                <div className="flex items-center space-x-3">
+                  <div className="relative w-11 h-11 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-xl flex items-center justify-center shadow-xl group">
+                    <div className="w-6 h-6 bg-white rounded-md transform group-hover:rotate-3 transition-transform duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-gray-900 tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">Prime Edge</span>
+                    <span className="text-xs text-blue-600 font-semibold -mt-1 tracking-wider">BANKING</span>
+                  </div>
+                </div>
               </div>
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
-              <button 
-                onClick={() => setLocation("/support/security")}
-                className="text-gray-300 hover:text-white transition-colors"
+            <div className="hidden lg:flex items-center space-x-1">
+              {[
+                { name: 'Features', href: '#features', icon: '⚡' },
+                { name: 'Security', action: () => setLocation("/support/security"), icon: '🛡️' },
+                { name: 'About', action: () => setLocation("/about"), icon: '🏦' }
+              ].map((item, index) => (
+                <div key={index} className="relative group">
+                  {item.href ? (
+                    <a 
+                      href={item.href}
+                      className="relative flex items-center px-5 py-3 text-sm font-semibold text-gray-600 hover:text-blue-700 transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl group overflow-hidden"
+                    >
+                      <span className="text-sm mr-2 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">{item.icon}</span>
+                      <span className="relative z-10">{item.name}</span>
+                      <div className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300 rounded-full"></div>
+                    </a>
+                  ) : (
+                    <button 
+                      onClick={item.action}
+                      className="relative flex items-center px-5 py-3 text-sm font-semibold text-gray-600 hover:text-blue-700 transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl group overflow-hidden"
+                    >
+                      <span className="text-sm mr-2 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">{item.icon}</span>
+                      <span className="relative z-10">{item.name}</span>
+                      <div className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300 rounded-full"></div>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Button 
+                variant="ghost"
+                className="text-gray-600 hover:text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 hover:shadow-sm"
+                onClick={() => setLocation("/login")}
               >
-                Security
-              </button>
-              <button 
-                onClick={() => setLocation("/about")}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                About
-              </button>
-              <button 
-                onClick={() => setLocation("/pricing")}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Pricing
-              </button>
-              <button 
-                onClick={() => setLocation("/support/help-center")}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Support
-              </button>
-              <Button className="btn-prime-ghost" onClick={() => setLocation("/login")}>
                 Sign In
               </Button>
-              <Button className="bg-gradient-to-r from-prime-accent to-blue-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0" onClick={() => setLocation("/register")}>
-                Get Started
+              <Button 
+                className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-800 text-white font-bold px-8 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border-0 overflow-hidden group"
+                onClick={() => setLocation("/register")}
+              >
+                <span className="relative z-10 flex items-center">
+                  Get Started
+                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </Button>
             </div>
 
@@ -130,107 +159,81 @@ export default function Landing() {
               <button
                 ref={menuButtonRef}
                 onClick={handleMobileMenuToggle}
-                className="text-gray-300 hover:text-white p-2 touch-target focus-ring"
+                className="relative p-3 text-gray-600 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all duration-200 group"
                 aria-label={mobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
               >
-                {mobileMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
+                <div className="w-6 h-6 flex flex-col justify-center items-center">
+                  <span className={`bg-current block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${mobileMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-0.5'}`}></span>
+                  <span className={`bg-current block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm my-0.5 ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                  <span className={`bg-current block transition-all duration-300 ease-out h-0.5 w-6 rounded-sm ${mobileMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
+                </div>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Professional Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div 
             id="mobile-menu"
             ref={mobileMenuRef}
-            className="md:hidden absolute top-16 left-0 right-0 bg-prime-navy/95 backdrop-blur-lg border-b border-prime-slate/30 shadow-2xl"
-            style={{
-              backgroundColor: 'rgba(15, 23, 42, 0.98)',
-              backdropFilter: 'blur(20px)',
-              borderBottom: '1px solid rgba(148, 163, 184, 0.3)'
-            }}
+            className="md:hidden absolute top-20 left-0 right-0 bg-white/98 backdrop-blur-xl border-b border-gray-100/80 shadow-2xl animate-in slide-in-from-top-2 duration-300"
             role="menu"
             aria-label="Mobile navigation menu"
           >
-            <div className="px-4 py-6 space-y-4 bg-prime-navy/20 backdrop-blur-sm rounded-lg m-2"
-                 style={{
-                   backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                   backdropFilter: 'blur(10px)'
-                 }}>
-              <a 
-                href="#features" 
-                className="block text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-                role="menuitem"
-              >
-                Features
-              </a>
-              <button 
-                onClick={() => {
-                  setLocation("/support/security");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
-                role="menuitem"
-              >
-                Security
-              </button>
-              <button 
-                onClick={() => {
-                  setLocation("/about");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
-                role="menuitem"
-              >
-                About
-              </button>
-              <button 
-                onClick={() => {
-                  setLocation("/pricing");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
-                role="menuitem"
-              >
-                Pricing
-              </button>
-              <button 
-                onClick={() => {
-                  setLocation("/support/help-center");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-white hover:text-prime-accent focus:text-prime-accent hover:bg-white/10 focus:bg-white/10 transition-all duration-200 py-3 px-4 text-lg touch-target focus-ring rounded-lg font-medium"
-                role="menuitem"
-              >
-                Support
-              </button>
+            <div className="p-6 space-y-1 max-w-sm mx-auto">
+              {[
+                { name: 'Features', href: '#features', icon: '⚡' },
+                { name: 'Security', action: () => setLocation("/support/security"), icon: '🛡️' },
+                { name: 'About', action: () => setLocation("/about"), icon: '🏦' }
+              ].map((item, index) => (
+                <div key={index}>
+                  {item.href ? (
+                    <a 
+                      href={item.href}
+                      className="flex items-center w-full p-4 text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all duration-200 group"
+                      onClick={() => setMobileMenuOpen(false)}
+                      role="menuitem"
+                    >
+                      <span className="text-lg mr-3 opacity-60 group-hover:opacity-100 transition-opacity">{item.icon}</span>
+                      <span className="font-medium">{item.name}</span>
+                    </a>
+                  ) : (
+                    <button 
+                      onClick={() => {
+                        item.action();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="flex items-center w-full p-4 text-gray-700 hover:text-blue-700 hover:bg-blue-50/80 rounded-xl transition-all duration-200 group"
+                      role="menuitem"
+                    >
+                      <span className="text-lg mr-3 opacity-60 group-hover:opacity-100 transition-opacity">{item.icon}</span>
+                      <span className="font-medium">{item.name}</span>
+                    </button>
+                  )}
+                </div>
+              ))}
               
-              <div className="pt-4 border-t border-white/20 space-y-3" role="group" aria-label="Account actions">
+              {/* Mobile Action Buttons */}
+              <div className="pt-4 space-y-3 border-t border-gray-100 mt-4">
                 <Button 
-                  className="w-full justify-start text-lg py-3 focus-ring bg-white/10 hover:bg-white/20 text-white hover:text-white border border-white/20 hover:border-white/30 font-medium transition-all duration-200"
+                  variant="outline"
+                  className="w-full py-3 text-gray-700 border-gray-200 hover:bg-gray-50 rounded-xl font-medium"
                   onClick={() => {
                     setLocation("/login");
                     setMobileMenuOpen(false);
                   }}
-                  role="menuitem"
                 >
                   Sign In
                 </Button>
                 <Button 
-                  className="w-full text-lg py-3 focus-ring bg-prime-accent hover:bg-blue-600 text-white border-0 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
                   onClick={() => {
                     setLocation("/register");
                     setMobileMenuOpen(false);
                   }}
-                  role="menuitem"
                 >
                   Get Started
                 </Button>
@@ -242,7 +245,7 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section 
-        className="relative pt-16 min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden"
         style={{
           backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.88) 50%, rgba(51, 65, 85, 0.85) 100%), url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')`,
           backgroundSize: 'cover',

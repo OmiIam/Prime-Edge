@@ -4,9 +4,7 @@
     "totalImages": 4,
     "totalHeadings": 21,
     "totalInputs": 0,
-    "issues": [
-      "Heading hierarchy issue: H4 follows h2"
-    ]
+    "issues": []
   },
   {
     "page": "login",
@@ -27,14 +25,12 @@
     "totalImages": 4,
     "totalHeadings": 21,
     "totalInputs": 0,
-    "issues": [
-      "Heading hierarchy issue: H4 follows h2"
-    ]
+    "issues": []
   },
   {
     "page": "transfer",
-    "totalImages": 0,
-    "totalHeadings": 1,
+    "totalImages": 4,
+    "totalHeadings": 21,
     "totalInputs": 0,
     "issues": []
   },
@@ -43,8 +39,6 @@
     "totalImages": 4,
     "totalHeadings": 21,
     "totalInputs": 0,
-    "issues": [
-      "Heading hierarchy issue: H4 follows h2"
-    ]
+    "issues": []
   }
 ]

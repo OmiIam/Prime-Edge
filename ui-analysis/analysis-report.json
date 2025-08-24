@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-08-23T23:05:18.088Z",
+  "timestamp": "2025-08-24T01:21:50.526Z",
   "summary": {
     "totalPages": 6,
     "totalScreenshots": 18,
     "successfulScreenshots": 18,
-    "accessibilityIssues": 3
+    "accessibilityIssues": 0
   },
   "pages": [
     {
@@ -36,9 +36,7 @@
         "totalImages": 4,
         "totalHeadings": 21,
         "totalInputs": 0,
-        "issues": [
-          "Heading hierarchy issue: H4 follows h2"
-        ]
+        "issues": []
       }
     },
     {
@@ -134,9 +132,7 @@
         "totalImages": 4,
         "totalHeadings": 21,
         "totalInputs": 0,
-        "issues": [
-          "Heading hierarchy issue: H4 follows h2"
-        ]
+        "issues": []
       }
     },
     {
@@ -165,8 +161,8 @@
       ],
       "accessibility": {
         "page": "transfer",
-        "totalImages": 0,
-        "totalHeadings": 1,
+        "totalImages": 4,
+        "totalHeadings": 21,
         "totalInputs": 0,
         "issues": []
       }
@@ -200,9 +196,7 @@
         "totalImages": 4,
         "totalHeadings": 21,
         "totalInputs": 0,
-        "issues": [
-          "Heading hierarchy issue: H4 follows h2"
-        ]
+        "issues": []
       }
     }
   ],
